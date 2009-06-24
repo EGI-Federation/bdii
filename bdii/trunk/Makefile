@@ -1,3 +1,5 @@
+#!/usr/bin/make -f
+
 metadata=config
 name:=$(shell grep NAME ${metadata} | sed 's/^[^:]*: //' )
 version:=$(shell grep VERSION ${metadata} | sed 's/^[^:]*: //' )
