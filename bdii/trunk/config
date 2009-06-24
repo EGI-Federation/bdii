@@ -1,0 +1,9 @@
+NAME: glue-schema
+VERSION: 5.0.1
+RELEASE: 1
+PREFIX: /
+LICENSE: EGEE
+VENDOR: EGEE
+PACKAGER: Laurence Field <Laurence.Field@cern.ch>
+GROUP: grid
+DESCRIPTION: The Berkeley Datatbase Information Index.
