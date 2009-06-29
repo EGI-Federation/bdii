@@ -1,13 +1,13 @@
-%define metadata config
-%define name %( grep NAME %{metadata} | sed 's/^[^:]*: //' )
-%define version %( grep VERSION %{metadata} | sed 's/^[^:]*: //' )
-%define release %( grep RELEASE %{metadata} | sed 's/^[^:]*: //' )
-%define prefix %( grep PREFIX %{metadata} | sed 's/^[^:]*: //' )
-%define license %( grep LICENSE %{metadata} | sed 's/^[^:]*: //' )
-%define vendor %( grep VENDOR %{metadata} | sed 's/^[^:]*: //' )
-%define packager %( grep PACKAGER %{metadata} | sed 's/^[^:]*: //' )
-%define group %( grep GROUP %{metadata} | sed 's/^[^:]*: //' )
-%define desc %( grep DESCRIPTION %{metadata} | sed 's/^[^:]*: //' )
+%define metadata CONFIG
+%define name %( grep NAME %{metadata} | sed 's/^[^=]*=//' )
+%define version %( grep VERSION %{metadata} | sed 's/^[^=]*=//' )
+%define release %( grep RELEASE %{metadata} | sed 's/^[^=]*=//' )
+%define prefix %( grep PREFIX %{metadata} | sed 's/^[^=]*=//' )
+%define license %( grep LICENSE %{metadata} | sed 's/^[^=]*=//' )
+%define vendor %( grep VENDOR %{metadata} | sed 's/^[^=]*=//' )
+%define packager %( grep PACKAGER %{metadata} | sed 's/^[^=]*=//' )
+%define group %( grep GROUP %{metadata} | sed 's/^[^=]*=//' )
+%define desc %( grep DESCRIPTION %{metadata} | sed 's/^[^=]*= //' )
 
 Summary: %{name}
 Name: %{name}
@@ -29,7 +29,7 @@ Packager: %{packager}
 %setup -c
 
 %build
-make install prefix=%{buildroot}%{prefix}
+make -f INSTALL install prefix=%{buildroot}%{prefix}
 
 %pre
 if [ -f /opt/bdii/sbin/bdii-update ]; then
