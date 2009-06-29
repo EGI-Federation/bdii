@@ -1,0 +1,28 @@
+#!/usr/bin/make -f 
+
+location=/opt/bdii
+install:
+	@echo installing ...
+	@mkdir -p $(prefix)$(location)/bin/
+	@mkdir -p $(prefix)/opt/glite/etc/gip/ldif
+	@mkdir -p $(prefix)/opt/glite/etc/gip/provider
+	@mkdir -p $(prefix)/opt/glite/etc/gip/plugin
+	@mkdir -p $(prefix)$(location)/etc/providers
+	@mkdir -p $(prefix)/etc/init.d/
+	@mkdir -p $(prefix)/etc/logrotate.d/	
+	@mkdir -p $(prefix)/etc/cron.d/	
+	@mkdir -p $(prefix)/var/bdii/db/stats
+	@mkdir -p $(prefix)/var/bdii/db/glue2
+	@mkdir -p $(prefix)/var/bdii/archive	
+	@mkdir -p $(prefix)/var/log/bdii
+
+	@install -m 0755 etc/init.d/bdii      $(prefix)/etc/init.d
+	@install -m 0755 bin/bdii-update      $(prefix)/${location}/bin
+	@install -m 0755 bin/bdii-proxy       $(prefix)/${location}/bin
+	@install -m 0644 etc/bdii.conf	      $(prefix)$(location)/etc/
+	@install -m 0644 etc/BDII.schema     $(prefix)$(location)/etc/
+	@install -m 0644 etc/bdii-slapd.conf  $(prefix)$(location)/etc/
+	@install -m 0644 etc/DB_CONFIG        $(prefix)${location}/etc/
+	@install -m 0644 etc/default.ldif     $(prefix)/opt/glite/etc/gip/ldif
+	@install -m 0644 etc/logrotate.d/bdii $(prefix)/etc/logrotate.d
+	@install -m 0644 etc/cron.d/bdii-proxy $(prefix)/etc/cron.d
