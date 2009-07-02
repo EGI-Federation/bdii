@@ -64,6 +64,7 @@ fi
 %dir /opt/glite/etc/gip/ldif
 %dir /opt/glite/etc/gip/provider
 %dir /opt/glite/etc/gip/plugin
+%dir /var/lock/subsys
 %config /opt/bdii/etc/DB_CONFIG
 %config /opt/bdii/etc/bdii.conf
 %config /opt/bdii/etc/BDII.schema
