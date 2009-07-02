@@ -1,4 +1,11 @@
 #!/bin/sh
 
 sed -i  "s/.*rootpw.*/rootpw     $(/usr/bin/mkpasswd -s 0)/" /opt/bdii/etc/bdii-slapd.conf
+chown  -R edguser:edguser /opt/bdii
+chown -R edguser:edguser /var/bdii
+chown -R edguser:edguser /var/log/bdii
+chown -R edguser:edguser /var/log/bdii
+chown openldap:openldap /opt/bdii/etc/bdii-slapd.conf
+chmod +x /opt/bdii/bin/bdii-update
+chmod +x /opt/bdii/bin/bdii-proxy
 /etc/init.d/bdii condrestart || true
