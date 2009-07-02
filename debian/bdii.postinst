@@ -1,0 +1,4 @@
+#!/bin/sh
+
+sed -i  "s/.*rootpw.*/rootpw     $(/usr/bin/mkpasswd -s 0)/" /opt/bdii/etc/bdii-slapd.conf
+/etc/init.d/bdii condrestart || true
