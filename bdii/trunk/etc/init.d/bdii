@@ -42,8 +42,7 @@ function start(){
 	        echo ${result} 1>&2
 		exit 1
 	else
-	    result=$(echo ${result} |sed 's/BDII/BDII Already /')
-	    echo ${result}
+	    echo "BDII already started"
 	    exit 0
 	fi
     fi
@@ -124,8 +123,7 @@ function stop(){
 	        echo ${result} 1>&2
 		return 1
 	else
-	    result=$(echo ${result} |sed 's/BDII/BDII Already /')
-	    echo ${result}
+	    echo "BDII Already stopped"
 	    return 0
 	fi
     fi
