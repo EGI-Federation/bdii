@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 #
 # BDII system startup script
 # $Id: bdii,v 1.9 2009/06/18 14:26:52 lfield Exp $
@@ -6,10 +6,10 @@
 # description: BDII Service
 # config: /opt/bdii/etc/bdii.conf
 
-if [ -f /etc/rc.d/init.d/functions ]; then
-    . /etc/rc.d/init.d/functions
-elif [ -f /etc/init.d/functions ]; then
-        . /etc/init.d/functions
+if [ -f /lib/lsb/init-functions ]; then
+    . /lib/lsb/init-functions
+else
+    echo "Error: Cannot source /lib/lsb/init-functions"
 fi
 
 BDII_CONF=${BDII_CONF:-/opt/bdii/etc/bdii.conf}
@@ -77,11 +77,11 @@ function start(){
      if [ ${RETVAL} -gt 0 ]; then
     	 echo -n "SLAPD failed to start" 1>&2
 	 rm -f ${SLAPD_LOCK_FILE}
-	 failure
+	 log_failure_msg
 	 echo
 	 return 1
      else
-	 success
+	 log_success_msg
 	 echo
      fi
 
@@ -104,11 +104,11 @@ function start(){
      if [ ${RETVAL} -gt 0 ]; then
          echo -n "Update process failed to start" 1>&2
 	 rm -f ${UPDATE_LOCK_FILE}
-	 failure
+	 log__failure_msg
          echo
          return 1
      else
-         success
+         log_success_msg
          echo
          return 0
      fi
@@ -160,10 +160,10 @@ function stop(){
     if [ ${RETVAL} = 0 ];  then
 	rm -f ${UPDATE_PID_FILE}
 	rm -f ${UPDATE_LOCK_FILE}
-	success
+	log_success_msg
 	echo
     else
-	failure
+	log_failure_msg
 	echo
     fi
 
@@ -195,11 +195,11 @@ function stop(){
     fi
 
     if [ ${RETVAL} = 2 ];  then
-	failure
+	log_failure_msg
 	echo
     else
 	rm -f ${SLAPD_LOCK_FILE}
-	success
+	log_success_msg
 	echo
     fi
 
@@ -214,7 +214,7 @@ function status(){
 
     if [ ! -f "${SLAPD_LOCK_FILE}" ] && [ ! -f "${UPDATE_LOCK_FILE}" ]; then
         echo -n "BDII Stopped"
-	success
+	log_success_msg
 	echo
         return 0
     fi
@@ -223,13 +223,13 @@ function status(){
 	ps $(cat ${SLAPD_PID_FILE}) >/dev/null 2>&1
 	if [ ! $? = 0 ]; then
 	    echo -n "SLAPD PID file exists but the process died" 1>&2
-	    failure 
+	    log_failure _msg
 	    echo
 	    return 1
 	fi
     else
 	echo -n "SLAPD PID file ${SLAPD_PID_FILE} does not exist" 1>&2
-	failure 
+	log_failure_msg
 	echo
 	return 1
     fi
@@ -238,19 +238,19 @@ function status(){
 	ps $(cat ${UPDATE_PID_FILE}) >/dev/null 2>&1
 	if [ ! $? = 0 ]; then
 	    echo -n "Update process died" 1>&2
-	    failure
+	    log_failure_msg
 	    echo
 	    return 1
 	fi
     else
 	echo -n "Update process failed to start" 1>&2
-	failure
+	log_failure_msg
 	echo
 	return 1
     fi
 
     echo -n "BDII Runnning "
-    success
+    log_success_msg
     echo
     return 0
 }

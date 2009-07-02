@@ -15,6 +15,7 @@ install:
 	@mkdir -p $(prefix)/var/bdii/db/glue2
 	@mkdir -p $(prefix)/var/bdii/archive	
 	@mkdir -p $(prefix)/var/log/bdii
+	@mkdir -p $(prefix)/var/lock/subsys
 
 	@install -m 0755 etc/init.d/bdii      $(prefix)/etc/init.d
 	@install -m 0755 bin/bdii-update      $(prefix)/${location}/bin
