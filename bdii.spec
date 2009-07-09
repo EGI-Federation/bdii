@@ -7,7 +7,7 @@
 %define vendor %( grep VENDOR %{metadata} | sed 's/^[^=]*=//' )
 %define packager %( grep PACKAGER %{metadata} | sed 's/^[^=]*=//' )
 %define group %( grep GROUP %{metadata} | sed 's/^[^=]*=//' )
-%define desc %( grep DESCRIPTION %{metadata} | sed 's/^[^=]*= //' )
+%define desc %( grep DESCRIPTION %{metadata} | sed 's/^[^=]*=//' )
 
 Summary: %{name}
 Name: %{name}
@@ -24,6 +24,7 @@ Packager: %{packager}
 
 %description
 %{desc}
+
 %prep
 
 %setup -c
