@@ -1,0 +1,9 @@
+NAME=bdii
+VERSION=5.0.2
+RELEASE=1
+PREFIX=/
+LICENSE= EGEE
+VENDOR=EGEE
+PACKAGER=Laurence Field <Laurence.Field@cern.ch>
+GROUP=grid
+DESCRIPTION=The Berkeley Database Information Index (BDII).
