@@ -21,6 +21,10 @@ BuildArch: noarch
 Prefix: %{prefix}
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
 Packager: %{packager}
+Requires: openldap-clients
+Requires: openldap-servers
+Requires: expect
+Requires: glue-schema >= 2.0.0
 
 %description
 %{desc}
