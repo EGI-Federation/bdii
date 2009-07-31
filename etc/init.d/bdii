@@ -5,6 +5,7 @@
 # chkconfig: 345 95 5
 # description: BDII Service
 # config: /opt/bdii/etc/bdii.conf
+shopt -s expand_aliases
 
 if [ -f /lib/lsb/init-functions ]; then
     . /lib/lsb/init-functions
@@ -76,11 +77,11 @@ function start(){
      if [ ${RETVAL} -gt 0 ]; then
     	 echo -n "SLAPD failed to start" 1>&2
 	 rm -f ${SLAPD_LOCK_FILE}
-	 log_failure_msg
+	 eval log_failure_msg
 	 echo
 	 return 1
      else
-	 log_success_msg
+	 eval log_success_msg
 	 echo
      fi
 
@@ -103,11 +104,11 @@ function start(){
      if [ ${RETVAL} -gt 0 ]; then
          echo -n "Update process failed to start" 1>&2
 	 rm -f ${UPDATE_LOCK_FILE}
-	 log__failure_msg
+	 eval log__failure_msg
          echo
          return 1
      else
-         log_success_msg
+         eval log_success_msg
          echo
          return 0
      fi
@@ -158,10 +159,10 @@ function stop(){
     if [ ${RETVAL} = 0 ];  then
 	rm -f ${UPDATE_PID_FILE}
 	rm -f ${UPDATE_LOCK_FILE}
-	log_success_msg
+	eval log_success_msg
 	echo
     else
-	log_failure_msg
+	eval log_failure_msg
 	echo
     fi
 
@@ -193,11 +194,11 @@ function stop(){
     fi
 
     if [ ${RETVAL} = 2 ];  then
-	log_failure_msg
+	eval log_failure_msg
 	echo
     else
 	rm -f ${SLAPD_LOCK_FILE}
-	log_success_msg
+	eval log_success_msg
 	echo
     fi
 
@@ -212,7 +213,7 @@ function status(){
 
     if [ ! -f "${SLAPD_LOCK_FILE}" ] && [ ! -f "${UPDATE_LOCK_FILE}" ]; then
         echo -n "BDII Stopped"
-	log_success_msg
+	eval log_success_msg
 	echo
         return 0
     fi
@@ -221,13 +222,13 @@ function status(){
 	ps $(cat ${SLAPD_PID_FILE}) >/dev/null 2>&1
 	if [ ! $? = 0 ]; then
 	    echo -n "SLAPD PID file exists but the process died" 1>&2
-	    log_failure _msg
+	    eval log_failure _msg
 	    echo
 	    return 1
 	fi
     else
 	echo -n "SLAPD PID file ${SLAPD_PID_FILE} does not exist" 1>&2
-	log_failure_msg
+	eval log_failure_msg
 	echo
 	return 1
     fi
@@ -236,19 +237,19 @@ function status(){
 	ps $(cat ${UPDATE_PID_FILE}) >/dev/null 2>&1
 	if [ ! $? = 0 ]; then
 	    echo -n "Update process died" 1>&2
-	    log_failure_msg
+	    eval log_failure_msg
 	    echo
 	    return 1
 	fi
     else
 	echo -n "Update process failed to start" 1>&2
-	log_failure_msg
+	eval log_failure_msg
 	echo
 	return 1
     fi
 
     echo -n "BDII Runnning "
-    log_success_msg
+    eval log_success_msg
     echo
     return 0
 }
