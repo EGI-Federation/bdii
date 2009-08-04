@@ -1,28 +1,34 @@
 #######################################################
-# Additional config file for fine tuning of Berkley DB
+# Berkley DB Tuning
 #
-# needs to be copied in the same directory as 
-# the bdii-slapd.conf so the Berkley Db picks it up
+# http://www.oracle.com/technology/documentation/
+#           berkeley-db/db/ref/env/db_config.html
 #
-# please check Berkley DB documentation for details
 #
-# F.Ehm, CERN 3/2008
 
-
+# Perform locking on an environment-wide basis 
 set_flags DB_CDB_ALLDB 
-#set_flags DB_DIRECT_DB 
-#set_flags DB_DIRECT_LOG
+
+# Maintain transaction logs in memory rather than on disk
 #set_flags DB_LOG_INMEMORY
+
+# Automatically remove log files as soon as they are no longer needed
 set_flags DB_LOG_AUTOREMOVE
-#set_flags DB_NOLOCKING
+
+# Do not write or synchronously flush the log on transaction commit
 #set_flags DB_TXN_NOSYNC
+
+# Will write, but will not synchronously flush, the log on transaction commit.
 #set_flags DB_TXN_WRITE_NOSYNC
+
+# Do not write log records
 #set_flags DB_TXN_NOT_DURABLE
+
+# Set the maximum number of locks supported by the lock subsystem
 set_lk_max_locks 10000
 
-#test and spin, 50x #processors
-# here, example of 2 cores
+# test-and-set mutexes should spin tas_spins times without blocking
 set_tas_spins 100
 
-# cache size
+# Set the size of the shared memory buffer pool (gbytes, bytes, ncache)
 set_cachesize 0 50000000 1
