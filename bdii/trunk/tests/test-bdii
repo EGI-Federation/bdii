@@ -161,7 +161,7 @@ else
     echo "OK"
 fi 
 
-#/etc/init.d/bdii stop
+/etc/init.d/bdii stop
 mv ${working_dir}/bdii-update.log /tmp
 rm -rf ${working_dir}
 
