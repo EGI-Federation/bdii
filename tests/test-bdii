@@ -114,8 +114,9 @@ else
 fi 
 
 rm -f ${working_dir}/ldif/service-long-dn.ldif
+rm -f ${working_dir}/ldif/service-spaces-2.ldif
 sed -i "s#Failed#Unknown#"  ${working_dir}/plugin/service-status
-sed -i "s#=# = #" ${working_dir}/ldif/service-spaces.ldif
+sed -i "s#=# = #" ${working_dir}/ldif/service-spaces-1.ldif
 
 echo "Wating for update ..."
 sleep 15
@@ -150,7 +151,17 @@ else
     echo "OK"
 fi 
 
-/etc/init.d/bdii stop
+echo -n "Testing delete with space in uniqueID: "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "service 6" >/dev/null 2>/dev/null 
+if [ ! $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+#/etc/init.d/bdii stop
 mv ${working_dir}/bdii-update.log /tmp
 rm -rf ${working_dir}
 
