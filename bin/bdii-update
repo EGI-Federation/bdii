@@ -266,7 +266,8 @@ def get_dns(ldif):
             break
         end_dn_index = ldif.find("\n",dn_index, last_dn_index) 
         dn = ldif[dn_index + 4 :end_dn_index].lower()
-        dn = dn.replace(" ","")
+        dn = re.sub("\s*,\s*",",",dn)
+        dn = re.sub("\s*=\s*","=",dn)
         end_entry_index = ldif.find("\n\n",dn_index, last_dn_index) 
         dns[dn] = (dn_index, last_dn_index)
         last_dn_index = dn_index
