@@ -24,6 +24,7 @@ Packager: %{packager}
 Requires: openldap-clients
 Requires: openldap-servers
 Requires: expect
+Requires: lsb
 Requires: glue-schema >= 2.0.0
 
 %description
