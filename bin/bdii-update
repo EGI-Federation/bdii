@@ -308,6 +308,7 @@ def convert_entry(entry_string):
                   'gluecesebindmountinfo' : None,
                   'glueseaccessprotocolcapability' : None,
                   'gluesiteotherinfo' : None,
+                  'gluececapability' : None, 
                   'glueclusterservice' : None }
 
 
