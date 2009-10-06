@@ -71,11 +71,11 @@ fi
 %dir /opt/glite/etc/gip/provider
 %dir /opt/glite/etc/gip/plugin
 %dir /var/lock/subsys
-%config /opt/bdii/etc/DB_CONFIG
-%config /opt/bdii/etc/bdii.conf
-%config /opt/bdii/etc/BDII.schema
-%config /opt/bdii/etc/bdii-slapd.conf
-%config /opt/glite/etc/gip/ldif/default.ldif
+%config(noreplace) /opt/bdii/etc/DB_CONFIG
+%config(noreplace) /opt/bdii/etc/bdii.conf
+%config(noreplace) /opt/bdii/etc/BDII.schema
+%config(noreplace) /opt/bdii/etc/bdii-slapd.conf
+%config(noreplace) /opt/glite/etc/gip/ldif/default.ldif
 /etc/init.d/bdii
 /etc/logrotate.d/bdii
 /etc/cron.d/bdii-proxy
