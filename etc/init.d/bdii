@@ -13,6 +13,9 @@ else
     echo "Error: Cannot source /lib/lsb/init-functions"
 fi
 
+prog=bdii
+lockfile=/var/lock/subsys/$prog
+
 BDII_CONF=${BDII_CONF:-/opt/bdii/etc/bdii.conf}
 
 if [ -f "${BDII_CONF}" ]; then
@@ -110,7 +113,8 @@ function start(){
      else
          eval log_success_msg
          echo
-         return 0
+         touch $lockfile
+	 return 0
      fi
 }
 
@@ -205,6 +209,7 @@ function stop(){
     if [ ! ${RETVAL} = 0 ];  then
 	return 1
     else
+	rm -f $lockfile
 	return 0
     fi
 }
