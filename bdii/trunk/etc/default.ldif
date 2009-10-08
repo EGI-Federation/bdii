@@ -13,3 +13,7 @@ mds-vo-name: resource
 dn: o=glue
 objectClass: organization
 o: glue
+
+dn: GLUE2GroupID=resource, o=glue
+objectClass: GLUE2Group
+GLUE2GroupID: resource
