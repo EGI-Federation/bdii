@@ -1,0 +1,10 @@
+/var/log/bdii/bdii-update.log {
+    daily
+    rotate 30
+    missingok
+    compress
+    copytruncate	
+}
+
+
+
