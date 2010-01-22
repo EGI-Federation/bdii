@@ -613,11 +613,15 @@ s'):
         roots = group_dns(ldif_add)
         add_error_counter = 0
         for root in roots.keys():
-            input_fh=os.popen("ldapadd -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], root, config['BDII_PASSWD'][root], error_file), 'w')
-            for dn in roots[root]:
-                input_fh.write(new_ldif[new_dns[dn][0]:new_dns[dn][1]])
-                input_fh.write("\n")
-            input_fh.close()
+            try:
+                input_fh=os.popen("ldapadd -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], root, config['BDII_PASSWD'][root], error_file), 'w')
+                for dn in roots[root]:
+                    input_fh.write(new_ldif[new_dns[dn][0]:new_dns[dn][1]])
+                    input_fh.write("\n")
+                input_fh.close()
+            except IOError:
+                log.error("Could not add new entries to the database.")
+                
   
             add_error_counter += log_errors(error_file,ldif_add)
 
@@ -639,12 +643,15 @@ s'):
         ldif_modify_dns = get_dns(ldif_modify)
         roots = group_dns(ldif_modify_dns)
         modify_error_counter = 0
-        for root in roots.keys():           
-            input_fh=os.popen("ldapmodify -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], root, config['BDII_PASSWD'][root], error_file), 'w')
-            for dn in roots[root]:
-                input_fh.write(ldif_modify[ldif_modify_dns[dn][0]:ldif_modify_dns[dn][1]])
-                input_fh.write("\n")
-            input_fh.close()
+        for root in roots.keys():
+            try:
+                input_fh=os.popen("ldapmodify -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], root, config['BDII_PASSWD'][root], error_file), 'w')
+                for dn in roots[root]:
+                    input_fh.write(ldif_modify[ldif_modify_dns[dn][0]:ldif_modify_dns[dn][1]])
+                    input_fh.write("\n")
+                input_fh.close()
+            except IOError:
+                log.error("Could not modify entries in the database.")
 
             modify_error_counter += log_errors(error_file, ldif_modify_dns.keys())
 
@@ -669,11 +676,14 @@ s'):
 
         roots = group_dns(ldif_delete)
         delete_error_counter = 0
-        for root in roots.keys():            
-            input_fh=os.popen("ldapdelete -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], root, config['BDII_PASSWD'][root], error_file), 'w')
-            for dn in roots[root]:
-                input_fh.write("%s\n" % (dn))
-            input_fh.close()
+        for root in roots.keys():
+            try:
+                input_fh=os.popen("ldapdelete -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], root, config['BDII_PASSWD'][root], error_file), 'w')
+                for dn in roots[root]:
+                    input_fh.write("%s\n" % (dn))
+                input_fh.close()
+            except IOError:
+                log.error("Could not delete old entries in the database.")
 
             delete_error_counter += log_errors(error_file, ldif_delete)
 
@@ -695,16 +705,19 @@ s'):
             command="ldapadd"
         else:
             command="ldapmodify"
-        output_fh = os.popen("%s -x -c -h %s -p %s -D o=infosys -w %s >/dev/null" %(command, config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_PASSWD']['o=infosys']), 'w')
-        output_fh.write("dn: o=infosys\n")
-        output_fh.write("objectClass: organization\n")
-        output_fh.write("o: infosys\n\n")
-        output_fh.write("dn: CompressionType=zip,o=infosys\n")
-        output_fh.write("objectClass: CompressedContent\n")
-        output_fh.write("Hostname: %s\n" %(config['BDII_HOSTNAME']))
-        output_fh.write("CompressionType: zip\n")
-        output_fh.write("Data: file://%s\n\n" %(out_file))
-        output_fh.close()
+        try:
+            output_fh = os.popen("%s -x -c -h %s -p %s -D o=infosys -w %s >/dev/null" %(command, config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_PASSWD']['o=infosys']), 'w')
+            output_fh.write("dn: o=infosys\n")
+            output_fh.write("objectClass: organization\n")
+            output_fh.write("o: infosys\n\n")
+            output_fh.write("dn: CompressionType=zip,o=infosys\n")
+            output_fh.write("objectClass: CompressedContent\n")
+            output_fh.write("Hostname: %s\n" %(config['BDII_HOSTNAME']))
+            output_fh.write("CompressionType: zip\n")
+            output_fh.write("Data: file://%s\n\n" %(out_file))
+            output_fh.close()
+        except IOError:
+            log.error("Could not add compressed data to the database.")
 
         old_files=os.popen("ls -t %s/archive" % (config['BDII_VAR_DIR']) ).readlines()
         log.debug("Deleting old GZIP files")
@@ -742,16 +755,19 @@ s'):
             command="ldapadd"
         else:
             command="ldapmodify"
-        output_fh = os.popen("%s -x -c -h %s -p %s -D o=infosys -w %s >/dev/null" %(command, config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_PASSWD']['o=infosys']), 'w')
-        output_fh.write("dn: Hostname=%s,o=infosys\n"
+        try:
+            output_fh = os.popen("%s -x -c -h %s -p %s -D o=infosys -w %s >/dev/null" %(command, config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_PASSWD']['o=infosys']), 'w')
+            output_fh.write("dn: Hostname=%s,o=infosys\n"
                         %(config['BDII_HOSTNAME']))
-        output_fh.write("objectClass: UpdateStats\n")
-        output_fh.write("Hostname: %s\n" %(config['BDII_HOSTNAME']))
-        for key in stats.keys():
-            if ( key.find("_") == -1):
-                output_fh.write("%s: %i\n" %(key, stats[key]) ) 
-        output_fh.write("\n")
-        output_fh.close()
+            output_fh.write("objectClass: UpdateStats\n")
+            output_fh.write("Hostname: %s\n" %(config['BDII_HOSTNAME']))
+            for key in stats.keys():
+                if ( key.find("_") == -1):
+                    output_fh.write("%s: %i\n" %(key, stats[key]) ) 
+            output_fh.write("\n")
+            output_fh.close()
+        except IOError:
+            log.error("Could not add stats entries to the database.")
 
         old_ldif = None
         new_ldif = None
