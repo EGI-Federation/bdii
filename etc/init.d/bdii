@@ -29,7 +29,6 @@ fi
 
 UPDATE_LOCK_FILE=${UPDATE_LOCK_FILE:-/var/lock/subsys/bdii-update}
 SLAPD_LOCK_FILE=${SLAPD_LOCK_FILE:-/var/lock/subsys/bdii-slapd}
-UPDATE=${UPDATE:-/opt/bdii/bin/bdii-update}
 UPDATE_PID_FILE=${PID_FILE:-/var/run/bdii-update.pid}
 SLAPD=${SLAPD:-/usr/sbin/slapd}
 SLAPD_PID_FILE=${SLAPD_PID_FILE:-/var/bdii/db/slapd.pid}
