@@ -39,6 +39,7 @@ DB_CONFIG=${DB_CONFIG:-/opt/bdii/etc/DB_CONFIG}
 BDII_USER=${BDII_USER:-edguser}
 BDII_VAR_DIR=${BDII_VAR_DIR:-/var/bdii}
 BDII_UPDATE=${BDII_UPDATE:-/opt/bdii/bin/bdii-update}
+BDII_PROXY=${BDII_PROXY:-/opt/bdii/bin/bdii-proxy}
 
 function start(){
 
@@ -56,7 +57,7 @@ function start(){
     fi
     
     # Create proxy
-    /opt/bdii/bin/bdii-proxy ${BDII_CONF}
+    ${BDII_PROXY} ${BDII_CONF}
 
      #Initialize the database directory.
      su - ${BDII_USER} -c "rm -f ${SLAPD_DB_DIR}/stats/*"
