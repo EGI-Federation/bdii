@@ -8,5 +8,5 @@ Standards-Version: 3.7.2
 
 Package: 
 Architecture: all
-Depends: coreutils
-Description: 
+Depends: coreutils, whois
+Description:
