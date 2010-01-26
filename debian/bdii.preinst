@@ -5,7 +5,7 @@ if [ -f /opt/bdii/sbin/bdii-update ]; then
 fi
 
 /usr/bin/id edguser >/dev/null
-if [ ! $? ]; then
+if [ $? ]; then
     /usr/sbin/useradd -r -d /var/log/bdii -s /bin/sh edguser || \
         logger -t bdii/rpm "Unexpected error adding user \"edguser\". Aborting installation."
 fi
