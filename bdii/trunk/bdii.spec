@@ -48,7 +48,7 @@ if ! /usr/bin/id edguser &>/dev/null; then
 fi
 
 %post
-sed -i  "s/.*rootpw.*/rootpw    $(/usr/bin/mkpasswd -s 0)/" /opt/bdii/etc/bdii-slapd.conf
+sed -i  "s/.*rootpw.*secret.*/rootpw    $(/usr/bin/mkpasswd -s 0)/" /opt/bdii/etc/bdii-slapd.conf
 chkconfig --add bdii 
 /etc/init.d/bdii condrestart || true
 
