@@ -42,11 +42,6 @@ if [ -f /opt/bdii/sbin/bdii-update ]; then
     /etc/rc.d/init.d/bdii stop
 fi
 
-if ! /usr/bin/id edguser &>/dev/null; then
-    /usr/sbin/useradd -r -d /var/log/bdii -s /bin/sh edguser || \
-        logger -t bdii/rpm "Unexpected error adding user \"edguser\". Aborting installation."
-fi
-
 %post
 sed -i  "s/.*rootpw.*secret.*/rootpw    $(/usr/bin/mkpasswd -s 0)/" /opt/bdii/etc/bdii-slapd.conf
 chkconfig --add bdii 
@@ -60,13 +55,13 @@ fi
 
 %files 
 %defattr(-,root,root)
-%attr(0755,edguser,edguser) %dir /opt/bdii
-%attr(0755,edguser,edguser) %dir /var/bdii/
-%attr(0755,edguser,edguser) %dir /var/bdii/db
-%attr(0755,edguser,edguser) %dir /var/bdii/db/stats
-%attr(0755,edguser,edguser) %dir /var/bdii/db/glue2
-%attr(0755,edguser,edguser) %dir /var/bdii/archive
-%attr(0755,edguser,edguser) %dir /var/log/bdii/
+%attr(0755,ldap,ldap) %dir /opt/bdii
+%attr(0755,ldap,ldap) %dir /var/bdii/
+%attr(0755,ldap,ldap) %dir /var/bdii/db
+%attr(0755,ldap,ldap) %dir /var/bdii/db/stats
+%attr(0755,ldap,ldap) %dir /var/bdii/db/glue2
+%attr(0755,ldap,ldap) %dir /var/bdii/archive
+%attr(0755,ldap,ldap) %dir /var/log/bdii/
 %dir /opt/glite/etc/gip/ldif
 %dir /opt/glite/etc/gip/provider
 %dir /opt/glite/etc/gip/plugin
