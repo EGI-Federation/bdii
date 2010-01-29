@@ -4,9 +4,3 @@ if [ -f /etc/init.d/bdii ]; then
     /etc/init.d/bdii stop
 fi
 
-/usr/bin/id edguser >/dev/null
-if [ $? ]; then
-    /usr/sbin/useradd -r -d /var/log/bdii -s /bin/sh edguser || \
-        logger -t bdii/rpm "Unexpected error adding user \"edguser\". Aborting installation."
-fi
-
