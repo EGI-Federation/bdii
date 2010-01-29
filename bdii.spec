@@ -43,7 +43,7 @@ if [ -f /etc/rc.d/init.d/bdii ]; then
 fi
 
 %post
-sed -i  "s/.*rootpw.*secret.*/rootpw    $(/usr/bin/mkpasswd -s 0)/" /opt/bdii/etc/bdii-slapd.conf
+sed -i  "s/.*rootpw.*secret.*/rootpw    $(/usr/bin/mkpasswd -s 0)/" /etc/bdii/bdii-slapd.conf
 chkconfig --add bdii 
 /etc/init.d/bdii condrestart || true
 
@@ -55,27 +55,26 @@ fi
 
 %files 
 %defattr(-,root,root)
-%attr(0755,ldap,ldap) %dir /opt/bdii
 %attr(0755,ldap,ldap) %dir /var/bdii/
 %attr(0755,ldap,ldap) %dir /var/bdii/db
 %attr(0755,ldap,ldap) %dir /var/bdii/db/stats
 %attr(0755,ldap,ldap) %dir /var/bdii/db/glue2
 %attr(0755,ldap,ldap) %dir /var/bdii/archive
 %attr(0755,ldap,ldap) %dir /var/log/bdii/
-%dir /opt/glite/etc/gip/ldif
-%dir /opt/glite/etc/gip/provider
-%dir /opt/glite/etc/gip/plugin
+%dir /var/lib/bdii/gip/ldif
+%dir /var/lib/bdii/gip/provider
+%dir /var/lib/bdii/gip/plugin
 %dir /var/lock/subsys
-%config(noreplace) /opt/bdii/etc/DB_CONFIG
-%config(noreplace) /opt/bdii/etc/bdii.conf
-%config(noreplace) /opt/bdii/etc/BDII.schema
-%config(noreplace) /opt/bdii/etc/bdii-slapd.conf
-%config(noreplace) /opt/glite/etc/gip/ldif/default.ldif
+%config(noreplace) /etc/bdii/DB_CONFIG
+%config(noreplace) /etc/bdii/bdii.conf
+%config(noreplace) /etc/bdii/BDII.schema
+%config(noreplace) /etc/bdii/bdii-slapd.conf
+%config(noreplace) /var/lib/bdii/gip/ldif/default.ldif
 /etc/init.d/bdii
 /etc/logrotate.d/bdii
 /etc/cron.d/bdii-proxy
-/opt/bdii/bin/bdii-update
-/opt/bdii/bin/bdii-proxy
+/usr/sbin/bdii-update
+/usr/sbin/bdii-proxy
 
 %clean
 rm -rf %{buildroot}
