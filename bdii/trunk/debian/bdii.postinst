@@ -23,9 +23,10 @@ if [ "x" != "x${ldaplib}" ]; then
 fi
 
 sed -i  "s/.*rootpw.*secret.*/rootpw     $(/usr/bin/mkpasswd -s 0)/" /etc/bdii/bdii-slapd.conf
-chown -R edguser:edguser /var/bdii
-chown -R edguser:edguser /var/log/bdii
-chown -R edguser:edguser /var/log/bdii
+sed -i  "s/BDII_USER=.*/BDII_USER=openldap/" /etc/bdii/bdii.conf
+chown -R openldap:openldap /var/bdii
+chown -R openldap:openldap /var/log/bdii
+chown -R openldap:openldap /var/log/bdii
 chown openldap:openldap /etc/bdii/bdii-slapd.conf
 chmod +x /usr/sbin/bdii-update
 chmod +x /usr/sbin/bdii-proxy
