@@ -1,7 +1,7 @@
 #!/bin/sh
 
-if [ -f /opt/bdii/sbin/bdii-update ]; then
-    /etc/rc.d/init.d/bdii stop
+if [ -f /etc/init.d/bdii ]; then
+    /etc/init.d/bdii stop
 fi
 
 /usr/bin/id edguser >/dev/null

@@ -38,7 +38,7 @@ Requires: glue-schema >= 2.0.0
 make -f INSTALL install prefix=%{buildroot}%{prefix}
 
 %pre
-if [ -f /opt/bdii/sbin/bdii-update ]; then
+if [ -f /etc/rc.d/init.d/bdii ]; then
     /etc/rc.d/init.d/bdii stop
 fi
 
