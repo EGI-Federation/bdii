@@ -112,7 +112,7 @@ function start(){
      if [ ${RETVAL} -gt 0 ]; then
          echo -n "Update process failed to start" 1>&2
 	 rm -f ${UPDATE_LOCK_FILE}
-	 eval log__failure_msg
+	 eval log_failure_msg
          echo
          return 1
      else
