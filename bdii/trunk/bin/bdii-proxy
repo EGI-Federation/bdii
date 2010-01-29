@@ -1,6 +1,6 @@
 #!/bin/sh
 
-BDII_CONF=${1:-/opt/bdii/etc/bdii.conf}
+BDII_CONF=${1:-/etc/bdii/bdii.conf}
 
 if [ -f "$BDII_CONF" ]; then
     . "$BDII_CONF"
@@ -11,7 +11,7 @@ fi
 
 egrep '^BDII_PROXY= *$' $BDII_CONF > /dev/null && exit 0
 
-f=$BDII_DIR/etc/proxy.conf
+f=$BDII_DIR/etc/bdii/proxy.conf
 
 if test -f $f
 then
