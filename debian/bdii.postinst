@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sed -i  "s/.*rootpw.*/rootpw     $(/usr/bin/mkpasswd -s 0)/" /etc/bdii/bdii-slapd.conf
+sed -i  "s/.*rootpw.*secret.*/rootpw     $(/usr/bin/mkpasswd -s 0)/" /etc/bdii/bdii-slapd.conf
 chown -R edguser:edguser /var/bdii
 chown -R edguser:edguser /var/log/bdii
 chown -R edguser:edguser /var/log/bdii
