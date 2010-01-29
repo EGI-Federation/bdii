@@ -8,5 +8,5 @@ Standards-Version: 3.7.2
 
 Package: 
 Architecture: all
-Depends: coreutils, whois
+Depends: coreutils, whois, slapd, glue-schema
 Description:
