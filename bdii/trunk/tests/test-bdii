@@ -9,7 +9,7 @@ cp -r ldif provider plugin ${working_dir}
 chown $BDII_USER:$BDII_USER ${working_dir}
 chmod +x ${working_dir}/provider/* ${working_dir}/plugin/*
 
-sed "s#/var/lib/gip#${working_dir}#"  /etc/bdii/bdii.conf > ${working_dir}/bdii.conf
+sed "s#/var/lib/bdii/gip#${working_dir}#"  /etc/bdii/bdii.conf > ${working_dir}/bdii.conf
 
 sed -i "s#BDII_READ_TIMEOUT=.*#BDII_READ_TIMEOUT=3#"  ${working_dir}/bdii.conf
 sed -i "s#BDII_BREATHE_TIME=.*#BDII_BREATHE_TIME=10#"  ${working_dir}/bdii.conf
