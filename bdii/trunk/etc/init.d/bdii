@@ -101,6 +101,8 @@ function start(){
          sleep 2
      fi
      if [ -f ${BDII_VAR_DIR}/bdii-update.pid ]; then
+         touch ${UPDATE_PID_FILE}
+         chown ${BDII_USER} ${UPDATE_PID_FILE}
          mv ${BDII_VAR_DIR}/bdii-update.pid ${UPDATE_PID_FILE}
          ps $(cat ${UPDATE_PID_FILE}) >/dev/null 2>&1
          RETVAL=$?
