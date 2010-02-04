@@ -265,7 +265,7 @@ def get_dns(ldif):
         if ( dn_index == -1):
             break
         end_dn_index = ldif.find("\n",dn_index, last_dn_index) 
-        dn = ldif[dn_index + 4 :end_dn_index].lower()
+        dn = ldif[dn_index + 4 :end_dn_index]
         dn = re.sub("\s*,\s*",",",dn)
         dn = re.sub("\s*=\s*","=",dn)
         end_entry_index = ldif.find("\n\n",dn_index, last_dn_index) 
@@ -316,9 +316,9 @@ def convert_entry(entry_string):
     for line in entry_string.split("\n"):
         index = line.find(":")
         if (index > -1):
-            attribute = line[:index].lower()
-            if ( attribute == "objectclass" ):
-                value = line[index + 2:].lower()
+            attribute = line[:index]
+            if ( attribute.lower() == "objectclass" ):
+                value = line[index + 2:]
             else:
                 value = line[index + 2:]
             if (entry.has_key(attribute)):
@@ -410,7 +410,6 @@ def modify_entry(entry, mods):
         # Handle LDIF delete attribute
         if ( mods.has_key('delete')):
             for attribute in mods['delete']:
-                attribute=attribute.lower()
                 if (entry.has_key(attribute)):
                     if (mods.has_key(attribute)):
                         for value in mods[attribute]:
@@ -426,7 +425,6 @@ def modify_entry(entry, mods):
         # Handle LDIF replace attribute
         if ( mods.has_key('replace')):
             for attribute in mods['replace']:
-                attribute = attribute.lower()
                 if (entry.has_key(attribute)):
                     if (mods.has_key(attribute)):
                         entry[attribute] = mods[attribute]
@@ -434,7 +432,6 @@ def modify_entry(entry, mods):
         # Handle LDIF add attribute
         if ( mods.has_key('add')):
             for attribute in mods['add']:
-                attribute = attribute.lower()
                 if ( not entry.has_key(attribute)):
                     entry[attribute] = mods[attribute]
                 else:
