@@ -69,7 +69,8 @@ function start(){
      sudo -u ${BDII_USER} cp ${DB_CONFIG} ${SLAPD_DB_DIR}/glue2/
 
      echo -n "Starting SLAPD: " 
-     ${SLAPD} -f ${SLAPD_CONF} -h ldap://$(hostname -f):${SLAPD_PORT} -u ${BDII_USER}
+     COMMAND="${SLAPD} -f ${SLAPD_CONF} -h ldap://$(hostname -f):${SLAPD_PORT} -u ${BDII_USER}"
+     ${COMMAND}
      touch ${SLAPD_LOCK_FILE}
      if [ ! -f "${SLAPD_PID_FILE}" ]; then 
 	 sleep 2
@@ -84,9 +85,12 @@ function start(){
 
      if [ ${RETVAL} -gt 0 ]; then
     	 echo -n "SLAPD failed to start" 1>&2
+	 
 	 rm -f ${SLAPD_LOCK_FILE}
 	 eval log_failure_msg
 	 echo
+	 echo "${COMMAND} -d 256"
+	 ${COMMAND} -d 256 
 	 return 1
      else
 	 eval log_success_msg
