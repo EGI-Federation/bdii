@@ -697,21 +697,31 @@ s'):
         out_file="%s/archive/%s-snapshot.gz" % (config['BDII_VAR_DIR'], time.strftime('%y-%m-%d-%H-%M-%S'))
         log.debug("Creating GZIP file")
         os.system("gzip -c %s/old.ldif > %s" %(config['BDII_VAR_DIR'], out_file) )
-        
+
+        infosys_output=""
         if (len(old_ldif) == 0 ):
+            log.debug("ldapadd o=infosys compression")
             command="ldapadd"
+            
+            infosys_output+="dn: o=infosys\n"
+            infosys_output+="objectClass: organization\n"
+            infosys_output+="o: infosys\n\n"
+            infosys_output+="dn: CompressionType=zip,o=infosys\n"
+            infosys_output+="objectClass: CompressedContent\n"
+            infosys_output+="Hostname: %s\n" %(config['BDII_HOSTNAME'])
+            infosys_output+="CompressionType: zip\n"
+            infosys_output+="Data: file://%s\n\n" %(out_file)
         else:
+            log.debug("ldapmodify o=infosys compression")
             command="ldapmodify"
+
+            infosys_output+="dn: CompressionType=zip,o=infosys\n"
+            infosys_output+="changetype: Modify\n"
+            infosys_output+="replace: Data\n"
+            infosys_output+="Data: file://%s\n\n" %(out_file)
         try:
             output_fh = os.popen("%s -x -c -h %s -p %s -D o=infosys -w %s >/dev/null" %(command, config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_PASSWD']['o=infosys']), 'w')
-            output_fh.write("dn: o=infosys\n")
-            output_fh.write("objectClass: organization\n")
-            output_fh.write("o: infosys\n\n")
-            output_fh.write("dn: CompressionType=zip,o=infosys\n")
-            output_fh.write("objectClass: CompressedContent\n")
-            output_fh.write("Hostname: %s\n" %(config['BDII_HOSTNAME']))
-            output_fh.write("CompressionType: zip\n")
-            output_fh.write("Data: file://%s\n\n" %(out_file))
+            output_fh.write(infosys_output)
             output_fh.close()
         except IOError:
             log.error("Could not add compressed data to the database.")
@@ -748,20 +758,33 @@ s'):
             if ( key.find("_") == -1 ):
                 log.info("%s: %i" % (key, stats[key]) )
 
+        infosys_output=""
         if (len(old_ldif) == 0 ):
+            log.debug("ldapadd o=infosys updatestats")
             command="ldapadd"
-        else:
-            command="ldapmodify"
-        try:
-            output_fh = os.popen("%s -x -c -h %s -p %s -D o=infosys -w %s >/dev/null" %(command, config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_PASSWD']['o=infosys']), 'w')
-            output_fh.write("dn: Hostname=%s,o=infosys\n"
-                        %(config['BDII_HOSTNAME']))
-            output_fh.write("objectClass: UpdateStats\n")
-            output_fh.write("Hostname: %s\n" %(config['BDII_HOSTNAME']))
+
+            infosys_output+="dn: Hostname=%s,o=infosys\n" %(config['BDII_HOSTNAME'])
+            infosys_output+="objectClass: UpdateStats\n"
+            infosys_output+="Hostname: %s\n" %(config['BDII_HOSTNAME'])
             for key in stats.keys():
                 if ( key.find("_") == -1):
-                    output_fh.write("%s: %i\n" %(key, stats[key]) ) 
-            output_fh.write("\n")
+                    infosys_output+="%s: %i\n" %(key, stats[key])
+            infosys_output+="\n"
+        else:
+            log.debug("ldapmodify o=infosys updatestats")
+            command="ldapmodify"
+
+            infosys_output+="dn: Hostname=%s,o=infosys\n" %(config['BDII_HOSTNAME'])
+            infosys_output+="changetype: Modify\n"
+            for key in stats.keys():
+                if ( key.find("_") == -1):
+                    infosys_output+="replace: %s\n" %(key)
+                    infosys_output+="%s: %i\n" %(key, stats[key])
+                    infosys_output+="-\n"
+            infosys_output+="\n"
+        try:
+            output_fh = os.popen("%s -x -c -h %s -p %s -D o=infosys -w %s >/dev/null" %(command, config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_PASSWD']['o=infosys']), 'w')
+            output_fh.write(infosys_output)
             output_fh.close()
         except IOError:
             log.error("Could not add stats entries to the database.")
