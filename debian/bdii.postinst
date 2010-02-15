@@ -1,33 +1,11 @@
 #!/bin/sh
 
-coreschema=$(find /etc/ -name core.schema -printf "%h/%f\n" 2>/dev/null)
-cosineschema=$(find /etc/ -name cosine.schema -printf "%h/%f\n" 2>/dev/null)
-nisschema=$(find /etc/ -name nis.schema -printf "%h/%f\n" 2>/dev/null)
+set -e
 
-#Find directory for core schema files
-if [ "x" != "x$coreschema" ]; then
-  sed -i "s,include.*core\.schema.*,include ${coreschema}," /etc/bdii/bdii-slapd.conf
-  sed -i "s,include.*cosine\.schema.*,include ${cosineschema}," /etc/bdii/bdii-slapd.conf
-  sed -i "s,include.*nis\.schema.*,include ${nisschema}," /etc/bdii/bdii-slapd.conf
-fi
+sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0)/" -i /etc/bdii/bdii-slapd.conf
 
-# Guess a likely directory for ldap modules
-ldaplib=$(find /usr/lib/ -name "back_bdb.so" -printf "%h/\n" 2>/dev/null)
-if [ "x" != "x${ldaplib}" ]; then
-  # This will get written to bdii slapd.conf:
-  slapd_modulepath="modulepath      $ldaplib"
-  slapd_moduleload="moduleload      back_bdb"
-
-  sed -i "s,allow bind_v2,${slapd_modulepath}\n${slapd_moduleload}\nallow bind_v2," /etc/bdii/bdii-slapd.conf
-
-fi
-
-sed -i  "s/.*rootpw.*secret.*/rootpw     $(/usr/bin/mkpasswd -s 0)/" /etc/bdii/bdii-slapd.conf
-sed -i  "s/BDII_USER=.*/BDII_USER=openldap/" /etc/bdii/bdii.conf
 chown -R openldap:openldap /var/bdii
+chown -R openldap:openldap /var/lib/bdii
 chown -R openldap:openldap /var/log/bdii
-chown -R openldap:openldap /var/log/bdii
-chown openldap:openldap /etc/bdii/bdii-slapd.conf
-chmod +x /usr/sbin/bdii-update
-chmod +x /usr/sbin/bdii-proxy
-/etc/init.d/bdii condrestart || true
+
+#DEBHELPER#

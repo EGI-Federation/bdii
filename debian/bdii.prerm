@@ -1,5 +1,0 @@
-#!/bin/sh
-
-if [ "$1" = "remove" ]; then
-    /etc/init.d/bdii stop || true
-fi

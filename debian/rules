@@ -1,13 +1,14 @@
 #!/usr/bin/make -f
 
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
-include CONFIG
+include /usr/share/quilt/quilt.make
 
 configure: configure-stamp
-configure-stamp:
+
+configure-stamp: $(QUILT_STAMPFN)
 	dh_testdir
-	touch configure-stamp
+	rm -f debian/bdii.preinst
+	rm -f debian/bdii.prerm
+	touch $@
 
 build: build-stamp
 
@@ -15,9 +16,10 @@ build-stamp: configure-stamp
 	dh_testdir
 	touch $@
 
-clean:
+clean: unpatch
 	dh_testdir
 	dh_testroot
+	rm -f debian/bdii.init
 	rm -f build-stamp configure-stamp
 	dh_clean 
 
@@ -26,24 +28,39 @@ install: build
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
-	$(MAKE) -f INSTALL prefix=debian/${NAME} install
+	$(MAKE) -f INSTALL prefix=debian/bdii install
+	mv debian/bdii/etc/init.d/bdii debian/bdii.init
+
+	slapd_modulepath="modulepath      /usr/lib/ldap" ; \
+	slapd_moduleload="moduleload      back_bdb" ; \
+	sed -e "/allow bind_v2/i$${slapd_modulepath}\n$${slapd_moduleload}" \
+	    -e "s!etc/openldap/schema!etc/ldap/schema!" \
+	    -i debian/bdii/etc/bdii/bdii-slapd.conf ; \
+
+	sed "s/BDII_USER=.*/BDII_USER=openldap/" \
+	    -i debian/bdii/etc/bdii/bdii.conf
+
+binary-arch:
+#	:
 
 binary-indep: build install
-
-binary-arch: build install
 	dh_testdir
 	dh_testroot
-	#dh_installdocs
+	dh_installdocs
 	dh_installexamples
 	dh_install
 	dh_installman
+	dh_installinit
 	dh_compress
 	dh_fixperms
 	dh_perl
+	dh_pysupport
 	dh_installdeb
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
 
 binary: binary-indep binary-arch
+	:
+
 .PHONY: build clean binary-indep binary-arch binary install configure
