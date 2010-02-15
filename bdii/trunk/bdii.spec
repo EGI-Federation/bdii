@@ -74,7 +74,6 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%attr(-,ldap,ldap) %{_localstatedir}/%{name}
 %attr(-,ldap,ldap) %{_localstatedir}/lib/%{name}
 %attr(-,ldap,ldap) %{_localstatedir}/log/%{name}
 %dir %{_sysconfdir}/%{name}

@@ -4,7 +4,6 @@ set -e
 
 sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" -i /etc/bdii/bdii-slapd.conf
 
-chown -R openldap:openldap /var/bdii
 chown -R openldap:openldap /var/lib/bdii
 chown -R openldap:openldap /var/log/bdii
 
