@@ -57,7 +57,7 @@ chmod 0755 %{buildroot}%{_initrddir}/%{name}
 rm -rf %{buildroot}
 
 %post
-sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0)/" \
+sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
     -i %{_sysconfdir}/%{name}/bdii-slapd.conf
 /sbin/chkconfig --add %{name}
 
