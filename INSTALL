@@ -11,9 +11,6 @@ install:
 	@mkdir -p $(prefix)/etc/init.d/
 	@mkdir -p $(prefix)/etc/logrotate.d/
 	@mkdir -p $(prefix)/etc/cron.d/
-	@mkdir -p $(prefix)/var/bdii/db/stats/
-	@mkdir -p $(prefix)/var/bdii/db/glue2/
-	@mkdir -p $(prefix)/var/bdii/archive/
 	@mkdir -p $(prefix)/var/log/bdii/
 	@mkdir -p $(prefix)/var/lock/subsys/
 
