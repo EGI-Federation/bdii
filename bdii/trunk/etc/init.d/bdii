@@ -2,9 +2,20 @@
 #
 # BDII system startup script
 # $Id: bdii,v 1.9 2009/06/18 14:26:52 lfield Exp $
-# chkconfig: 345 95 5
+# chkconfig: 2345 95 5
 # description: BDII Service
 # config: /etc/bdii/bdii.conf
+
+### BEGIN INIT INFO
+# Provides:          bdii
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: BDII
+# Description:       Berkeley Database Information Index
+### END INIT INFO
+
 shopt -s expand_aliases
 
 if [ -f /lib/lsb/init-functions ]; then
@@ -15,6 +26,21 @@ fi
 
 prog=bdii
 lockfile=/var/lock/subsys/$prog
+
+RUN=yes
+
+if [ -r /etc/default/bdii ] ; then
+    . /etc/default/bdii
+fi
+if [ -r /etc/sysconfig/bdii ] ; then
+    . /etc/sysconfig/bdii
+fi
+
+if [ "x$RUN" != "xyes" ] ; then
+    echo "bdii disabled, please adjust the configuration to your needs "
+    echo "and then set RUN to 'yes' in /etc/default/bdii to enable it."
+    exit 0
+fi
 
 BDII_CONF=${BDII_CONF:-/etc/bdii/bdii.conf}
 
@@ -283,12 +309,14 @@ case "$1" in
         status
         RETVAL=$?
 	;;
-    restart)
+    reload)
+        ;;
+    restart | force-reload)
         stop
 	start
         RETVAL=$?
         ;;
-    condrestart)
+    condrestart | try-restart)
         if [ -f ${SLAPD_LOCK_FILE} ] || [ -f ${UPDATE_LOCK_FILE} ]; then
             stop
             start
