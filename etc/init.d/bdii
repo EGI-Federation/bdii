@@ -48,11 +48,6 @@ if [ -f "${BDII_CONF}" ]; then
     . "${BDII_CONF}"
 fi
 
-if [ -f /opt/openldap2.4/sbin/slapd ]; then
-    SLAPD=/opt/openldap2.4/sbin/slapd
-    export LD_LIBRARY_PATH=/opt/openldap2.4/lib64
-fi
-
 UPDATE_LOCK_FILE=${UPDATE_LOCK_FILE:-/var/lock/subsys/bdii-update}
 SLAPD_LOCK_FILE=${SLAPD_LOCK_FILE:-/var/lock/subsys/bdii-slapd}
 UPDATE_PID_FILE=${PID_FILE:-/var/run/bdii-update.pid}
