@@ -84,6 +84,7 @@ function start(){
      mkdir -p ${SLAPD_DB_DIR}/stats
      mkdir -p ${SLAPD_DB_DIR}/glue2
      mkdir -p ${BDII_VAR_DIR}/archive
+     mkdir -p /var/lock/subsys
      chown -R ${BDII_USER}:${BDII_USER} ${BDII_VAR_DIR}
      chown -R ${BDII_USER}:${BDII_USER} ${SLAPD_DB_DIR}
      sudo -u ${BDII_USER} rm -f ${SLAPD_DB_DIR}/stats/* 2>/dev/null

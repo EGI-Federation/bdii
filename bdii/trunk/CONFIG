@@ -6,4 +6,4 @@ LICENSE= EGEE
 VENDOR=EGEE
 PACKAGER=Laurence Field <Laurence.Field@cern.ch>
 GROUP=grid
-DESCRIPTION=The Berkeley Database Information Index (BDII).
+DESCRIPTION=The Berkeley Database Information Index (BDII)
