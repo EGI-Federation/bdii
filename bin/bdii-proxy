@@ -19,6 +19,9 @@ then
     . $f
 fi
 
+proxy=${BDII_PROXY:-$BDII_VAR_DIR/hostproxy}
+f=$proxy.$$
+
 cert=${X509_HOST_CERT:-/etc/grid-security/hostcert.pem}
 key=${X509_HOST_KEY:-/etc/grid-security/hostkey.pem}
 
@@ -26,22 +29,26 @@ test -f "$cert" && test -f "$key" || exit 0
 
 id -u "$BDII_USER" > /dev/null || exit 1
 
-if test "x$GLOBUS_LOCATION" = x
-then
+#Try setting GLOBUS_LOCATION
+if [ "x$GLOBUS_LOCATION" = "x" ]; then
     f=/etc/sysconfig/globus
     test -f $f && . $f
     : ${GLOBUS_LOCATION:=/opt/globus}
-    export GLOBUS_LOCATION
+    if [ -d $GLOBUS_LOCATION ]; then
+	export GLOBUS_LOCATION
+    else
+	unset GLOBUS_LOCATION
+    fi
 fi
 
-f=$GLOBUS_LOCATION/etc/globus-user-env.sh
-test -f $f || exit 0
-. $f
+if [ "x$GLOBUS_LOCATION" = "x" ]; then
+    /usr/bin/grid-proxy-init -q -cert $cert -key $key -out $f
+else
+    f=$GLOBUS_LOCATION/etc/globus-user-env.sh
+    test -f $f || exit 0
+    . $f
+    $GLOBUS_LOCATION/bin/grid-proxy-init -q -cert $cert -key $key -out $f
+fi
 
-proxy=${BDII_PROXY:-$BDII_VAR_DIR/hostproxy}
-f=$proxy.$$
-
-$GLOBUS_LOCATION/bin/grid-proxy-init -q -cert $cert -key $key -out $f &&
-    chown $BDII_USER $f &&
-    mv -f $f $proxy
-
+chown $BDII_USER $f
+mv -f $f $proxy
