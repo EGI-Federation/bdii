@@ -1,7 +1,6 @@
 Source: bdii
 Section: net
 Priority: optional
-Architecture: all
 Maintainer: Mattias Ellert <mattias.ellert@fysast.uu.se>
 Build-Depends: debhelper (>= 5), quilt, python-support
 Standards-Version: 3.8.4

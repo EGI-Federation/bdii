@@ -14,12 +14,10 @@ clean:
 
 sdist:
 	@mkdir -p  ${SCRATCH}/SOURCES/
-	tar --gzip --exclude ".svn" --exclude "scratch" -cf ${SCRATCH}/${NAME}-${VERSION}.tar.gz *
-
+	@mkdir -p  ${SCRATCH}/${NAME}-${VERSION}/
+	rsync -HaS --exclude ".svn" --exclude "scratch" * ${SCRATCH}/${NAME}-${VERSION}/
+	cd ${SCRATCH}; tar --gzip -cf ${NAME}-${VERSION}.tar.gz ${NAME}-${VERSION}/; cd ${PWD}
 deb: sdist
-	@mkdir -p ${SCRATCH}/${NAME}-${VERSION}/
-	tar -zx -C ${SCRATCH}/${NAME}-${VERSION}/ -f \
-	${SCRATCH}/${NAME}-${VERSION}.tar.gz
 	echo "${NAME} (${VERSION}-${RELEASE}) dummy;" > ${SCRATCH}/${NAME}-${VERSION}/debian/changelog
 	echo "  * No data" >>  ${SCRATCH}/${NAME}-${VERSION}/debian/changelog
 	echo " -- ${PACKAGER}  ${DATE}" >> ${SCRATCH}/${NAME}-${VERSION}/debian/changelog

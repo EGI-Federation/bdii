@@ -24,4 +24,3 @@ install:
 	@install -m 0644 etc/default.ldif     $(prefix)/var/lib/bdii/gip/ldif/
 	@install -m 0644 etc/logrotate.d/bdii $(prefix)/etc/logrotate.d
 	@install -m 0644 etc/cron.d/bdii-proxy $(prefix)/etc/cron.d
-	@install -m 0644 copyright $(prefix)/usr/share/doc/bdii
