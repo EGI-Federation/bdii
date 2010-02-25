@@ -1,3 +1,9 @@
+bdii (5.0.8+443-1) UNRELEASED; urgency=low
+
+  * Updated packaging etc - svn revision 443
+
+ -- Daniel Johansson <daniel@nsc.liu.se>  Thu, 25 Feb 2010 16:58:51 +0100
+
 bdii (5.0.8+436-1) UNRELEASED; urgency=low
 
   * Update - svn revision 436 (Closes: #XXXXXX)
