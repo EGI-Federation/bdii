@@ -1,13 +1,13 @@
 Name:		bdii
 Version:	5.0.8
-Release:	1%{?dist}
+Release:	2.436%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
 Group:		System Environment/Daemons
 License:	ASL 2.0
 URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
+#               wget -O %{name}-%{version}-436.tar.gz "http://svnweb.cern.ch/world/wsvn/gridinfo/bdii/trunk/?op=dl&rev=436"
 Source:		%{name}-%{version}.tar.gz
-#Patch0:		%{name}.patch
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
@@ -20,14 +20,17 @@ Requires(post):		chkconfig
 Requires(post):		expect
 Requires(preun):	chkconfig
 Requires(preun):	initscripts
+Requires(preun):        lsb
 Requires(postun):	initscripts
+Requires(postun):       lsb
 
 %description
 The Berkeley Database Information Index (BDII)
 
 %prep
-%setup -q -c
-#%patch0 -p1
+%setup -q
+#change to the one below if you are building against downloaded tarball from svnweb.cern.ch
+#%setup -q -n trunk.r436
 
 %build
 # Nothing to build
@@ -86,7 +89,11 @@ fi
 %{_initrddir}/%{name}
 %{_sbindir}/bdii-update
 %{_sbindir}/bdii-proxy
+%doc copyright
 
 %changelog
+* Wed Feb 24 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.0.8-2.436
+- Update (svn revision 436)
+
 * Mon Feb 08 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.0.8-1
-- Initial package
+- Initial package (svn revision 375)

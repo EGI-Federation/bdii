@@ -5,5 +5,5 @@ PREFIX=/
 LICENSE= EGEE
 VENDOR=EGEE
 PACKAGER=Laurence Field <Laurence.Field@cern.ch>
-GROUP=grid
+GROUP=net
 DESCRIPTION=The Berkeley Database Information Index (BDII)
