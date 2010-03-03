@@ -249,11 +249,12 @@ def read_ldif(source):
 
         # Close LDIF pipe
         pipe.close()
-
-        write_fh = os.fdopen(write_fd, 'w')
-        write_fh.write(raw_ldif)
-        write_fh.close()
-
+        try:
+            write_fh = os.fdopen(write_fd, 'w')
+            write_fh.write(raw_ldif)
+            write_fh.close()
+        except IOError:
+            log.error("Information provider %s terminated unexpectedly." % source)
         signal.alarm(0) # Disable the alarm
         sys.exit(0)
 
