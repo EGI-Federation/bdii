@@ -268,6 +268,14 @@ def get_dns(ldif):
         dn = ldif[dn_index + 4 :end_dn_index].lower()
         dn = re.sub("\s*,\s*",",",dn)
         dn = re.sub("\s*=\s*","=",dn)
+        dn = dn.replace("\\5c","\\\\") # Replace encoded slash
+        dn = dn.replace("\\2c","\\,") # Replace encoded comma
+        dn = dn.replace("\\3d","\\=") # Replace encoded equals
+        dn = dn.replace("\\2b","\\+") # Replace encoded plus
+        dn = dn.replace("\\3b","\\;") # Replace encoded semi colon
+        dn = dn.replace("\\22","\\\"") # Replace encoded quote
+        dn = dn.replace("\\3e","\\>") # Replace encoded greater than
+        dn = dn.replace("\\3c","\\<") # Replace encoded less than
         end_entry_index = ldif.find("\n\n",dn_index, last_dn_index) 
         dns[dn] = (dn_index, last_dn_index)
         last_dn_index = dn_index
