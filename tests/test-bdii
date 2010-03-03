@@ -163,6 +163,86 @@ else
     echo "OK"
 fi 
 
+echo -n "Testing dn special character '\': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "slash" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing dn special character ',': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "comma" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing dn special character '=': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "equal" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing dn special character '+': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "plus" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing dn special character '\"': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "quote" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing dn special character ';': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "semi" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing dn special character '<': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "less" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing dn special character '>': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "greater" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
 /etc/init.d/bdii stop
 mv ${working_dir}/bdii-update.log /tmp
 rm -rf ${working_dir}
