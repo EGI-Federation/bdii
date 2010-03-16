@@ -38,7 +38,7 @@ then
 fi
 
 proxy=${BDII_PROXY:-$BDII_VAR_DIR/hostproxy}
-f=$proxy.$$
+proxy_file=$proxy.$$
 
 cert=${X509_HOST_CERT:-/etc/grid-security/hostcert.pem}
 key=${X509_HOST_KEY:-/etc/grid-security/hostkey.pem}
@@ -60,13 +60,13 @@ if [ "x$GLOBUS_LOCATION" = "x" ]; then
 fi
 
 if [ "x$GLOBUS_LOCATION" = "x" ]; then
-    /usr/bin/grid-proxy-init -q -cert $cert -key $key -out $f
+    /usr/bin/grid-proxy-init -q -cert $cert -key $key -out $proxy_file
 else
     f=$GLOBUS_LOCATION/etc/globus-user-env.sh
     test -f $f || exit 0
     . $f
-    $GLOBUS_LOCATION/bin/grid-proxy-init -q -cert $cert -key $key -out $f
+    $GLOBUS_LOCATION/bin/grid-proxy-init -q -cert $cert -key $key -out $proxy_file
 fi
 
-chown $BDII_USER $f
-mv -f $f $proxy
+chown $BDII_USER $proxy_file
+mv -f $proxy_file $proxy
