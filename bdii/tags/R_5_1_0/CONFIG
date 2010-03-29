@@ -1,0 +1,9 @@
+NAME=bdii
+VERSION=5.0.8
+RELEASE=1
+PREFIX=/
+LICENSE=ASL 2.0
+VENDOR=EGEE
+PACKAGER=Laurence Field <Laurence.Field@cern.ch>
+GROUP=net
+DESCRIPTION=The Berkeley Database Information Index (BDII)
