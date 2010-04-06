@@ -40,6 +40,8 @@ fi
 proxy=${BDII_PROXY:-$BDII_VAR_DIR/hostproxy}
 proxy_file=$proxy.$$
 
+mkdir -p `dirname $proxy_file`
+
 cert=${X509_HOST_CERT:-/etc/grid-security/hostcert.pem}
 key=${X509_HOST_KEY:-/etc/grid-security/hostkey.pem}
 
