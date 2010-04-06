@@ -66,181 +66,179 @@ function start(){
 
     # Check status
     if [ -f "${SLAPD_LOCK_FILE}" ] || [ -f "${UPDATE_LOCK_FILE}" ] ; then
-	echo -n "Starting BDII: " 
-	result=$($0 status)
-	if [ $? -gt 0 ]; then
-	        echo ${result} 1>&2
-		exit 1
-	else
-	    echo "BDII already started"
-	    exit 0
-	fi
+        echo -n "Starting BDII: "
+        result=$($0 status)
+        if [ $? -gt 0 ]; then
+            echo ${result} 1>&2
+            exit 1
+        else
+            echo "BDII already started"
+            exit 0
+        fi
     fi
-    
+
     # Create proxy
     ${BDII_PROXY} ${BDII_CONF}
 
-     #Initialize the database directory.
-     mkdir -p ${SLAPD_DB_DIR}/stats
-     mkdir -p ${SLAPD_DB_DIR}/glue2
-     mkdir -p ${BDII_VAR_DIR}/archive
-     mkdir -p /var/lock/subsys
-     chown -R ${BDII_USER}:${BDII_USER} ${BDII_VAR_DIR}
-     chown -R ${BDII_USER}:${BDII_USER} ${SLAPD_DB_DIR}
-     sudo -u ${BDII_USER} rm -f ${SLAPD_DB_DIR}/stats/* 2>/dev/null
-     sudo -u ${BDII_USER} rm -f ${SLAPD_DB_DIR}/glue2/* 2>/dev/null
-     sudo -u ${BDII_USER} rm -f ${SLAPD_DB_DIR}/* 2>/dev/null
-     sudo -u ${BDII_USER} rm -f ${BDII_VAR_DIR}/old.ldif 2>/dev/null
-     sudo -u ${BDII_USER} cp ${DB_CONFIG} ${SLAPD_DB_DIR}
-     sudo -u ${BDII_USER} cp ${DB_CONFIG} ${SLAPD_DB_DIR}/stats/
-     sudo -u ${BDII_USER} cp ${DB_CONFIG} ${SLAPD_DB_DIR}/glue2/
+    #Initialize the database directory.
+    mkdir -p ${SLAPD_DB_DIR}/stats
+    mkdir -p ${SLAPD_DB_DIR}/glue2
+    mkdir -p ${BDII_VAR_DIR}/archive
+    mkdir -p /var/lock/subsys
+    chown -R ${BDII_USER}:${BDII_USER} ${BDII_VAR_DIR}
+    chown -R ${BDII_USER}:${BDII_USER} ${SLAPD_DB_DIR}
+    sudo -u ${BDII_USER} rm -f ${SLAPD_DB_DIR}/stats/* 2>/dev/null
+    sudo -u ${BDII_USER} rm -f ${SLAPD_DB_DIR}/glue2/* 2>/dev/null
+    sudo -u ${BDII_USER} rm -f ${SLAPD_DB_DIR}/* 2>/dev/null
+    sudo -u ${BDII_USER} rm -f ${BDII_VAR_DIR}/old.ldif 2>/dev/null
+    sudo -u ${BDII_USER} cp ${DB_CONFIG} ${SLAPD_DB_DIR}
+    sudo -u ${BDII_USER} cp ${DB_CONFIG} ${SLAPD_DB_DIR}/stats/
+    sudo -u ${BDII_USER} cp ${DB_CONFIG} ${SLAPD_DB_DIR}/glue2/
 
-     echo -n "Starting SLAPD: " 
-     COMMAND="${SLAPD} -f ${SLAPD_CONF} -h ldap://$(hostname -f):${SLAPD_PORT} -u ${BDII_USER}"
-     ${COMMAND}
-     touch ${SLAPD_LOCK_FILE}
-     if [ ! -f "${SLAPD_PID_FILE}" ]; then 
-	 sleep 2
-     fi
+    echo -n "Starting SLAPD: "
+    COMMAND="${SLAPD} -f ${SLAPD_CONF} -h ldap://$(hostname -f):${SLAPD_PORT} -u ${BDII_USER}"
+    ${COMMAND}
+    touch ${SLAPD_LOCK_FILE}
+    if [ ! -f "${SLAPD_PID_FILE}" ]; then
+        sleep 2
+    fi
 
-     if [ -f "${SLAPD_PID_FILE}" ]; then 
-	 ps $(cat ${SLAPD_PID_FILE}) >/dev/null 2>&1   
-	 RETVAL=$?
-     else
-	 RETVAL=1
-     fi
+    if [ -f "${SLAPD_PID_FILE}" ]; then
+        ps $(cat ${SLAPD_PID_FILE}) >/dev/null 2>&1
+        RETVAL=$?
+    else
+        RETVAL=1
+    fi
 
-     if [ ${RETVAL} -gt 0 ]; then
-    	 echo -n "SLAPD failed to start" 1>&2
-	 
-	 rm -f ${SLAPD_LOCK_FILE}
-	 eval log_failure_msg
-	 echo "${COMMAND} -d 256"
-	 ${COMMAND} -d 256 
-	 return 1
-     else
-	 eval log_success_msg
-     fi
+    if [ ${RETVAL} -gt 0 ]; then
+        echo -n "SLAPD failed to start" 1>&2
+
+        rm -f ${SLAPD_LOCK_FILE}
+        eval log_failure_msg
+        echo "${COMMAND} -d 256"
+        ${COMMAND} -d 256
+        return 1
+    else
+        eval log_success_msg
+    fi
 
 
-     sudo -u ${BDII_USER} ${BDII_UPDATE} -c ${BDII_CONF} -d
-     touch ${UPDATE_LOCK_FILE}
+    sudo -u ${BDII_USER} ${BDII_UPDATE} -c ${BDII_CONF} -d
+    touch ${UPDATE_LOCK_FILE}
 
-     if [ ! -f ${BDII_VAR_DIR}/bdii-update.pid ]; then
-         sleep 2
-     fi
-     if [ -f ${BDII_VAR_DIR}/bdii-update.pid ]; then
-         touch ${UPDATE_PID_FILE}
-         chown ${BDII_USER} ${UPDATE_PID_FILE}
-         mv ${BDII_VAR_DIR}/bdii-update.pid ${UPDATE_PID_FILE}
-         ps $(cat ${UPDATE_PID_FILE}) >/dev/null 2>&1
-         RETVAL=$?
-     else
-         RETVAL=1
-     fi
+    if [ ! -f ${BDII_VAR_DIR}/bdii-update.pid ]; then
+        sleep 2
+    fi
+    if [ -f ${BDII_VAR_DIR}/bdii-update.pid ]; then
+        touch ${UPDATE_PID_FILE}
+        chown ${BDII_USER} ${UPDATE_PID_FILE}
+        mv ${BDII_VAR_DIR}/bdii-update.pid ${UPDATE_PID_FILE}
+        ps $(cat ${UPDATE_PID_FILE}) >/dev/null 2>&1
+        RETVAL=$?
+    else
+        RETVAL=1
+    fi
 
-     echo -n "Starting update process: "
-     if [ ${RETVAL} -gt 0 ]; then
-         echo -n "Update process failed to start" 1>&2
-	 rm -f ${UPDATE_LOCK_FILE}
-	 eval log_failure_msg
-         return 1
-     else
-         eval log_success_msg
-         touch $lockfile
-	 return 0
-     fi
+    echo -n "Starting update process: "
+    if [ ${RETVAL} -gt 0 ]; then
+        echo -n "Update process failed to start" 1>&2
+        rm -f ${UPDATE_LOCK_FILE}
+        eval log_failure_msg
+        return 1
+    else
+        eval log_success_msg
+        touch $lockfile
+        return 0
+    fi
 }
 
 function stop(){
 
     # Check the existance of the lock file
     if [ ! -f "${SLAPD_LOCK_FILE}" ] &&  [ ! -f "${UPDATE_LOCK_FILE}" ]; then
-	echo -n "Stopping BDII: "
-	result=$($0 status)
-	if [ $? -gt 0 ]; then
-	        echo ${result} 1>&2
-		return 1
-	else
-	    echo "BDII Already stopped"
-	    return 0
-	fi
+        echo -n "Stopping BDII: "
+        result=$($0 status)
+        if [ $? -gt 0 ]; then
+            echo ${result} 1>&2
+            return 1
+        else
+            echo "BDII Already stopped"
+            return 0
+        fi
     fi
 
     RETVAL=0
 
-    echo -n "Stopping update process: " 
+    echo -n "Stopping update process: "
 
-    if [ -f "${UPDATE_PID_FILE}" ]; then 
-	UPDATE_PID=$(cat ${UPDATE_PID_FILE})
+    if [ -f "${UPDATE_PID_FILE}" ]; then
+        UPDATE_PID=$(cat ${UPDATE_PID_FILE})
     fi
 
     sudo -u ${BDII_USER} kill -15 ${UPDATE_PID} 2>/dev/null
     if [ -n "${UPDATE_PID}" ]; then
-	ps ${UPDATE_PID} >/dev/null 2>&1
-	if [ $? = 0 ]; then 
-	    sleep 2	
-	    ps ${UPDATE_PID} >/dev/null 2>&1
-	    if [ $? = 0 ]; then 
-		sudo -u ${BDII_USER} kill -9 ${UPDATE_PID} 2>/dev/null
-		sleep 2
-		ps ${UPDATE_PID} >/dev/null 2>&1
-		if [ $? = 0 ]; then 
-		    echo -n "Could not kill update process ${UPDATE_PID}" 1>&2
-		    RETVAL=1
-		fi
-	    fi
-	    
-	fi
+        ps ${UPDATE_PID} >/dev/null 2>&1
+        if [ $? = 0 ]; then
+            sleep 2
+            ps ${UPDATE_PID} >/dev/null 2>&1
+            if [ $? = 0 ]; then
+                sudo -u ${BDII_USER} kill -9 ${UPDATE_PID} 2>/dev/null
+                sleep 2
+                ps ${UPDATE_PID} >/dev/null 2>&1
+                if [ $? = 0 ]; then
+                    echo -n "Could not kill update process ${UPDATE_PID}" 1>&2
+                    RETVAL=1
+                fi
+            fi
+        fi
     fi
-    
+
     if [ ${RETVAL} = 0 ];  then
-	rm -f ${UPDATE_PID_FILE}
-	rm -f ${UPDATE_LOCK_FILE}
-	eval log_success_msg
+        rm -f ${UPDATE_PID_FILE}
+        rm -f ${UPDATE_LOCK_FILE}
+        eval log_success_msg
     else
-	eval log_failure_msg
+        eval log_failure_msg
     fi
 
-    echo -n "Stopping SLAPD: " 
+    echo -n "Stopping SLAPD: "
 
-    if [ -f "${SLAPD_PID_FILE}" ]; then 
-	SLAPD_PID=$(cat ${SLAPD_PID_FILE})
+    if [ -f "${SLAPD_PID_FILE}" ]; then
+        SLAPD_PID=$(cat ${SLAPD_PID_FILE})
     fi
 
     sudo -u ${BDII_USER} kill -15 ${SLAPD_PID} 2>/dev/null
     if [ -n "${SLAPD_PID}" ]; then
-	ps ${SLAPD_PID} >/dev/null 2>&1
-	if [ $? = 0 ]; then 
-	    sleep 2	
-	    ps ${SLAPD_PID} >/dev/null 2>&1
-	    if [ $? = 0 ]; then 
-		sudo -u ${BDII_USER} kill -9 ${SLAPD_PID} 2>/dev/null
-		sleep 2
-		ps ${SLAPD_PID} >/dev/null 2>&1
-		if [ $? = 0 ]; then 
-		    echo -n "Could not kill slapd process ${SLAPD_PID}" 1>&2
-		    RETVAL=2
-		else
-		    rm -f {SLAPD_PID_FILE}
-		fi
-		
-	    fi
-	fi
+        ps ${SLAPD_PID} >/dev/null 2>&1
+        if [ $? = 0 ]; then
+            sleep 2
+            ps ${SLAPD_PID} >/dev/null 2>&1
+            if [ $? = 0 ]; then
+                sudo -u ${BDII_USER} kill -9 ${SLAPD_PID} 2>/dev/null
+                sleep 2
+                ps ${SLAPD_PID} >/dev/null 2>&1
+                if [ $? = 0 ]; then
+                    echo -n "Could not kill slapd process ${SLAPD_PID}" 1>&2
+                    RETVAL=2
+                else
+                    rm -f {SLAPD_PID_FILE}
+                fi
+            fi
+        fi
     fi
 
     if [ ${RETVAL} = 2 ];  then
-	eval log_failure_msg
+        eval log_failure_msg
     else
-	rm -f ${SLAPD_LOCK_FILE}
-	eval log_success_msg
+        rm -f ${SLAPD_LOCK_FILE}
+        eval log_success_msg
     fi
 
     if [ ! ${RETVAL} = 0 ];  then
-	return 1
+        return 1
     else
-	rm -f $lockfile
-	return 0
+        rm -f $lockfile
+        return 0
     fi
 }
 
@@ -248,34 +246,34 @@ function status(){
 
     if [ ! -f "${SLAPD_LOCK_FILE}" ] && [ ! -f "${UPDATE_LOCK_FILE}" ]; then
         echo -n "BDII Stopped"
-	eval log_success_msg
+        eval log_success_msg
         return 3
     fi
 
-      if [ -f ${SLAPD_PID_FILE} ]; then 
-	ps $(cat ${SLAPD_PID_FILE}) >/dev/null 2>&1
-	if [ ! $? = 0 ]; then
-	    echo -n "SLAPD PID file exists but the process died" 1>&2
-	    eval log_failure_msg
-	    return 1
-	fi
+    if [ -f ${SLAPD_PID_FILE} ]; then
+        ps $(cat ${SLAPD_PID_FILE}) >/dev/null 2>&1
+        if [ ! $? = 0 ]; then
+            echo -n "SLAPD PID file exists but the process died" 1>&2
+            eval log_failure_msg
+            return 1
+        fi
     else
-	echo -n "SLAPD PID file ${SLAPD_PID_FILE} does not exist" 1>&2
-	eval log_failure_msg
-	return 1
+        echo -n "SLAPD PID file ${SLAPD_PID_FILE} does not exist" 1>&2
+        eval log_failure_msg
+        return 1
     fi
 
-    if [ -f ${UPDATE_PID_FILE} ]; then 
-	ps $(cat ${UPDATE_PID_FILE}) >/dev/null 2>&1
-	if [ ! $? = 0 ]; then
-	    echo -n "Update process died" 1>&2
-	    eval log_failure_msg
-	    return 1
-	fi
+    if [ -f ${UPDATE_PID_FILE} ]; then
+        ps $(cat ${UPDATE_PID_FILE}) >/dev/null 2>&1
+        if [ ! $? = 0 ]; then
+            echo -n "Update process died" 1>&2
+            eval log_failure_msg
+            return 1
+        fi
     else
-	echo -n "Update process failed to start" 1>&2
-	eval log_failure_msg
-	return 1
+        echo -n "Update process failed to start" 1>&2
+        eval log_failure_msg
+        return 1
     fi
 
     echo -n "BDII Runnning "
@@ -286,8 +284,8 @@ function status(){
 case "$1" in
     start)
         start
-	RETVAL=$?
-	;;
+        RETVAL=$?
+        ;;
     stop)
         stop
         RETVAL=$?
@@ -295,12 +293,12 @@ case "$1" in
     status)
         status
         RETVAL=$?
-	;;
+        ;;
     reload)
         ;;
     restart | force-reload)
         stop
-	start
+        start
         RETVAL=$?
         ;;
     condrestart | try-restart)
@@ -308,7 +306,7 @@ case "$1" in
             stop
             start
             RETVAL=$?
-	fi
+        fi
         ;;
     *)
         echo $"Usage: $0 {start|stop|restart|status|condrestart}"
