@@ -115,13 +115,11 @@ function start(){
 	 
 	 rm -f ${SLAPD_LOCK_FILE}
 	 eval log_failure_msg
-	 echo
 	 echo "${COMMAND} -d 256"
 	 ${COMMAND} -d 256 
 	 return 1
      else
 	 eval log_success_msg
-	 echo
      fi
 
 
@@ -146,11 +144,9 @@ function start(){
          echo -n "Update process failed to start" 1>&2
 	 rm -f ${UPDATE_LOCK_FILE}
 	 eval log_failure_msg
-         echo
          return 1
      else
          eval log_success_msg
-         echo
          touch $lockfile
 	 return 0
      fi
@@ -202,10 +198,8 @@ function stop(){
 	rm -f ${UPDATE_PID_FILE}
 	rm -f ${UPDATE_LOCK_FILE}
 	eval log_success_msg
-	echo
     else
 	eval log_failure_msg
-	echo
     fi
 
     echo -n "Stopping SLAPD: " 
@@ -237,11 +231,9 @@ function stop(){
 
     if [ ${RETVAL} = 2 ];  then
 	eval log_failure_msg
-	echo
     else
 	rm -f ${SLAPD_LOCK_FILE}
 	eval log_success_msg
-	echo
     fi
 
     if [ ! ${RETVAL} = 0 ];  then
@@ -257,22 +249,19 @@ function status(){
     if [ ! -f "${SLAPD_LOCK_FILE}" ] && [ ! -f "${UPDATE_LOCK_FILE}" ]; then
         echo -n "BDII Stopped"
 	eval log_success_msg
-	echo
-        return 0
+        return 3
     fi
 
       if [ -f ${SLAPD_PID_FILE} ]; then 
 	ps $(cat ${SLAPD_PID_FILE}) >/dev/null 2>&1
 	if [ ! $? = 0 ]; then
 	    echo -n "SLAPD PID file exists but the process died" 1>&2
-	    eval log_failure _msg
-	    echo
+	    eval log_failure_msg
 	    return 1
 	fi
     else
 	echo -n "SLAPD PID file ${SLAPD_PID_FILE} does not exist" 1>&2
 	eval log_failure_msg
-	echo
 	return 1
     fi
 
@@ -281,19 +270,16 @@ function status(){
 	if [ ! $? = 0 ]; then
 	    echo -n "Update process died" 1>&2
 	    eval log_failure_msg
-	    echo
 	    return 1
 	fi
     else
 	echo -n "Update process failed to start" 1>&2
 	eval log_failure_msg
-	echo
 	return 1
     fi
 
     echo -n "BDII Runnning "
     eval log_success_msg
-    echo
     return 0
 }
 
