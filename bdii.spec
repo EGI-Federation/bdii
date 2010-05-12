@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.1.2
+Version:	5.1.3
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -60,13 +60,12 @@ chmod 0755 %{buildroot}%{_initrddir}/%{name}
 rm -rf %{buildroot}
 
 %pre
-# Temporary fix while upgrading from BDII version 5.0 to 5.1
-$(service %{name} status > /dev/null 2>&1)
-if [ $? -eq 0 ]; then  
-    service %{name} stop > /dev/null 2>&1
-fi
-if [ -f /var/log/bdii/bdii-update.log ]; then
-    rm -f /var/log/bdii/bdii-update.log
+# Stop service if upgrading from version 5.0 to 5.1
+if [ -f /opt/glite/bin/bdii-update ]; then 
+	service %{name} stop > /dev/null 2>&1
+	if [ -f /var/log/bdii/bdii-update.log ]; then
+	    rm -f /var/log/bdii/bdii-update.log
+	fi
 fi
  
 %post
