@@ -61,7 +61,7 @@ rm -rf %{buildroot}
 
 %pre
 # Stop service if upgrading from version 5.0 to 5.1
-if [ -f /opt/glite/bin/bdii-update ]; then 
+if [ -f /opt/bdii/bin/bdii-update ]; then 
 	service %{name} stop > /dev/null 2>&1
 	if [ -f /var/log/bdii/bdii-update.log ]; then
 	    rm -f /var/log/bdii/bdii-update.log
