@@ -59,6 +59,16 @@ chmod 0755 %{buildroot}%{_initrddir}/%{name}
 %clean
 rm -rf %{buildroot}
 
+%pre
+# Temporary fix while upgrading from BDII version 5.0 to 5.1
+$(service %{name} status > /dev/null 2>&1)
+if [ $? -eq 0 ]; then  
+    service %{name} stop > /dev/null 2>&1
+fi
+if [ -f /var/log/bdii/bdii-update.log ]; then
+    rm -f /var/log/bdii/bdii-update.log
+fi
+ 
 %post
 sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
     -i %{_sysconfdir}/%{name}/bdii-slapd.conf
