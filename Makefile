@@ -13,6 +13,9 @@ install:
 	@mkdir -p $(prefix)/var/lib/bdii/gip/ldif/
 	@mkdir -p $(prefix)/var/lib/bdii/gip/provider/
 	@mkdir -p $(prefix)/var/lib/bdii/gip/plugin/
+	@mkdir -p $(prefix)/opt/glite/etc/gip/ldif/
+	@mkdir -p $(prefix)/opt/glite/etc/gip/provider/
+	@mkdir -p $(prefix)/opt/glite/etc/gip/plugin/
 	@mkdir -p $(prefix)/etc/bdii/
 	@mkdir -p $(prefix)/etc/init.d/
 	@mkdir -p $(prefix)/etc/logrotate.d/
@@ -28,6 +31,7 @@ install:
 	@install -m 0644 etc/bdii-slapd.conf  $(prefix)/etc/bdii/
 	@install -m 0644 etc/DB_CONFIG        $(prefix)/etc/bdii/
 	@install -m 0644 etc/default.ldif     $(prefix)/var/lib/bdii/gip/ldif/
+	@install -m 0644 etc/default.ldif     $(prefix)/opt/glite/etc/gip/ldif/
 	@install -m 0644 etc/logrotate.d/bdii $(prefix)/etc/logrotate.d
 	@install -m 0644 etc/cron.d/bdii-proxy $(prefix)/etc/cron.d
 
