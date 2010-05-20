@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.1.4
+Version:	5.1.5
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -87,6 +87,7 @@ fi
 %files
 %defattr(-,root,root,-)
 %attr(-,ldap,ldap) %{_localstatedir}/lib/%{name}
+%attr(-,ldap,ldap) /opt/glite/etc/gip
 %attr(-,ldap,ldap) %{_localstatedir}/log/%{name}
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}/DB_CONFIG
@@ -101,6 +102,8 @@ fi
 %doc copyright
 
 %changelog
+* Thu May 20 2010 Laurence Field <laurence.field@cern.ch> - 5.1.5-1
+- Added /opt/glite/etc/gip
 * Mon Mar 29 2010 Laurence Field <laurence.field@cern.ch> - 5.1.0-1
 - New stable version
 
