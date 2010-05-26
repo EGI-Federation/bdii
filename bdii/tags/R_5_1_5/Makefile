@@ -37,7 +37,7 @@ install:
 
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
-	rsync -HaS --exclude ".svn" --exclude "$(build)" * $(build)/$(NAME)-$(VERSION)/
+	rsync -HaS --perms --exclude ".svn" --exclude "$(build)" * $(build)/$(NAME)-$(VERSION)/
 	cd $(build); tar --gzip -cf $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)/; cd -
 
 sources: dist
