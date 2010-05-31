@@ -158,7 +158,7 @@ function stop(){
     if [ ! -f "${SLAPD_LOCK_FILE}" ] &&  [ ! -f "${UPDATE_LOCK_FILE}" ]; then
         echo -n "Stopping BDII: "
         result=$($0 status)
-        if [ $? -gt 0 ]; then
+        if [ $? -gt 0 -a $? -ne 3 ]; then
             echo ${result} 1>&2
             return 1
         else
