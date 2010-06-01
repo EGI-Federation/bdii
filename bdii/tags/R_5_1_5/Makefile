@@ -37,7 +37,7 @@ install:
 
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
-	tar --gzip -cf $(NAME)-$(VERSION).tar.gz --exclude-vcs --exclude=$(build) *
+	tar --gzip -cf $(NAME)-$(VERSION).tar.gz --exclude=.svn --exclude=$(build) *
 	mv $(NAME)-$(VERSION).tar.gz ${build}/$(NAME)-$(VERSION)/
 	cd $(build)/$(NAME)-$(VERSION); tar -zxvf $(NAME)-$(VERSION).tar.gz; cd -
 	rm -f $(build)/$(NAME)-$(VERSION)/$(NAME)-$(VERSION).tar.gz
