@@ -95,7 +95,7 @@ function start(){
     sudo -u ${BDII_USER} cp ${DB_CONFIG} ${SLAPD_DB_DIR}/stats/
     sudo -u ${BDII_USER} cp ${DB_CONFIG} ${SLAPD_DB_DIR}/glue2/
 
-    echo -n "Starting SLAPD: "
+    echo -n "Starting BDII slapd: "
     COMMAND="${SLAPD} -f ${SLAPD_CONF} -h ldap://$(hostname -f):${SLAPD_PORT} -u ${BDII_USER}"
     ${COMMAND}
     touch ${SLAPD_LOCK_FILE}
@@ -111,7 +111,7 @@ function start(){
     fi
 
     if [ ${RETVAL} -gt 0 ]; then
-        echo -n "SLAPD failed to start" 1>&2
+        echo -n "BDII slapd failed to start" 1>&2
 
         rm -f ${SLAPD_LOCK_FILE}
         eval log_failure_msg
@@ -139,9 +139,9 @@ function start(){
         RETVAL=1
     fi
 
-    echo -n "Starting update process: "
+    echo -n "Starting BDII update process: "
     if [ ${RETVAL} -gt 0 ]; then
-        echo -n "Update process failed to start" 1>&2
+        echo -n "BDII update process failed to start" 1>&2
         rm -f ${UPDATE_LOCK_FILE}
         eval log_failure_msg
         return 1
@@ -162,14 +162,14 @@ function stop(){
             echo ${result} 1>&2
             return 1
         else
-            echo "BDII Already stopped"
+            echo "BDII already stopped"
             return 0
         fi
     fi
 
     RETVAL=0
 
-    echo -n "Stopping update process: "
+    echo -n "Stopping BDII update process: "
 
     if [ -f "${UPDATE_PID_FILE}" ]; then
         UPDATE_PID=$(cat ${UPDATE_PID_FILE})
@@ -186,7 +186,7 @@ function stop(){
                 sleep 2
                 ps ${UPDATE_PID} >/dev/null 2>&1
                 if [ $? = 0 ]; then
-                    echo -n "Could not kill update process ${UPDATE_PID}" 1>&2
+                    echo -n "Could not kill BDII update process ${UPDATE_PID}" 1>&2
                     RETVAL=1
                 fi
             fi
@@ -201,7 +201,7 @@ function stop(){
         eval log_failure_msg
     fi
 
-    echo -n "Stopping SLAPD: "
+    echo -n "Stopping BDII slapd: "
 
     if [ -f "${SLAPD_PID_FILE}" ]; then
         SLAPD_PID=$(cat ${SLAPD_PID_FILE})
@@ -218,7 +218,7 @@ function stop(){
                 sleep 2
                 ps ${SLAPD_PID} >/dev/null 2>&1
                 if [ $? = 0 ]; then
-                    echo -n "Could not kill slapd process ${SLAPD_PID}" 1>&2
+                    echo -n "Could not kill BDII slapd process ${SLAPD_PID}" 1>&2
                     RETVAL=2
                 else
                     rm -f {SLAPD_PID_FILE}
@@ -253,12 +253,12 @@ function status(){
     if [ -f ${SLAPD_PID_FILE} ]; then
         ps $(cat ${SLAPD_PID_FILE}) >/dev/null 2>&1
         if [ ! $? = 0 ]; then
-            echo -n "SLAPD PID file exists but the process died" 1>&2
+            echo -n "BDII slapd PID file exists but the process died" 1>&2
             eval log_failure_msg
             return 1
         fi
     else
-        echo -n "SLAPD PID file ${SLAPD_PID_FILE} does not exist" 1>&2
+        echo -n "BDII slapd PID file ${SLAPD_PID_FILE} does not exist" 1>&2
         eval log_failure_msg
         return 1
     fi
@@ -266,12 +266,12 @@ function status(){
     if [ -f ${UPDATE_PID_FILE} ]; then
         ps $(cat ${UPDATE_PID_FILE}) >/dev/null 2>&1
         if [ ! $? = 0 ]; then
-            echo -n "Update process died" 1>&2
+            echo -n "BDII update process died" 1>&2
             eval log_failure_msg
             return 1
         fi
     else
-        echo -n "Update process failed to start" 1>&2
+        echo -n "BDII update process failed to start" 1>&2
         eval log_failure_msg
         return 1
     fi
