@@ -91,7 +91,7 @@ fi
 %attr(-,ldap,ldap) %{_localstatedir}/log/%{name}
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}/DB_CONFIG
-%config(noreplace) %{_sysconfdir}/%{name}/bdii.conf
+%config(noreplace) /opt/%{name}/etc/bdii.conf
 %config(noreplace) %{_sysconfdir}/%{name}/BDII.schema
 %config(noreplace) %{_sysconfdir}/%{name}/bdii-slapd.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
