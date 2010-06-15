@@ -16,6 +16,7 @@ install:
 	@mkdir -p $(prefix)/opt/glite/etc/gip/ldif/
 	@mkdir -p $(prefix)/opt/glite/etc/gip/provider/
 	@mkdir -p $(prefix)/opt/glite/etc/gip/plugin/
+	@mkdir -p $(prefix)/opt/bdii/etc/
 	@mkdir -p $(prefix)/etc/bdii/
 	@mkdir -p $(prefix)/etc/init.d/
 	@mkdir -p $(prefix)/etc/logrotate.d/
@@ -26,10 +27,10 @@ install:
 	@install -m 0755 etc/init.d/bdii      $(prefix)/etc/init.d/
 	@install -m 0755 bin/bdii-update      $(prefix)/usr/sbin/
 	@install -m 0755 bin/bdii-proxy       $(prefix)/usr/sbin/
-	@install -m 0644 etc/bdii.conf	      $(prefix)/etc/bdii/
-	@install -m 0644 etc/BDII.schema     $(prefix)/etc/bdii/
-	@install -m 0644 etc/bdii-slapd.conf  $(prefix)/etc/bdii/
-	@install -m 0644 etc/DB_CONFIG        $(prefix)/etc/bdii/
+	@install -m 0644 etc/bdii.conf	      $(prefix)/opt/bdii/etc/
+	@install -m 0644 etc/BDII.schema     $(prefix)/opt/bdii/etc/
+	@install -m 0644 etc/bdii-slapd.conf  $(prefix)/opt/bdii/etc/
+	@install -m 0644 etc/DB_CONFIG        $(prefix)/opt/bdii/etc/
 	@install -m 0644 etc/default.ldif     $(prefix)/var/lib/bdii/gip/ldif/
 	@install -m 0644 etc/default.ldif     $(prefix)/opt/glite/etc/gip/ldif/
 	@install -m 0644 etc/logrotate.d/bdii $(prefix)/etc/logrotate.d
