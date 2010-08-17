@@ -1,117 +1,86 @@
-Name:		bdii
-Version:	5.1.7
-Release:	1%{?dist}
-Summary:	The Berkeley Database Information Index (BDII)
+%define metadata CONFIG
+%define name %( grep NAME %{metadata} | sed 's/^[^=]*=//' )
+%define version %( grep VERSION %{metadata} | sed 's/^[^=]*=//' )
+%define release %( grep RELEASE %{metadata} | sed 's/^[^=]*=//' )
+%define prefix %( grep PREFIX %{metadata} | sed 's/^[^=]*=//' )
+%define license %( grep LICENSE %{metadata} | sed 's/^[^=]*=//' )
+%define vendor %( grep VENDOR %{metadata} | sed 's/^[^=]*=//' )
+%define packager %( grep PACKAGER %{metadata} | sed 's/^[^=]*=//' )
+%define group %( grep GROUP %{metadata} | sed 's/^[^=]*=//' )
+%define desc %( grep DESCRIPTION %{metadata} | sed 's/^[^=]*=//' )
 
-Group:		System Environment/Daemons
-License:	ASL 2.0
-URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
-#               wget -O %{name}-%{version}-443.tar.gz "http://svnweb.cern.ch/world/wsvn/gridinfo/bdii/tags/R_5_1_0?op=dl&rev=443"
-Source:		%{name}-%{version}.tar.gz
-BuildArch:	noarch
-BuildRoot:	%{_tmppath}/%{name}-%{version}-build
-
-Requires:	openldap-clients
-Requires:	openldap-servers
-Requires:	lsb
-Requires:	glue-schema >= 2.0.0
-
-Requires(post):		chkconfig
-Requires(post):		expect
-Requires(preun):	chkconfig
-Requires(preun):	initscripts
-Requires(preun):        lsb
-Requires(postun):	initscripts
-Requires(postun):       lsb
+Summary: %{name}
+Name: %{name}
+Version: %{version}
+Vendor: %{vendor}
+Release: %{release}
+License: %{license}
+Group: %{group}
+Source: %{name}-%{version}.src.tgz
+BuildArch: noarch
+Prefix: %{prefix}
+BuildRoot: %{_tmppath}/%{name}-%{version}-build
+Packager: %{packager}
+Requires: openldap-clients
+Requires: openldap-servers
+Requires: expect
+Requires: lsb
+Requires: glue-schema >= 2.0.0
 
 %description
-The Berkeley Database Information Index (BDII)
+%{desc}
 
 %prep
-%setup -q
-#change to the one below if you are building against downloaded tarball from svnweb.cern.ch
-#%setup -q -n trunk.r443
+
+%setup -c
 
 %build
-# Nothing to build
+make -f INSTALL install prefix=%{buildroot}%{prefix}
 
-%install
-rm -rf %{buildroot}
-make install prefix=%{buildroot}
-
-# Turn off default enabling of the service
-if [ -f %{buildroot}%{_initrddir}/%{name} ]; then
-    sed -e 's/\(chkconfig: \)\w*/\1-/' \
-        -e '/Default-Start/d' \
-        -e 's/\(Default-Stop:\s*\).*/\10 1 2 3 4 5 6/' \
-        -i %{buildroot}%{_sysconfdir}/init.d/%{name}
-else
-    mkdir -p %{buildroot}%{_initrddir}
-    sed -e 's/\(chkconfig: \)\w*/\1-/' \
-	-e '/Default-Start/d' \
-	-e 's/\(Default-Stop:\s*\).*/\10 1 2 3 4 5 6/' \
-	%{buildroot}%{_sysconfdir}/init.d/%{name} > %{buildroot}%{_initrddir}/%{name}
-    rm %{buildroot}%{_sysconfdir}/init.d/%{name}
+%pre
+if [ -f /opt/bdii/sbin/bdii-update ]; then
+    /etc/rc.d/init.d/bdii stop
 fi
-chmod 0755 %{buildroot}%{_initrddir}/%{name}
 
+if ! /usr/bin/id edguser &>/dev/null; then
+    /usr/sbin/useradd -r -d /var/log/bdii -s /bin/sh edguser || \
+        logger -t bdii/rpm "Unexpected error adding user \"edguser\". Aborting installation."
+fi
+
+%post
+sed -i  "s/.*rootpw.*/rootpw    $(/usr/bin/mkpasswd -s 0)/" /opt/bdii/etc/bdii-slapd.conf
+chkconfig --add bdii 
+/etc/init.d/bdii condrestart || true
+
+%preun
+if [ $1 -eq 0 ]; then
+    /etc/init.d/bdii stop || true
+    /sbin/chkconfig --del bdii
+fi
+
+%files 
+%defattr(-,root,root)
+%attr(0755,edguser,edguser) %dir /opt/bdii
+%attr(0755,edguser,edguser) %dir /var/bdii/
+%attr(0755,edguser,edguser) %dir /var/bdii/db
+%attr(0755,edguser,edguser) %dir /var/bdii/db/stats
+%attr(0755,edguser,edguser) %dir /var/bdii/db/glue2
+%attr(0755,edguser,edguser) %dir /var/bdii/archive
+%attr(0755,edguser,edguser) %dir /var/log/bdii/
+%dir /opt/glite/etc/gip/ldif
+%dir /opt/glite/etc/gip/provider
+%dir /opt/glite/etc/gip/plugin
+%dir /var/lock/subsys
+%config(noreplace) /opt/bdii/etc/DB_CONFIG
+%config(noreplace) /opt/bdii/etc/bdii.conf
+%config(noreplace) /opt/bdii/etc/BDII.schema
+%config(noreplace) /opt/bdii/etc/bdii-slapd.conf
+%config(noreplace) /opt/glite/etc/gip/ldif/default.ldif
+/etc/init.d/bdii
+/etc/logrotate.d/bdii
+/etc/cron.d/bdii-proxy
+/opt/bdii/bin/bdii-update
+/opt/bdii/bin/bdii-proxy
 
 %clean
 rm -rf %{buildroot}
-
-%pre
-# Stop service if upgrading from version 5.0 to 5.1
-if [ -f /opt/bdii/bin/bdii-update ]; then 
-	service %{name} stop > /dev/null 2>&1
-	if [ -f /var/log/bdii/bdii-update.log ]; then
-	    rm -f /var/log/bdii/bdii-update.log
-	fi
-fi
- 
-%post
-sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
-    -i %{_sysconfdir}/%{name}/bdii-slapd.conf
-/sbin/chkconfig --add %{name}
-
-%preun
-if [ $1 = 0 ]; then
-  service %{name} stop > /dev/null 2>&1
-  /sbin/chkconfig --del %{name}
-fi
-
-%postun
-if [ "$1" -ge "1" ]; then
-  service %{name} condrestart > /dev/null 2>&1
-fi
-
-%files
-%defattr(-,root,root,-)
-%attr(-,ldap,ldap) %{_localstatedir}/lib/%{name}
-%attr(-,ldap,ldap) /opt/glite/etc/gip
-%attr(-,ldap,ldap) %{_localstatedir}/log/%{name}
-%dir %{_sysconfdir}/%{name}
-%config(noreplace) %{_sysconfdir}/%{name}/DB_CONFIG
-%config(noreplace) /opt/%{name}/etc/bdii.conf
-%config(noreplace) %{_sysconfdir}/%{name}/BDII.schema
-%config(noreplace) %{_sysconfdir}/%{name}/bdii-slapd.conf
-%config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%config(noreplace) %{_sysconfdir}/cron.d/bdii-proxy
-%{_initrddir}/%{name}
-%{_sbindir}/bdii-update
-%{_sbindir}/bdii-proxy
-%doc copyright
-
-%changelog
-* Thu May 20 2010 Laurence Field <laurence.field@cern.ch> - 5.1.5-1
-- Added /opt/glite/etc/gip
-* Mon Mar 29 2010 Laurence Field <laurence.field@cern.ch> - 5.1.0-1
-- New stable version
-
-* Thu Feb 25 2010 Daniel Johansson <daniel@nsc.liu.se> - 5.0.8-2.443
-- Update packaging etc (svn revision 443)
-
-* Wed Feb 24 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.0.8-2.436
-- Update (svn revision 436)
-
-* Mon Feb 08 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.0.8-1
-- Initial package (svn revision 375)

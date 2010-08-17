@@ -94,12 +94,13 @@ def get_config(config):
     config['BDII_READ_TIMEOUT'] = int(config['BDII_READ_TIMEOUT'])
 
     if ( config['BDII_DAEMON'] == True ):
-        for parameter in ['BDII_PORT', 'BDII_BREATHE_TIME',
+        for parameter in ['BDII_PORT','BDII_BIND', 'BDII_BREATHE_TIME',
                           'BDII_ARCHIVE_SIZE', 'BDII_VAR_DIR', 'SLAPD_CONF']:
             if ( not config.has_key(parameter) ):
                 sys.stderr.write("Error: Configuration parameter %s is not specified in the configuration file %s.\n" % (parameter, config['BDII_CONFIG_FILE']))
                 sys.exit(1)
 
+        config['BDII_BIND'] = config['BDII_BIND'].replace(" ","")
         if ( os.path.exists(config['SLAPD_CONF']) ):
             config['BDII_PASSWD'] = {}
             rootdn = False
@@ -118,6 +119,12 @@ def get_config(config):
                         config['BDII_PASSWD'][rootdn] = rootpw
                         rootdn = False
                         rootpw = False
+            if ( not config['BDII_PASSWD'].has_key(config['BDII_BIND']) ):
+                sys.stderr.write("Error: Could not find the password for the database %s in %s." %(config['BDII_BIND'],config['SLAPD_CONF']) )
+        else:
+            sys.stderr.write("Error: %s does not exist.\n" %(config['SLAPD_CONF']) )
+            sys.exit(1)
+
         config['BDII_BREATHE_TIME'] = float(config['BDII_BREATHE_TIME'])
         config['BDII_ARCHIVE_SIZE'] = int(config['BDII_ARCHIVE_SIZE'])
         config['BDII_HOSTNAME'] = socket.getfqdn()
@@ -242,12 +249,11 @@ def read_ldif(source):
 
         # Close LDIF pipe
         pipe.close()
-        try:
-            write_fh = os.fdopen(write_fd, 'w')
-            write_fh.write(raw_ldif)
-            write_fh.close()
-        except IOError:
-            log.error("Information provider %s terminated unexpectedly." % source)
+
+        write_fh = os.fdopen(write_fd, 'w')
+        write_fh.write(raw_ldif)
+        write_fh.close()
+
         signal.alarm(0) # Disable the alarm
         sys.exit(0)
 
@@ -262,14 +268,6 @@ def get_dns(ldif):
         dn = ldif[dn_index + 4 :end_dn_index].lower()
         dn = re.sub("\s*,\s*",",",dn)
         dn = re.sub("\s*=\s*","=",dn)
-        dn = dn.replace("\\5c","\\\\") # Replace encoded slash
-        dn = dn.replace("\\2c","\\,") # Replace encoded comma
-        dn = dn.replace("\\3d","\\=") # Replace encoded equals
-        dn = dn.replace("\\2b","\\+") # Replace encoded plus
-        dn = dn.replace("\\3b","\\;") # Replace encoded semi colon
-        dn = dn.replace("\\22","\\\"") # Replace encoded quote
-        dn = dn.replace("\\3e","\\>") # Replace encoded greater than
-        dn = dn.replace("\\3c","\\<") # Replace encoded less than
         end_entry_index = ldif.find("\n\n",dn_index, last_dn_index) 
         dns[dn] = (dn_index, last_dn_index)
         last_dn_index = dn_index
@@ -320,13 +318,13 @@ def convert_entry(entry_string):
         if (index > -1):
             attribute = line[:index].lower()
             if ( attribute == "objectclass" ):
-                value = line[index + 2:]
+                value = line[index + 2:].lower()
             else:
                 value = line[index + 2:]
             if (entry.has_key(attribute)):
                 
                 if( config.has_key('FIX_GLUE')) and ( config['FIX_GLUE'] == 'yes'):
-                    if ( multivalued.has_key(attribute)):
+                    if ( multivalued.has_key(attribute.lower())):
                         try:
                             entry[attribute].index(value)
                         except ValueError:
@@ -338,13 +336,13 @@ def convert_entry(entry_string):
                         entry[attribute].append(value)
             else:
                 entry[attribute]= [value]
+                
     return entry
 
 def convert_back(entry):
     entry_string =  "dn: %s\n" %(entry["dn"][0])
     entry.pop("dn")
     for attribute in entry.keys():
-        attribute=attribute.lower()
         for value in entry[attribute]:
             entry_string += "%s: %s\n" %(attribute, value)
 
@@ -359,8 +357,7 @@ def ldif_diff(dn, old_entry, new_entry):
     old_entry = convert_entry(old_entry)
     new_entry = convert_entry(new_entry)
     for attribute in new_entry.keys():
-        attribute=attribute.lower()
-        if (attribute.lower() == "dn"):
+        if (attribute == "dn"):
             continue
 
         # If the old entry has the attribue we need to compare values 
@@ -376,7 +373,7 @@ def ldif_diff(dn, old_entry, new_entry):
 
     # Checking for removed attributes
     for attribute in old_entry.keys():
-        if (attribute.lower() == "dn"):
+        if (attribute == "dn"):
             continue
         if not new_entry.has_key(attribute):
             delete_attribute[attribute]=old_entry[attribute]
@@ -386,19 +383,16 @@ def ldif_diff(dn, old_entry, new_entry):
     ldif=['dn: %s' % dn]
     ldif.append('changetype: modify')
     for attribute in add_attribute.keys():
-        attribute=attribute.lower()
         ldif.append('add: %s' % (attribute) )
         for value in add_attribute[attribute]:
             ldif.append('%s: %s' % (attribute, value))
         ldif.append('-')
     for attribute in replace_attribute.keys():
-        attribute=attribute.lower()
         ldif.append('replace: %s' % (attribute) )
         for value in replace_attribute[attribute]:
             ldif.append('%s: %s' % (attribute, value))
         ldif.append('-')
     for attribute in delete_attribute.keys():
-        attribute=attribute.lower()
         ldif.append('delete: %s' % (attribute) )
         ldif.append('-')
 
@@ -432,7 +426,7 @@ def modify_entry(entry, mods):
         # Handle LDIF replace attribute
         if ( mods.has_key('replace')):
             for attribute in mods['replace']:
-                attribute=attribute.lower()
+                attribute = attribute.lower()
                 if (entry.has_key(attribute)):
                     if (mods.has_key(attribute)):
                         entry[attribute] = mods[attribute]
@@ -440,9 +434,8 @@ def modify_entry(entry, mods):
         # Handle LDIF add attribute
         if ( mods.has_key('add')):
             for attribute in mods['add']:
-                attribute=attribute.lower()
+                attribute = attribute.lower()
                 if ( not entry.has_key(attribute)):
-                    log.debug("attribute: %s" %(attribute))
                     entry[attribute] = mods[attribute]
                 else:
                     entry[attribute].extend(mods[attribute])
@@ -579,6 +572,7 @@ s'):
         old_dns = get_dns(old_ldif)
 
         for dn in new_dns.keys():
+
             if old_dns.has_key(dn):
                 old = old_ldif[old_dns[dn][0]:old_dns[dn][1]].strip()
                 new = new_ldif[new_dns[dn][0]:new_dns[dn][1]].strip()
@@ -695,47 +689,32 @@ s'):
 
             if ( not config['BDII_LOG_LEVEL'] == 'DEBUG' ):
                 os.remove(error_file)
-
-        roots = group_dns(new_dns)
+            
         stats['query_start'] = time.time()
-        if ( os.path.exists("%s/old.ldif" % config['BDII_VAR_DIR']) ):
-            os.remove("%s/old.ldif" % config['BDII_VAR_DIR'])
-        if ( os.path.exists("%s/old.err" % config['BDII_VAR_DIR']) ):
-            os.remove("%s/old.err" % config['BDII_VAR_DIR'])
-        for root in roots.keys():
-            command = "ldapsearch -LLL -x -h %s -p %s -b %s >> %s/old.ldif 2>> %s/old.err" % (config['BDII_HOSTNAME'], config['BDII_PORT'], root, config['BDII_VAR_DIR'], config['BDII_VAR_DIR'])
-            result = os.system(command)
-            if ( result > 0):
-                log.error("Query to self failed.")
+        command = "ldapsearch -LLL -x -h %s -p %s -b %s > %s/old.ldif 2>/var/bdii/old.err" % (config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_BIND'], config['BDII_VAR_DIR'])
+        result = os.system(command)
         stats['query_stop'] = time.time()
+        if ( result > 0):
+            log.error("Query to self failed.")
+        
         out_file="%s/archive/%s-snapshot.gz" % (config['BDII_VAR_DIR'], time.strftime('%y-%m-%d-%H-%M-%S'))
         log.debug("Creating GZIP file")
         os.system("gzip -c %s/old.ldif > %s" %(config['BDII_VAR_DIR'], out_file) )
-
-        infosys_output=""
+        
         if (len(old_ldif) == 0 ):
-            log.debug("ldapadd o=infosys compression")
             command="ldapadd"
-            
-            infosys_output+="dn: o=infosys\n"
-            infosys_output+="objectClass: organization\n"
-            infosys_output+="o: infosys\n\n"
-            infosys_output+="dn: CompressionType=zip,o=infosys\n"
-            infosys_output+="objectClass: CompressedContent\n"
-            infosys_output+="Hostname: %s\n" %(config['BDII_HOSTNAME'])
-            infosys_output+="CompressionType: zip\n"
-            infosys_output+="Data: file://%s\n\n" %(out_file)
         else:
-            log.debug("ldapmodify o=infosys compression")
             command="ldapmodify"
-
-            infosys_output+="dn: CompressionType=zip,o=infosys\n"
-            infosys_output+="changetype: Modify\n"
-            infosys_output+="replace: Data\n"
-            infosys_output+="Data: file://%s\n\n" %(out_file)
         try:
             output_fh = os.popen("%s -x -c -h %s -p %s -D o=infosys -w %s >/dev/null" %(command, config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_PASSWD']['o=infosys']), 'w')
-            output_fh.write(infosys_output)
+            output_fh.write("dn: o=infosys\n")
+            output_fh.write("objectClass: organization\n")
+            output_fh.write("o: infosys\n\n")
+            output_fh.write("dn: CompressionType=zip,o=infosys\n")
+            output_fh.write("objectClass: CompressedContent\n")
+            output_fh.write("Hostname: %s\n" %(config['BDII_HOSTNAME']))
+            output_fh.write("CompressionType: zip\n")
+            output_fh.write("Data: file://%s\n\n" %(out_file))
             output_fh.close()
         except IOError:
             log.error("Could not add compressed data to the database.")
@@ -772,33 +751,20 @@ s'):
             if ( key.find("_") == -1 ):
                 log.info("%s: %i" % (key, stats[key]) )
 
-        infosys_output=""
         if (len(old_ldif) == 0 ):
-            log.debug("ldapadd o=infosys updatestats")
             command="ldapadd"
-
-            infosys_output+="dn: Hostname=%s,o=infosys\n" %(config['BDII_HOSTNAME'])
-            infosys_output+="objectClass: UpdateStats\n"
-            infosys_output+="Hostname: %s\n" %(config['BDII_HOSTNAME'])
-            for key in stats.keys():
-                if ( key.find("_") == -1):
-                    infosys_output+="%s: %i\n" %(key, stats[key])
-            infosys_output+="\n"
         else:
-            log.debug("ldapmodify o=infosys updatestats")
             command="ldapmodify"
-
-            infosys_output+="dn: Hostname=%s,o=infosys\n" %(config['BDII_HOSTNAME'])
-            infosys_output+="changetype: Modify\n"
-            for key in stats.keys():
-                if ( key.find("_") == -1):
-                    infosys_output+="replace: %s\n" %(key)
-                    infosys_output+="%s: %i\n" %(key, stats[key])
-                    infosys_output+="-\n"
-            infosys_output+="\n"
         try:
             output_fh = os.popen("%s -x -c -h %s -p %s -D o=infosys -w %s >/dev/null" %(command, config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_PASSWD']['o=infosys']), 'w')
-            output_fh.write(infosys_output)
+            output_fh.write("dn: Hostname=%s,o=infosys\n"
+                        %(config['BDII_HOSTNAME']))
+            output_fh.write("objectClass: UpdateStats\n")
+            output_fh.write("Hostname: %s\n" %(config['BDII_HOSTNAME']))
+            for key in stats.keys():
+                if ( key.find("_") == -1):
+                    output_fh.write("%s: %i\n" %(key, stats[key]) ) 
+            output_fh.write("\n")
             output_fh.close()
         except IOError:
             log.error("Could not add stats entries to the database.")
