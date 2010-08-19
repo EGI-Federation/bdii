@@ -426,6 +426,8 @@ def modify_entry(entry, mods):
                                     entry.pop(attribute)
                             except ValueError, e:
                                 pass
+                            except KeyError, e:
+                                pass
                     else:
                         entry.pop(attribute)
 
