@@ -4,12 +4,12 @@ working_dir=$(mktemp -d)
 
 cp -r ldif provider plugin ${working_dir}
 
-. /etc/bdii/bdii.conf
+. /opt/bdii/etc/bdii.conf
 
 chown $BDII_USER:$BDII_USER ${working_dir}
 chmod +x ${working_dir}/provider/* ${working_dir}/plugin/*
 
-sed "s#/var/lib/bdii/gip#${working_dir}#"  /etc/bdii/bdii.conf > ${working_dir}/bdii.conf
+sed "s#/opt/glite/etc/gip#${working_dir}#"  /opt/bdii/etc/bdii.conf > ${working_dir}/bdii.conf
 
 sed -i "s#BDII_READ_TIMEOUT=.*#BDII_READ_TIMEOUT=3#"  ${working_dir}/bdii.conf
 sed -i "s#BDII_BREATHE_TIME=.*#BDII_BREATHE_TIME=10#"  ${working_dir}/bdii.conf
@@ -23,7 +23,7 @@ export BDII_CONF=${working_dir}/bdii.conf
 
 command="ldapsearch -LLL -x -h $(hostname -f) -p 2170 -b o=grid"
 RETVAL=0
-echo "Waiting 10 second for the BDII to start."
+echo "Waiting 10 seconds for the BDII to start."
 sleep 10
 
 echo -n "Testing the timeout for hanging providers: "
