@@ -62,6 +62,7 @@ if [ "x$GLOBUS_LOCATION" = "x" ]; then
 fi
 
 if [ "x$GLOBUS_LOCATION" = "x" ]; then
+    test -f /usr/bin/grid-proxy-init || exit 0
     /usr/bin/grid-proxy-init -q -cert $cert -key $key -out $proxy_file
 else
     f=$GLOBUS_LOCATION/etc/globus-user-env.sh
