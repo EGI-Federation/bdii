@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.1.8
+Version:	5.1.9
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -102,6 +102,8 @@ fi
 %doc copyright
 
 %changelog
+* Mon Sep 06 2010 Laurence Field <laurence.field@cern.ch> - 5.1.9-1
+- Fixed IS-145
 * Thu May 20 2010 Laurence Field <laurence.field@cern.ch> - 5.1.5-1
 - Added /opt/glite/etc/gip
 * Mon Mar 29 2010 Laurence Field <laurence.field@cern.ch> - 5.1.0-1
