@@ -702,7 +702,10 @@ s'):
         modify_error_counter = 0
         for root in roots.keys():
             try:
-                input_fh=os.popen("ldapmodify -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], root, config['BDII_PASSWD'][root], error_file), 'w')
+                bind = root
+                if root == "o=grid":
+                    bind = "o=shadow"
+                input_fh=os.popen("ldapmodify -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD'][bind], error_file), 'w')
                 for dn in roots[root]:
                     input_fh.write(ldif_modify[ldif_modify_dns[dn][0]:ldif_modify_dns[dn][1]])
                     input_fh.write("\n")
@@ -735,7 +738,10 @@ s'):
         delete_error_counter = 0
         for root in roots.keys():
             try:
-                input_fh=os.popen("ldapdelete -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], root, config['BDII_PASSWD'][root], error_file), 'w')
+                bind = root
+                if root == "o=grid":
+                    bind = "o=shadow"
+                input_fh=os.popen("ldapdelete -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD'][bind], error_file), 'w')
                 for dn in roots[root]:
                     input_fh.write("%s\n" % (dn))
                 input_fh.close()
