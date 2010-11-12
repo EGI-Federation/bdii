@@ -1,3 +1,7 @@
+dn: o=shadow
+objectClass: organization
+o: o=shadow
+
 dn: o=grid
 objectClass: organization
 o: grid
