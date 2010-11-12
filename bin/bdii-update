@@ -287,6 +287,19 @@ def group_dns(dns):
 
     return grouped
 
+def group_suffix(dns):
+    grouped = {}
+    for dn in dns:
+        tmp = dn.split(",")
+        suffix = "%s,%s" % (tmp[len-2], tmp[len(dn)-1])
+        if grouped.has_key(suffix):
+            grouped[suffix].append(dn)
+        else:
+            grouped[suffix] = [dn]
+
+    return grouped
+
+
 def convert_entry(entry_string):
 
     multivalued = [ 'objectclass',
@@ -667,14 +680,16 @@ s'):
         roots = group_dns(ldif_add)
         add_error_counter = 0
         for root in roots.keys():
-            try:
-                input_fh=os.popen("ldapadd -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], root, config['BDII_PASSWD'][root], error_file), 'w')
-                for dn in roots[root]:
-                    input_fh.write(new_ldif[new_dns[dn][0]:new_dns[dn][1]])
-                    input_fh.write("\n")
-                input_fh.close()
-            except IOError:
-                log.error("Could not add new entries to the database.")
+            suffixes = group_suffix(roots[root])
+            for suffix in suffixes:
+                try:
+                    input_fh=os.popen("ldapadd -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], suffix, config['BDII_PASSWD'][root], error_file), 'w')
+                    for dn in suffixes[suffix]:
+                        input_fh.write(new_ldif[new_dns[dn][0]:new_dns[dn][1]])
+                        input_fh.write("\n")
+                    input_fh.close()
+                except IOError:
+                    log.error("Could not add new entries to the database.")
                 
   
             add_error_counter += log_errors(error_file,ldif_add)
