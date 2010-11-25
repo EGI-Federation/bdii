@@ -87,13 +87,13 @@ function start(){
     mkdir -p /var/lock/subsys
     chown -R ${BDII_USER}:${BDII_USER} ${BDII_VAR_DIR}
     chown -R ${BDII_USER}:${BDII_USER} ${SLAPD_DB_DIR}
-    sudo -u ${BDII_USER} rm -f ${SLAPD_DB_DIR}/stats/* 2>/dev/null
-    sudo -u ${BDII_USER} rm -f ${SLAPD_DB_DIR}/glue2/* 2>/dev/null
-    sudo -u ${BDII_USER} rm -f ${SLAPD_DB_DIR}/* 2>/dev/null
-    sudo -u ${BDII_USER} rm -f ${BDII_VAR_DIR}/old.ldif 2>/dev/null
-    sudo -u ${BDII_USER} cp ${DB_CONFIG} ${SLAPD_DB_DIR}
-    sudo -u ${BDII_USER} cp ${DB_CONFIG} ${SLAPD_DB_DIR}/stats/
-    sudo -u ${BDII_USER} cp ${DB_CONFIG} ${SLAPD_DB_DIR}/glue2/
+    runuser - ${BDII_USER} rm -f ${SLAPD_DB_DIR}/stats/* 2>/dev/null
+    runuser - ${BDII_USER} rm -f ${SLAPD_DB_DIR}/glue2/* 2>/dev/null
+    runuser - ${BDII_USER} rm -f ${SLAPD_DB_DIR}/* 2>/dev/null
+    runuser - ${BDII_USER} rm -f ${BDII_VAR_DIR}/old.ldif 2>/dev/null
+    runuser - ${BDII_USER} cp ${DB_CONFIG} ${SLAPD_DB_DIR}
+    runuser - ${BDII_USER} cp ${DB_CONFIG} ${SLAPD_DB_DIR}/stats/
+    runuser - ${BDII_USER} cp ${DB_CONFIG} ${SLAPD_DB_DIR}/glue2/
 
     echo -n "Starting BDII slapd: "
     COMMAND="${SLAPD} -f ${SLAPD_CONF} -h ldap://$(hostname -f):${SLAPD_PORT} -u ${BDII_USER}"
@@ -123,7 +123,7 @@ function start(){
     fi
 
 
-    sudo -u ${BDII_USER} ${BDII_UPDATE} -c ${BDII_CONF} -d
+    runuser - ${BDII_USER} ${BDII_UPDATE} -c ${BDII_CONF} -d
     touch ${UPDATE_LOCK_FILE}
 
     if [ ! -f ${BDII_VAR_DIR}/bdii-update.pid ]; then
@@ -175,14 +175,14 @@ function stop(){
         UPDATE_PID=$(cat ${UPDATE_PID_FILE})
     fi
 
-    sudo -u ${BDII_USER} kill -15 ${UPDATE_PID} 2>/dev/null
+    runuser - ${BDII_USER} kill -15 ${UPDATE_PID} 2>/dev/null
     if [ -n "${UPDATE_PID}" ]; then
         ps ${UPDATE_PID} >/dev/null 2>&1
         if [ $? = 0 ]; then
             sleep 2
             ps ${UPDATE_PID} >/dev/null 2>&1
             if [ $? = 0 ]; then
-                sudo -u ${BDII_USER} kill -9 ${UPDATE_PID} 2>/dev/null
+                runuser - ${BDII_USER} kill -9 ${UPDATE_PID} 2>/dev/null
                 sleep 2
                 ps ${UPDATE_PID} >/dev/null 2>&1
                 if [ $? = 0 ]; then
@@ -207,14 +207,14 @@ function stop(){
         SLAPD_PID=$(cat ${SLAPD_PID_FILE})
     fi
 
-    sudo -u ${BDII_USER} kill -15 ${SLAPD_PID} 2>/dev/null
+    runuser - ${BDII_USER} kill -15 ${SLAPD_PID} 2>/dev/null
     if [ -n "${SLAPD_PID}" ]; then
         ps ${SLAPD_PID} >/dev/null 2>&1
         if [ $? = 0 ]; then
             sleep 2
             ps ${SLAPD_PID} >/dev/null 2>&1
             if [ $? = 0 ]; then
-                sudo -u ${BDII_USER} kill -9 ${SLAPD_PID} 2>/dev/null
+                runuser - ${BDII_USER} kill -9 ${SLAPD_PID} 2>/dev/null
                 sleep 2
                 ps ${SLAPD_PID} >/dev/null 2>&1
                 if [ $? = 0 ]; then
