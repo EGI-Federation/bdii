@@ -283,7 +283,11 @@ def group_dns(dns):
         if grouped.has_key(root):
             grouped[root].append(dn)
         else:
-            grouped[root] = [ dn ]
+            if root in config['BDII_PASSWD']:
+                grouped[root] = [ dn ]
+            else:
+                log.error("dn suffix %s in not specified in the slapd configuration file." % (root))
+
 
     return grouped
 
@@ -669,15 +673,17 @@ s'):
         for root in roots.keys():
             try:
                 bind = root
-                if root == "o=grid":
-                    bind = "o=shadow"
+                if "o=shadow" in config['BDII_PASSWD']:
+                    if root == "o=grid":
+                        bind = "o=shadow"
                 input_fh=os.popen("ldapadd -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD'][bind], error_file), 'w')
                 for dn in roots[root]:
                     input_fh.write(new_ldif[new_dns[dn][0]:new_dns[dn][1]])
                     input_fh.write("\n")
                 input_fh.close()
-            except IOError:
+            except IOError, KeyError:
                 log.error("Could not add new entries to the database.")
+            
                 
   
             add_error_counter += log_errors(error_file,ldif_add)
@@ -703,14 +709,15 @@ s'):
         for root in roots.keys():
             try:
                 bind = root
-                if root == "o=grid":
-                    bind = "o=shadow"
+                if "o=shadow" in config['BDII_PASSWD']:
+                    if root == "o=grid":
+                        bind = "o=shadow"
                 input_fh=os.popen("ldapmodify -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD'][bind], error_file), 'w')
                 for dn in roots[root]:
                     input_fh.write(ldif_modify[ldif_modify_dns[dn][0]:ldif_modify_dns[dn][1]])
                     input_fh.write("\n")
                 input_fh.close()
-            except IOError:
+            except IOError, KeyError:
                 log.error("Could not modify entries in the database.")
 
             modify_error_counter += log_errors(error_file, ldif_modify_dns.keys())
@@ -739,13 +746,14 @@ s'):
         for root in roots.keys():
             try:
                 bind = root
-                if root == "o=grid":
-                    bind = "o=shadow"
+                if "o=shadow" in config['BDII_PASSWD']:
+                    if root == "o=grid":
+                        bind = "o=shadow"
                 input_fh=os.popen("ldapdelete -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD'][bind], error_file), 'w')
                 for dn in roots[root]:
                     input_fh.write("%s\n" % (dn))
                 input_fh.close()
-            except IOError:
+            except IOError, KeyError:
                 log.error("Could not delete old entries in the database.")
 
             delete_error_counter += log_errors(error_file, ldif_delete)
@@ -794,7 +802,7 @@ s'):
             output_fh = os.popen("%s -x -c -h %s -p %s -D o=infosys -w %s >/dev/null" %(command, config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_PASSWD']['o=infosys']), 'w')
             output_fh.write(infosys_output)
             output_fh.close()
-        except IOError:
+        except IOError, KeyError:
             log.error("Could not add compressed data to the database.")
 
         old_files=os.popen("ls -t %s/archive" % (config['BDII_VAR_DIR']) ).readlines()
@@ -857,7 +865,7 @@ s'):
             output_fh = os.popen("%s -x -c -h %s -p %s -D o=infosys -w %s >/dev/null" %(command, config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_PASSWD']['o=infosys']), 'w')
             output_fh.write(infosys_output)
             output_fh.close()
-        except IOError:
+        except IOError, KeyError:
             log.error("Could not add stats entries to the database.")
 
         old_ldif = None
