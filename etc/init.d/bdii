@@ -79,6 +79,11 @@ function start(){
     # Create proxy
     ${BDII_PROXY} ${BDII_CONF}
 
+    # Create RAM Disk
+    if [ "${BDII_RAM_DISK}" = "yes" ]; then
+	mount -t tmpfs -o size=1G,mode=0744 tmpfs ${SLAPD_DB_DIR}
+    fi
+
     #Initialize the database directory.
     mkdir -p ${SLAPD_DB_DIR}/stats
     mkdir -p ${SLAPD_DB_DIR}/glue2
@@ -226,6 +231,7 @@ function stop(){
         fi
     fi
 
+    
     if [ ${RETVAL} = 2 ];  then
         eval log_failure_msg
     else
@@ -236,6 +242,7 @@ function stop(){
     if [ ! ${RETVAL} = 0 ];  then
         return 1
     else
+	mountpoint -q ${SLAPD_DB_DIR} && umount ${SLAPD_DB_DIR}
         rm -f $lockfile
         return 0
     fi
