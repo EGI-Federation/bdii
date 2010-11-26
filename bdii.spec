@@ -92,8 +92,10 @@ fi
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}/DB_CONFIG
 %config(noreplace) /opt/%{name}/etc/bdii.conf
+%config(noreplace) /etc/sysconfig/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}/BDII.schema
 %config(noreplace) %{_sysconfdir}/%{name}/bdii-slapd.conf
+%config(noreplace) %{_sysconfdir}/%{name}/bdii-top-slapd.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %config(noreplace) %{_sysconfdir}/cron.d/bdii-proxy
 %{_initrddir}/%{name}
