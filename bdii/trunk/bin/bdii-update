@@ -56,7 +56,7 @@ def parse_options():
     return config
 
 def get_config(config):
-
+    
     for line in open(config['BDII_CONFIG_FILE']).readlines():
         index=line.find("#")
         if (index > -1):
@@ -66,6 +66,9 @@ def get_config(config):
             key=line[:index].strip()
             value=line[index+1:].strip()
             config[key] = value
+
+    if 'SLAPD_CONF' in os.environ:
+        config['SLAPD_CONF'] = os.environ['SLAPD_CONF']
 
     if ( not config.has_key('BDII_DAEMON') ):
         config['BDII_DAEMON'] = False

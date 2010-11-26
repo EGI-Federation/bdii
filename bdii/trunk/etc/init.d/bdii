@@ -2,9 +2,9 @@
 #
 # BDII system startup script
 # $Id: bdii,v 1.9 2009/06/18 14:26:52 lfield Exp $
-# chkconfig: - 95 5
+# chkconfig: 2345 95 5
 # description: BDII Service
-# config: /etc/bdii/bdii.conf
+# config: /opt/bdii/etc/bdii.conf
 
 ### BEGIN INIT INFO
 # Provides:          bdii
@@ -126,7 +126,7 @@ function start(){
         eval log_success_msg
     fi
 
-
+    export SLAPD_CONF=${SLAPD_CONF}
     runuser -s /bin/sh ${BDII_USER} -c "${BDII_UPDATE} -c ${BDII_CONF} -d"
     touch ${UPDATE_LOCK_FILE}
 
