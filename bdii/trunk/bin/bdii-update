@@ -290,7 +290,7 @@ def group_dns(dns):
                 grouped[root] = [ dn ]
             else:
                 if "o=shadow" in config['BDII_PASSWD'] and root == "o=grid":
-                    pass
+                    grouped[root] = [ dn ]
                 else:
                     log.error("dn suffix %s in not specified in the slapd configuration file." % (root))
 
@@ -675,8 +675,15 @@ s'):
             error_file=tempfile.mktemp()
 
         roots = group_dns(ldif_add)
+        suffixes = roots.keys()
+        if "o=shadow" in suffixes:
+            index = suffixes.index("o=shadow")
+            if index > 0:
+                suffixes[index] = suffixes[0]
+                suffixes[0] = "o=shadow"
+
         add_error_counter = 0
-        for root in roots.keys():
+        for root in suffixes:
             try:
                 bind = root
                 if "o=shadow" in config['BDII_PASSWD']:
