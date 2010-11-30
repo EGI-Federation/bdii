@@ -289,7 +289,10 @@ def group_dns(dns):
             if root in config['BDII_PASSWD']:
                 grouped[root] = [ dn ]
             else:
-                log.error("dn suffix %s in not specified in the slapd configuration file." % (root))
+                if "o=shadow" in config['BDII_PASSWD'] and root == "o=grid":
+                    pass
+                else:
+                    log.error("dn suffix %s in not specified in the slapd configuration file." % (root))
 
 
     return grouped
