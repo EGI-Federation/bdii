@@ -21,3 +21,9 @@ o: glue
 dn: GLUE2GroupID=resource, o=glue
 objectClass: GLUE2Group
 GLUE2GroupID: resource
+
+dn: GLUE2GroupID=grid, o=glue
+objectClass: GLUE2Group
+GLUE2GroupID: grid
+
+
