@@ -781,7 +781,11 @@ s'):
         if ( os.path.exists("%s/old.err" % config['BDII_VAR_DIR']) ):
             os.remove("%s/old.err" % config['BDII_VAR_DIR'])
         for root in roots.keys():
-            command = "ldapsearch -LLL -x -h %s -p %s -b %s >> %s/old.ldif 2>> %s/old.err" % (config['BDII_HOSTNAME'], config['BDII_PORT'], root, config['BDII_VAR_DIR'], config['BDII_VAR_DIR'])
+            # Stop flapping due to o=shadow
+            if root == "o=shadow":
+                command = "ldapsearch -LLL -x -h %s -p %s -b %s -s base >> %s/old.ldif 2>> %s/old.err" % (config['BDII_HOSTNAME'], config['BDII_PORT'], root, config['BDII_VAR_DIR'], config['BDII_VAR_DIR'])
+            else:
+                command = "ldapsearch -LLL -x -h %s -p %s -b %s >> %s/old.ldif 2>> %s/old.err" % (config['BDII_HOSTNAME'], config['BDII_PORT'], root, config['BDII_VAR_DIR'], config['BDII_VAR_DIR'])
             result = os.system(command)
             if ( result > 0):
                 log.error("Query to self failed.")
