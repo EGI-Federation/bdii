@@ -1,0 +1,3 @@
+#SLAPD_CONF=/etc/bdii/bdii-top-slapd.conf
+#SLAPD=/usr/sbin/slapd2.4
+#BDII_RAM_DISK=yes
