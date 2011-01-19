@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.1.13
+Version:	5.1.14
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 

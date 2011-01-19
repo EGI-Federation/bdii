@@ -320,6 +320,7 @@ def convert_entry(entry_string):
                     'gluecesebindmountinfo',
                     'glueseaccessprotocolcapability',
                     'gluesiteotherinfo',
+                    'gluesitesponsor',
                     'gluececapability', 
                     'glueclusterservice',
                     'glue2entityotherinfo',
