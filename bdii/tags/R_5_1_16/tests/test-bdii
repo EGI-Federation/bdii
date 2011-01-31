@@ -1,0 +1,310 @@
+#!/bin/sh
+
+working_dir=$(mktemp -d)
+
+cp -r ldif provider plugin ${working_dir}
+
+. /opt/bdii/etc/bdii.conf
+
+chown $BDII_USER:$BDII_USER ${working_dir}
+chmod +x ${working_dir}/provider/* ${working_dir}/plugin/*
+
+sed "s#/opt/glite/etc/gip#${working_dir}#"  /opt/bdii/etc/bdii.conf > ${working_dir}/bdii.conf
+
+sed -i "s#BDII_READ_TIMEOUT=.*#BDII_READ_TIMEOUT=3#"  ${working_dir}/bdii.conf
+sed -i "s#BDII_BREATHE_TIME=.*#BDII_BREATHE_TIME=10#" ${working_dir}/bdii.conf
+sed -i "s#BDII_DELETE_DELAY=.*#BDII_DELETE_DELAY=2#" ${working_dir}/bdii.conf
+sed -i "s#ERROR#DEBUG#"  ${working_dir}/bdii.conf
+sed -i "s#/var/log/bdii#${working_dir}#"  ${working_dir}/bdii.conf
+
+
+export BDII_CONF=${working_dir}/bdii.conf
+/etc/init.d/bdii restart
+
+
+command="ldapsearch -LLL -x -h $(hostname -f) -p 2170 -b o=grid"
+RETVAL=0
+echo "Waiting 10 seconds for the BDII to start."
+sleep 10
+
+echo -n "Testing the timeout for hanging providers: "
+${command} >/dev/null 2>/dev/null
+if [ $? -eq 32 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing static LDIF file: "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "service_1" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing provider: "
+filter="GlueServiceUniqueID=service_2"
+${command} ${filter} | grep "service_2" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the handling of long DNs: "
+filter="GlueServiceUniqueID"
+${command} ${filter} | grep "really_long" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing ignoring of junk files: "
+filter="GlueServiceUniqueID=service_4"
+${command} ${filter} | grep "service_4" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "OK"
+else
+    echo "FAIL"
+    RETVAL=1
+fi 
+
+echo -n "Testing basic plugin: "
+filter=GlueServiceStatus=Failed
+${command} ${filter} | grep "Failed" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing plugin mutlivalued delete: "
+filter=GlueServiceAccessControlBaseRule
+${command} ${filter} | grep "atlas" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "OK"
+else
+    echo "FAIL"
+    RETVAL=1
+fi 
+
+echo -n "Testing plugin mutlivalued add: "
+filter=GlueServiceAccessControlBaseRule=cms
+${command} ${filter} | grep "cms" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing plugin modify: "
+filter=GlueServiceStatusInfo
+${command} ${filter} | grep "Broken" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+rm -f ${working_dir}/ldif/service-long-dn.ldif
+rm -f ${working_dir}/ldif/service-unstable.ldif
+rm -f ${working_dir}/ldif/service-spaces-2.ldif
+sed -i "s#Failed#Unknown#"  ${working_dir}/plugin/service-status
+sed -i "s#=# = #" ${working_dir}/ldif/service-spaces-1.ldif
+
+echo "Wating for update ..."
+sleep 14
+
+echo -n "Testing modify on update: "
+filter=GlueServiceStatus=Unknown
+${command} ${filter} | grep "Unknown" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing delayed delete: "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "_long_" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi
+
+echo -n "Testing ignoring spaces in dn: "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "service_5" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing dn special character '\': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "slash" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing dn special character ',': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "comma" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing dn special character '=': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "equal" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing dn special character '+': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "plus" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing dn special character '\"': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "quote" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing dn special character ';': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "semi" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing dn special character '<': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "less" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing dn special character '>': "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "greater" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+cp ldif/service-unstable.ldif -f ${working_dir}/ldif/
+echo "Wating for update ..."
+sleep 13
+
+echo -n "Testing deleting obsolete entry: "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "_long_" >/dev/null 2>/dev/null
+if [ ! $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi
+
+echo -n "Testing delete with space in uniqueID: "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "service 6" >/dev/null 2>/dev/null 
+if [ ! $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing unstable service is not deleted: "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "service_7" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+rm -f ${working_dir}/ldif/service-unstable.ldif
+echo "Wating for update ..."
+sleep 13
+
+echo -n "Testing unstable service is not deleted: "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "service_7" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo "Wating for update ..."
+sleep 13
+
+echo -n "Testing unstable service is deleted: "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "service_7" >/dev/null 2>/dev/null 
+if [ ! $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+/etc/init.d/bdii stop
+mv ${working_dir}/bdii-update.log /tmp
+rm -rf ${working_dir}
+
+
+if [ ${RETVAL} -eq 1 ]; then
+    echo "Test Failed"
+    exit 1
+else
+    echo "Test Passed"
+    exit 0
+fi
