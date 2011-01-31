@@ -1,0 +1,18 @@
+dn: GlueServiceUniqueID=service_7,mds-vo-name=resource,o=grid
+objectClass: GlueTop
+objectClass: GlueService
+objectClass: GlueKey
+objectClass: GlueSchemaVersion
+GlueServiceUniqueID: service_7
+GlueServiceName: Test Service Seven
+GlueServiceType: unstable
+GlueServiceVersion: 3.0.0
+GlueServiceEndpoint: ldap://host-invalid:2170/mds-vo-name=resource,o=grid
+GlueServiceStatus: Unstable
+GlueServiceStatusInfo: Service Unstable
+GlueServiceAccessControlBaseRule: none
+GlueServiceAccessControlBaseRule: none
+GlueForeignKey: GlueSiteUniqueID=my-site-name
+GlueSchemaVersionMajor: 1
+GlueSchemaVersionMinor: 3
+

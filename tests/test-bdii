@@ -117,12 +117,13 @@ else
 fi 
 
 rm -f ${working_dir}/ldif/service-long-dn.ldif
+rm -f ${working_dir}/ldif/service-unstable.ldif
 rm -f ${working_dir}/ldif/service-spaces-2.ldif
 sed -i "s#Failed#Unknown#"  ${working_dir}/plugin/service-status
 sed -i "s#=# = #" ${working_dir}/ldif/service-spaces-1.ldif
 
 echo "Wating for update ..."
-sleep 15
+sleep 14
 
 echo -n "Testing modify on update: "
 filter=GlueServiceStatus=Unknown
@@ -234,8 +235,9 @@ else
     echo "OK"
 fi 
 
+cp ldif/service-unstable.ldif -f ${working_dir}/ldif/
 echo "Wating for update ..."
-sleep 10
+sleep 13
 
 echo -n "Testing deleting obsolete entry: "
 filter=GlueServiceUniqueID
@@ -250,6 +252,43 @@ fi
 echo -n "Testing delete with space in uniqueID: "
 filter=GlueServiceUniqueID
 ${command} ${filter} | grep "service 6" >/dev/null 2>/dev/null 
+if [ ! $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing unstable service is not deleted: "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "service_7" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+rm -f ${working_dir}/ldif/service-unstable.ldif
+echo "Wating for update ..."
+sleep 13
+
+echo -n "Testing unstable service is not deleted: "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "service_7" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo "Wating for update ..."
+sleep 13
+
+echo -n "Testing unstable service is deleted: "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "service_7" >/dev/null 2>/dev/null 
 if [ ! $? -gt 0 ]; then
     echo "FAIL"
     RETVAL=1
