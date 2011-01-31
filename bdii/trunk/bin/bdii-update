@@ -759,31 +759,32 @@ s'):
 
             delayed_delete_file = '%s/delayed_delete.pkl' % (config['BDII_VAR_DIR'],)
             if os.path.exists(delayed_delete_file):
-                log.debug("Reading delayed deletes")
                 file_handle = open(delayed_delete_file, 'rb')
                 delay_delete = pickle.load(file_handle)
                 file_handle.close()
             else:
                 delay_delete = {}
                 
+            # Add remove cache timestamps that have been readded
+            for dn in delay_delete.keys():
+                if dn not in ldif_delete:
+                    log.debug("Removing %s from cache (readded)" %(dn,))
+                    delay_delete.pop(dn)
+                
             # Add current timestamp for new deletes
             for dn in ldif_delete:
                 if dn not in delay_delete:
-                    log.debug("Adding %s to delayed_delete" % (dn,))
                     delay_delete[dn] = delete_timestamp
+                    log.debug("Adding %s to cache" %(dn,))
 
-            # Remove delayed deletes from LDIF
-            for dn in delay_delete:
+            # Remove delayed deletes from LDIF or remove from cache
+            for dn in delay_delete.keys():
                 if delay_delete[dn] + config['BDII_DELETE_DELAY'] >= delete_timestamp:
                     ldif_delete.remove(dn)
-                    log.debug("Removing  %s to from ldif" % (dn,))
-                
-            # Remove deletes from from delayed deletes
-            for dn in ldif_delete:
-                if delay_delete[dn] + config['BDII_DELETE_DELAY'] < delete_timestamp:
+                    log.debug("Remove %s from LDIF" %(dn,))
+                else:
                     delay_delete.pop(dn)
-                    log.debug("Removing  %s to from delayed delete" % (dn,))
-
+                    log.debug("Remove %s from cache (to delete)" %(dn,))
                     
             # Store Delayed Deletes
             log.debug("Storing delayed deletes")
