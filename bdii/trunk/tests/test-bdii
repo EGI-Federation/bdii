@@ -12,7 +12,8 @@ chmod +x ${working_dir}/provider/* ${working_dir}/plugin/*
 sed "s#/opt/glite/etc/gip#${working_dir}#"  /opt/bdii/etc/bdii.conf > ${working_dir}/bdii.conf
 
 sed -i "s#BDII_READ_TIMEOUT=.*#BDII_READ_TIMEOUT=3#"  ${working_dir}/bdii.conf
-sed -i "s#BDII_BREATHE_TIME=.*#BDII_BREATHE_TIME=10#"  ${working_dir}/bdii.conf
+sed -i "s#BDII_BREATHE_TIME=.*#BDII_BREATHE_TIME=10#" ${working_dir}/bdii.conf
+sed -i "s#BDII_DELETE_DELAY=.*#BDII_DELETE_DELAY=2#" ${working_dir}/bdii.conf
 sed -i "s#ERROR#DEBUG#"  ${working_dir}/bdii.conf
 sed -i "s#/var/log/bdii#${working_dir}#"  ${working_dir}/bdii.conf
 
@@ -133,10 +134,10 @@ else
     echo "OK"
 fi 
 
-echo -n "Testing deleting obsolete entry: "
+echo -n "Testing delayed delete: "
 filter=GlueServiceUniqueID
 ${command} ${filter} | grep "_long_" >/dev/null 2>/dev/null
-if [ ! $? -gt 0 ]; then
+if [ $? -gt 0 ]; then
     echo "FAIL"
     RETVAL=1
 else
@@ -147,16 +148,6 @@ echo -n "Testing ignoring spaces in dn: "
 filter=GlueServiceUniqueID
 ${command} ${filter} | grep "service_5" >/dev/null 2>/dev/null 
 if [ $? -gt 0 ]; then
-    echo "FAIL"
-    RETVAL=1
-else
-    echo "OK"
-fi 
-
-echo -n "Testing delete with space in uniqueID: "
-filter=GlueServiceUniqueID
-${command} ${filter} | grep "service 6" >/dev/null 2>/dev/null 
-if [ ! $? -gt 0 ]; then
     echo "FAIL"
     RETVAL=1
 else
@@ -237,6 +228,29 @@ echo -n "Testing dn special character '>': "
 filter=GlueServiceUniqueID
 ${command} ${filter} | grep "greater" >/dev/null 2>/dev/null 
 if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo "Wating for update ..."
+sleep 10
+
+echo -n "Testing deleting obsolete entry: "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "_long_" >/dev/null 2>/dev/null
+if [ ! $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi
+
+echo -n "Testing delete with space in uniqueID: "
+filter=GlueServiceUniqueID
+${command} ${filter} | grep "service 6" >/dev/null 2>/dev/null 
+if [ ! $? -gt 0 ]; then
     echo "FAIL"
     RETVAL=1
 else

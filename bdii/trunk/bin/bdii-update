@@ -25,6 +25,7 @@ import getopt
 import socket
 import signal
 import string
+import pickle
 import logging
 import tempfile
 
@@ -97,12 +98,12 @@ def get_config(config):
     config['BDII_READ_TIMEOUT'] = int(config['BDII_READ_TIMEOUT'])
 
     if ( config['BDII_DAEMON'] == True ):
-        for parameter in ['BDII_PORT', 'BDII_BREATHE_TIME',
-                          'BDII_ARCHIVE_SIZE', 'BDII_VAR_DIR', 'SLAPD_CONF']:
+        for parameter in ['BDII_PORT', 'BDII_BREATHE_TIME', 'BDII_VAR_DIR',
+                          'BDII_ARCHIVE_SIZE', 'BDII_DELETE_DELAY',
+                          'SLAPD_CONF']:
             if ( not config.has_key(parameter) ):
                 sys.stderr.write("Error: Configuration parameter %s is not specified in the configuration file %s.\n" % (parameter, config['BDII_CONFIG_FILE']))
                 sys.exit(1)
-
         if ( os.path.exists(config['SLAPD_CONF']) ):
             config['BDII_PASSWD'] = {}
             rootdn = False
@@ -123,6 +124,7 @@ def get_config(config):
                         rootpw = False
         config['BDII_BREATHE_TIME'] = float(config['BDII_BREATHE_TIME'])
         config['BDII_ARCHIVE_SIZE'] = int(config['BDII_ARCHIVE_SIZE'])
+        config['BDII_DELETE_DELAY'] = int(config['BDII_DELETE_DELAY'])
         config['BDII_HOSTNAME'] = socket.getfqdn()
 
     return config
@@ -690,6 +692,7 @@ s'):
                 if "o=shadow" in config['BDII_PASSWD']:
                     if root == "o=grid":
                         bind = "o=shadow"
+                log.debug("ldapadd -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD'][bind], error_file) )        
                 input_fh=os.popen("ldapadd -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD'][bind], error_file), 'w')
                 for dn in roots[root]:
                     input_fh.write(new_ldif[new_dns[dn][0]:new_dns[dn][1]])
@@ -749,12 +752,52 @@ s'):
                 dump_fh.write("%s\n" % (dn))
             dump_fh.close()
 
+        # Delayed delete Function
+        if config['BDII_DELETE_DELAY'] > 0:
+            log.debug("Doing Delayed Delete")
+            delete_timestamp = time.time()
+
+            delayed_delete_file = '%s/delayed_delete.pkl' % (config['BDII_VAR_DIR'],)
+            if os.path.exists(delayed_delete_file):
+                log.debug("Reading delayed deletes")
+                file_handle = open(delayed_delete_file, 'rb')
+                delay_delete = pickle.load(file_handle)
+                file_handle.close()
+            else:
+                delay_delete = {}
+                
+            # Add current timestamp for new deletes
+            for dn in ldif_delete:
+                if dn not in delay_delete:
+                    log.debug("Adding %s to delayed_delete" % (dn,))
+                    delay_delete[dn] = delete_timestamp
+
+            # Remove delayed deletes from LDIF
+            for dn in delay_delete:
+                if delay_delete[dn] + config['BDII_DELETE_DELAY'] >= delete_timestamp:
+                    ldif_delete.remove(dn)
+                    log.debug("Removing  %s to from ldif" % (dn,))
+                
+            # Remove deletes from from delayed deletes
+            for dn in ldif_delete:
+                if delay_delete[dn] + config['BDII_DELETE_DELAY'] < delete_timestamp:
+                    delay_delete.pop(dn)
+                    log.debug("Removing  %s to from delayed delete" % (dn,))
+
+                    
+            # Store Delayed Deletes
+            log.debug("Storing delayed deletes")
+            file_handle = open(delayed_delete_file, 'wb')
+            pickle.dump(delay_delete, file_handle)
+            file_handle.close()
+                             
         log.debug("Deleting Old Entries")
         if ( config['BDII_LOG_LEVEL'] == 'DEBUG' ):
             error_file="%s/delete.err" % (config['BDII_VAR_DIR'])
         else:
             error_file=tempfile.mktemp()
 
+            
         roots = group_dns(ldif_delete)
         delete_error_counter = 0
         for root in roots.keys():
@@ -766,6 +809,7 @@ s'):
                 input_fh=os.popen("ldapdelete -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD'][bind], error_file), 'w')
                 for dn in roots[root]:
                     input_fh.write("%s\n" % (dn))
+                    log.debug("Deleting %s" %(dn))
                 input_fh.close()
             except IOError, KeyError:
                 log.error("Could not delete old entries in the database.")
