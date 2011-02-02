@@ -90,6 +90,7 @@ function start(){
     mkdir -p ${BDII_VAR_DIR}/archive
     mkdir -p /var/lock/subsys
     chown -R ${BDII_USER}:${BDII_USER} ${BDII_VAR_DIR}
+    [ -x /sbin/restorecon ] && /sbin/restorecon -R ${BDII_VAR_DIR}
     chown -R ${BDII_USER}:${BDII_USER} ${SLAPD_DB_DIR}
     runuser -s /bin/sh ${BDII_USER} -c "rm -f ${SLAPD_DB_DIR}/stats/* 2>/dev/null"
     runuser -s /bin/sh ${BDII_USER} -c "rm -f ${SLAPD_DB_DIR}/glue2/* 2>/dev/null"
