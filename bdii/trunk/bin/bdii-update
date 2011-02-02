@@ -382,21 +382,12 @@ def convert_entry(entry_string):
                 value = line[index + 2:]
             else:
                 value = line[index + 2:]
-            if (entry.has_key(attribute)):
-                
-                if( config.has_key('FIX_GLUE')) and ( config['FIX_GLUE'] == 'yes'):
-                    if attribute in multivalued:
-                        try:
-                            entry[attribute].index(value)
-                        except ValueError:
-                            entry[attribute].append(value)
-                else:
-                    try:
-                        entry[attribute].index(value)
-                    except ValueError:
-                        entry[attribute].append(value)
+
+            if entry.has_key(attribute):
+                if not value in entry[attribute]:
+                    entry[attribute].append(value)
             else:
-                entry[attribute]= [value]
+                entry[attribute] = [value]
     return entry
 
 def convert_back(entry):
@@ -535,7 +526,7 @@ def fix(dns,ldif):
 def log_errors(error_file, dns):    
     log.debug("Logging Errors")
     request=0
-    dn=None
+    dn = None
     error_counter=0
     for line in open(error_file).readlines():
         if ( line[:7] == 'request' ):
@@ -607,10 +598,8 @@ def main(config, log):
                         new_ldif = new_ldif + mod_entry
         stats['plugins_stop'] = time.time()
 
-        if( config.has_key('FIX_GLUE')) and ( config['FIX_GLUE'] == 'ye\
-s'):
-            log.debug("Doing Fix")
-            new_ldif = fix(new_dns, new_ldif)
+        log.debug("Doing Fix")
+        new_ldif = fix(new_dns, new_ldif)
 
         log.debug("Writing new_ldif to disk")
         if ( config['BDII_LOG_LEVEL'] == 'DEBUG' ):
@@ -692,7 +681,6 @@ s'):
                 if "o=shadow" in config['BDII_PASSWD']:
                     if root == "o=grid":
                         bind = "o=shadow"
-                log.debug("ldapadd -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD'][bind], error_file) )        
                 input_fh=os.popen("ldapadd -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD'][bind], error_file), 'w')
                 for dn in roots[root]:
                     input_fh.write(new_ldif[new_dns[dn][0]:new_dns[dn][1]])
@@ -700,9 +688,7 @@ s'):
                 input_fh.close()
             except IOError, KeyError:
                 log.error("Could not add new entries to the database.")
-            
-                
-  
+              
             add_error_counter += log_errors(error_file,ldif_add)
 
             if ( not config['BDII_LOG_LEVEL'] == 'DEBUG' ):
