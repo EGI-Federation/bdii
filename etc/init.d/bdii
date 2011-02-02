@@ -2,7 +2,7 @@
 #
 # BDII system startup script
 # $Id: bdii,v 1.9 2009/06/18 14:26:52 lfield Exp $
-# chkconfig: 2345 95 5
+# chkconfig: 345 95 5
 # description: BDII Service
 # config: /opt/bdii/etc/bdii.conf
 
@@ -10,7 +10,8 @@
 # Provides:          bdii
 # Required-Start:    $remote_fs $syslog
 # Required-Stop:     $remote_fs $syslog
-# Default-Stop:      0 1 2 3 4 5 6
+# Default-Start:     3 4 5
+# Default-Stop:      0 1 2 6
 # Short-Description: BDII
 # Description:       Berkeley Database Information Index
 ### END INIT INFO
