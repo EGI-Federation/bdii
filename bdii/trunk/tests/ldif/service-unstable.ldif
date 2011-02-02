@@ -11,7 +11,6 @@ GlueServiceEndpoint: ldap://host-invalid:2170/mds-vo-name=resource,o=grid
 GlueServiceStatus: Unstable
 GlueServiceStatusInfo: Service Unstable
 GlueServiceAccessControlBaseRule: none
-GlueServiceAccessControlBaseRule: none
 GlueForeignKey: GlueSiteUniqueID=my-site-name
 GlueSchemaVersionMajor: 1
 GlueSchemaVersionMinor: 3
