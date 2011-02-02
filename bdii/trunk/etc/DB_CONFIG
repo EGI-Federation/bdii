@@ -10,19 +10,22 @@
 set_flags DB_CDB_ALLDB 
 
 # Maintain transaction logs in memory rather than on disk
-#set_flags DB_LOG_INMEMORY
+set_flags DB_LOG_INMEMORY
 
 # Automatically remove log files as soon as they are no longer needed
 set_flags DB_LOG_AUTOREMOVE
 
 # Do not write or synchronously flush the log on transaction commit
-#set_flags DB_TXN_NOSYNC
+set_flags DB_TXN_NOSYNC
 
 # Will write, but will not synchronously flush, the log on transaction commit.
 #set_flags DB_TXN_WRITE_NOSYNC
 
 # Do not write log records
 #set_flags DB_TXN_NOT_DURABLE
+
+# Set max logsize
+#set_lg_max 1048576
 
 # Set the maximum number of locks supported by the lock subsystem
 set_lk_max_locks 10000
@@ -31,4 +34,4 @@ set_lk_max_locks 10000
 set_tas_spins 100
 
 # Set the size of the shared memory buffer pool (gbytes, bytes, ncache)
-set_cachesize 0 50000000 1
+set_cachesize 1 0 1
