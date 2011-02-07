@@ -1,0 +1,7 @@
+dn: mds-vo-name=nordugrid,o=Grid
+objectclass: Mds
+objectclass: MdsVo
+mds-vo-name: nordugrid
+mds-validfrom: 20110207101232Z
+mds-validto: 20110207111232Z
+
