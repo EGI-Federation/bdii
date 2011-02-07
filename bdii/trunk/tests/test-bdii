@@ -57,6 +57,16 @@ else
     echo "OK"
 fi 
 
+echo -n "Testing nordugrid entry: "
+filter="objectClass=MdsVO"
+${command} ${filter} | grep "nordugrid" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
 echo -n "Testing provider: "
 filter="GlueServiceUniqueID=service_2"
 ${command} ${filter} | grep "service_2" >/dev/null 2>/dev/null 
@@ -327,10 +337,9 @@ else
     echo "OK"
 fi 
 
-#/etc/init.d/bdii stop
+/etc/init.d/bdii stop
 mv ${working_dir}/bdii-update.log /tmp
 rm -rf ${working_dir}
-
 
 if [ ${RETVAL} -eq 1 ]; then
     echo "Test Failed"
