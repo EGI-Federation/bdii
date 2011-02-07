@@ -23,6 +23,7 @@ export BDII_CONF=${working_dir}/bdii.conf
 
 
 command="ldapsearch -LLL -x -h $(hostname -f) -p 2170 -b o=grid"
+command_glue2="ldapsearch -LLL -x -h $(hostname -f) -p 2170 -b o=glue"
 RETVAL=0
 echo "Waiting 10 seconds for the BDII to start."
 sleep 10
@@ -39,6 +40,16 @@ fi
 echo -n "Testing static LDIF file: "
 filter=GlueServiceUniqueID
 ${command} ${filter} | grep "service_1" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing GLUE2 service: "
+filter=objectClass=GLUE2Service
+${command_glue2} ${filter} | grep "glue2-service" >/dev/null 2>/dev/null 
 if [ $? -gt 0 ]; then
     echo "FAIL"
     RETVAL=1
@@ -138,6 +149,16 @@ sleep 14
 echo -n "Testing modify on update: "
 filter=GlueServiceStatus=Unknown
 ${command} ${filter} | grep "Unknown" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing modify GLUE2 Service: "
+filter=objectClass=GLUE2Service
+${command_glue2} ${filter} | grep "GLUE2_Serivce_OK" >/dev/null 2>/dev/null 
 if [ $? -gt 0 ]; then
     echo "FAIL"
     RETVAL=1
@@ -306,7 +327,7 @@ else
     echo "OK"
 fi 
 
-/etc/init.d/bdii stop
+#/etc/init.d/bdii stop
 mv ${working_dir}/bdii-update.log /tmp
 rm -rf ${working_dir}
 
