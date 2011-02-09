@@ -1,6 +1,6 @@
 dn: o=shadow
 objectClass: organization
-o: o=shadow
+o: shadow
 
 dn: o=grid
 objectClass: organization
@@ -25,5 +25,3 @@ GLUE2GroupID: resource
 dn: GLUE2GroupID=grid, o=glue
 objectClass: GLUE2Group
 GLUE2GroupID: grid
-
-
