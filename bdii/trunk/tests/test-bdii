@@ -57,8 +57,8 @@ else
     echo "OK"
 fi 
 
-echo -n "Testing nordugrid entry: "
-filter="objectClass=MdsVO"
+echo -n "Testing GlueTop modification: "
+filter="objectClass=MDS"
 ${command} ${filter} | grep "nordugrid" >/dev/null 2>/dev/null 
 if [ $? -gt 0 ]; then
     echo "FAIL"
@@ -70,6 +70,16 @@ fi
 echo -n "Testing provider: "
 filter="GlueServiceUniqueID=service_2"
 ${command} ${filter} | grep "service_2" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing GLUE2 provider: "
+filter="objectClass=GLUE2Service"
+${command_glue2} ${filter} | grep "cream-06" >/dev/null 2>/dev/null 
 if [ $? -gt 0 ]; then
     echo "FAIL"
     RETVAL=1
@@ -152,6 +162,7 @@ rm -f ${working_dir}/ldif/service-unstable.ldif
 rm -f ${working_dir}/ldif/service-spaces-2.ldif
 sed -i "s#Failed#Unknown#"  ${working_dir}/plugin/service-status
 sed -i "s#=# = #" ${working_dir}/ldif/service-spaces-1.ldif
+sed -i "s#2011-02-07T10:57:48Z#2011-02-07T10:58:57Z#" ${working_dir}/provider/glue2-provider
 
 echo "Wating for update ..."
 sleep 14
@@ -169,6 +180,16 @@ fi
 echo -n "Testing modify GLUE2 Service: "
 filter=objectClass=GLUE2Service
 ${command_glue2} ${filter} | grep "GLUE2_Serivce_OK" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing GLUE2 provider updated: "
+filter="objectClass=GLUE2Service"
+${command_glue2} ${filter} | grep "2011-02-07T10:58:57Z" >/dev/null 2>/dev/null
 if [ $? -gt 0 ]; then
     echo "FAIL"
     RETVAL=1
