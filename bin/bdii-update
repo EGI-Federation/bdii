@@ -408,9 +408,11 @@ def ldif_diff(dn, old_entry, new_entry):
     
     old_entry = convert_entry(old_entry)
     new_entry = convert_entry(new_entry)
+    dn_perserved_case = None
     for attribute in new_entry.keys():
         attribute=attribute.lower()
-        if (attribute.lower() == "dn"):
+        if (attribute == "dn"):
+            dn_perserved_case = new_entry['dn'][0]
             continue
 
         # If the old entry has the attribue we need to compare values 
@@ -433,7 +435,7 @@ def ldif_diff(dn, old_entry, new_entry):
 
 
     # Create LDIF modify statement
-    ldif=['dn: %s' % dn]
+    ldif=['dn: %s' % dn_perserved_case ]
     ldif.append('changetype: modify')
     for attribute in add_attribute.keys():
         attribute=attribute.lower()
@@ -513,12 +515,14 @@ def fix(dns,ldif):
     append = response.append
     
     for dn in dns.keys():
+        entry = convert_entry(ldif[dns[dn][0]:dns[dn][1]])
         if  ( dn[:11].lower() == "mds-vo-name" ):
-            value=dn[12:dn.index(",")]
-            entry = "dn: %s\nObjectClass: MDS\nMds-Vo-Name: %s\n" %(dn,value)
-        else:
-           entry = convert_entry(ldif[dns[dn][0]:dns[dn][1]])
-           entry = convert_back(entry)         
+            if 'objectclass' in entry:
+                if 'mds' in map( lambda x : x.lower(), entry['objectclass']):
+                    if 'gluetop' in map( lambda x : x.lower(), entry['objectclass']):
+                        value=dn[12:dn.index(",")]
+                        entry = { 'dn': [dn], 'objectclass': ['MDS'], 'mds-vo-name': [value] }
+        entry = convert_back(entry)         
         append(entry)
     response = "".join(response)
     return response
@@ -761,16 +765,13 @@ def main(config, log):
             for dn in ldif_delete:
                 if dn not in delay_delete:
                     delay_delete[dn] = delete_timestamp
-                    log.debug("Adding %s to cache" %(dn,))
 
             # Remove delayed deletes from LDIF or remove from cache
             for dn in delay_delete.keys():
                 if delay_delete[dn] + config['BDII_DELETE_DELAY'] >= delete_timestamp:
                     ldif_delete.remove(dn)
-                    log.debug("Remove %s from LDIF" %(dn,))
                 else:
                     delay_delete.pop(dn)
-                    log.debug("Remove %s from cache (to delete)" %(dn,))
                     
             # Store Delayed Deletes
             log.debug("Storing delayed deletes")
