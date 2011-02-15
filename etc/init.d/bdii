@@ -89,7 +89,7 @@ function start(){
 
     # Create RAM Disk
     if [ "${BDII_RAM_DISK}" = "yes" ]; then
-	mount -t tmpfs -o size=1500,mode=0744 tmpfs ${SLAPD_DB_DIR}
+	mount -t tmpfs -o size=1500M,mode=0744 tmpfs ${SLAPD_DB_DIR}
     fi
 
     #Initialize the database directory.
