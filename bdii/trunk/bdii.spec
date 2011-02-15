@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.1.19
+Version:	5.1.20
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -104,6 +104,8 @@ fi
 %doc copyright
 
 %changelog
+* Tue Feb 15 2011 Laurence Field <laurence.field@cern.ch> - 5.1.20-1
+- Increase RAM disk size to 1500M
 * Wed Feb 9 2011 Laurence Field <laurence.field@cern.ch> - 5.1.19-1
 - Address IS-209, IS-211
 * Wed Feb 2 2011 Laurence Field <laurence.field@cern.ch> - 5.1.17-1
