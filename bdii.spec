@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.1.21
+Version:	5.1.22
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -104,6 +104,8 @@ fi
 %doc copyright
 
 %changelog
+* Wed Feb 23 2011 Laurence Field <laurence.field@cern.ch> - 5.1.22-1
+- Addressed IS-218
 * Tue Feb 15 2011 Laurence Field <laurence.field@cern.ch> - 5.1.21-1
 - Increase RAM disk size to 1500M
 * Wed Feb 9 2011 Laurence Field <laurence.field@cern.ch> - 5.1.19-1
@@ -120,12 +122,9 @@ fi
 - Added /opt/glite/etc/gip
 * Mon Mar 29 2010 Laurence Field <laurence.field@cern.ch> - 5.1.0-1
 - New stable version
-
 * Thu Feb 25 2010 Daniel Johansson <daniel@nsc.liu.se> - 5.0.8-2.443
 - Update packaging etc (svn revision 443)
-
 * Wed Feb 24 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.0.8-2.436
 - Update (svn revision 436)
-
 * Mon Feb 08 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.0.8-1
 - Initial package (svn revision 375)

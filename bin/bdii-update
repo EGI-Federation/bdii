@@ -125,7 +125,7 @@ def get_config(config):
         config['BDII_BREATHE_TIME'] = float(config['BDII_BREATHE_TIME'])
         config['BDII_ARCHIVE_SIZE'] = int(config['BDII_ARCHIVE_SIZE'])
         config['BDII_DELETE_DELAY'] = int(config['BDII_DELETE_DELAY'])
-        config['BDII_HOSTNAME'] = socket.getfqdn()
+        config['BDII_HOSTNAME'] = 'localhost'
 
     return config
 
