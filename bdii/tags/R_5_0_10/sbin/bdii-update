@@ -1,0 +1,774 @@
+#!/usr/bin/perl -w
+#
+# bdii-update, populates the bdii database.
+# Original version David Groep, NIKHEF
+# Restructured by L.Field (2004-01-22)
+# Performance enhancements by L.Field (2004-05-24)
+# Restructured by L.Field (2005-02-11)
+# Restructured by M.Litmaath (2005-05-24)
+# Performance enhancements by M.Litmaath (2006-07-09)
+#
+# $Id: bdii-update,v 1.6 2008/11/12 13:31:34 lfield Exp $
+
+use strict;
+use POSIX;
+use LWP::Simple;
+use IO::Socket;
+use Sys::Hostname;
+
+#Variables used for the time measurements.
+my $start_time;
+my $end_time;
+my $elapsed;
+
+#Variables from the bdii configuration file
+my $bdii_dir;
+my $bdii_var_dir;
+my $bdii_passwd;
+my $bdii_user;
+my $bdii_port_read;
+my $bdii_port_write;
+my $bdii_ports_write;
+my @bdii_ports_write;
+my $bdii_bind;
+my $bdii_auto_update;
+my $bdii_auto_modify;
+my $bdii_search_timeout;
+my $bdii_breathe_time;
+my $bdii_tmp_dir;
+my $bdii_cur_stats;
+my $bdii_update_conf;
+my $bdii_update_url;
+my $bdii_update_ldif;
+my $bdii_default_ldif;
+my $bdii_ccem = 0;   # 0=off, 1= create, 2=create and query 
+my $bdii_zipped_sfilter = "CompressionType=zip,o=infosys"; 
+my $bdii_search_filter;
+my $bdii_mod_ldif;
+my $bdii_fwd_conf;
+my $bdii_fwd_log;
+my $bdii_fwd_prog;
+my $bdii_log_dir;
+my $bdii_cache_dir;
+my $bdii_cache_gen = 3;  # The number of cache generations.
+my $bdii_bunch = 10;     # The number of commands launched in a bunch.
+my $bdii_delay = 5;      # Maximum delay between bunches to reduce load spikes.
+my $bdii_is_cache = "no";
+my $bdii_modify_dn;      # Flag used to stop the modification of the DN
+my $fwd_started;
+my $slapd;
+my $slapadd;
+my $slapd_debug_level = 0;
+my $top_bdii;
+
+#Reads the bdii configuration file.
+if (($ARGV[0])){
+    open (CONFIG,$ARGV[0]) || die "Couldn't open config file $ARGV[0]: $!\n";
+    while (<CONFIG>) {
+	if (m/^(\w+)=(.*)$/) {
+	    my $var = $1;
+	    my $val = $2;
+	    $val=~s/^\s+//;
+	    $var =~ tr/A-Z/a-z/;
+	    $val =~ s/\'//g;
+	    eval "\$$var = '$val';";
+	}
+    }
+    close (CONFIG);
+
+    $ENV{BDII_CONF} = $ARGV[0]; #Config file may need to be accessible from scripts
+
+    $bdii_tmp_dir = "$bdii_var_dir/tmp";
+    $bdii_cache_dir = "$bdii_var_dir/cache";
+
+    for (my $gen = $bdii_cache_gen; $gen >= 0; $gen--) {
+	`rm -rf $bdii_cache_dir/$gen`;
+	`mkdir -p $bdii_cache_dir/$gen`;
+    }
+
+    $bdii_mod_ldif = "$bdii_var_dir/bdii-mod.ldif";
+    $bdii_fwd_conf = "$bdii_var_dir/bdii-fwd.conf";
+    $bdii_fwd_log  = "$bdii_log_dir/bdii-fwd.log";
+    $bdii_fwd_prog = "$bdii_dir/sbin/bdii-fwd";
+    $bdii_cur_stats = "$bdii_var_dir/tmp/currentStats.log";
+    $bdii_bind =~ s/\s//g;
+    $top_bdii = ($bdii_bind =~ /^mds-vo-name=local,o=grid$/i);
+}else{
+    print "Usage: $0 <bdii configuration file>\n";
+    exit 1;
+}
+
+$SIG{PIPE} = 'IGNORE';
+my $fh;
+#Main Program Loop
+while (1) {
+    open(STDOUT,">> $bdii_log_dir/bdii.log") ||
+	die "Can't redirect STDOUT to file: $!\n";
+    open(STDERR,">&1");
+
+    
+    
+    $fh = select(STDOUT); $| = 1; select($fh);
+    $fh = select(STDERR); $| = 1; select($fh);
+
+    $bdii_ports_write=~s/\"//g;
+    @bdii_ports_write=split (/ /,$bdii_ports_write);
+
+    foreach (@bdii_ports_write) {
+	$bdii_port_write=$_;
+	print "\nUpdating DB on port $bdii_port_write\n";
+	unlink($bdii_cur_stats);
+
+	my $newConfig;
+
+	#Updates the file containing the ldif sources.
+	if ( $bdii_auto_update=~m/^yes/i ){
+	    my $msg = "GOT TIRED OF WAITING";
+	    eval {
+		local $SIG{ALRM} = sub { die $msg };
+		alarm(10);
+		$newConfig=get($bdii_update_url);
+		alarm(0);
+	    };
+	    if ($@ =~ /$msg/) {
+		print "Timed out while downloading configuration.\n";
+	    }else{
+		my @lines = split(/\n/, $newConfig);
+
+		if (!grep {m-(ldap|file)://-} @lines) {
+		    my $sep = '=' x 70;
+		    print "Downloaded configuration looks bad:\n"
+			. "$sep\n"
+			. "$newConfig\n"
+			. "$sep\n";
+		} else {
+		    open (CONFIG,">$bdii_update_conf") ||
+			die "Couldn't open file $bdii_update_conf: $!\n";
+		    print CONFIG $newConfig;
+		    close (CONFIG);
+		    print "Updated configuration.\n";
+		}
+	    }
+	}
+
+	my @urls;     # An array of URLS that return ldif.
+
+	#Read the ldif urls from the file.
+	open (CONFIG, "$bdii_update_conf" ) ||
+	    die "Couldn't open config file $bdii_update_conf: $!\n";
+
+	while (<CONFIG>) {
+	    s/\#.*//;
+	    chomp;
+
+	    if (m|ldap://|) {
+		unless (m|^([-.\w]+)\s+ldap://([-.\w]+):([0-9]+)/([-.\w=,]+)\s*$|) {
+		    print "ERROR: ignoring malformed line: '$_'\n";
+		    next;
+		}
+
+		unless ($top_bdii) {
+		    if ($4 =~ /^$bdii_bind$/i) {
+			#
+			# die on recursive inclusion of site/resource BDII!
+			#
+
+			die "$bdii_update_conf contains my own binding '$bdii_bind':\n"
+			  . "$_\n"
+			  . "Abort!\n";
+		    }
+		}
+	    } elsif (m|file://|) {
+		if ($top_bdii && $bdii_auto_update =~ m/^yes/i) {
+		    print "ERROR: a top-level BDII shall not update 'file' URLs: '$_'\n";
+		    next;
+		}
+
+		unless (m|^([-.\w]+)\s+file://([-.\w/+:]+)\s*$|) {
+		    print "ERROR: ignoring malformed line: '$_'\n";
+		    next;
+		}
+	    } elsif (m|\S|) {
+		print "ERROR: ignoring malformed line: '$_'\n";
+		next;
+	    } else {
+		next;
+	    }
+
+	    push @urls, $_;
+	}
+
+	close (CONFIG);
+
+	#Ensure that the temp directory exists and is empty
+	`mkdir -p $bdii_tmp_dir`;
+	`rm -f $bdii_tmp_dir/*.ldif`;
+	`rm -f $bdii_tmp_dir/*.log`;
+	`mkdir -p $bdii_cache_dir/0`;
+	`rm -f $bdii_cur_stats`;
+        `cd $bdii_var_dir/$bdii_port_write && rm -f *.{log,bdb,dbb} {log,__db}.*`; 
+	`cd $bdii_var_dir/$bdii_port_write/infosys && rm -f *.{log,bdb,dbb} {log,__db}.*`; 
+		      
+	system("touch $bdii_cur_stats");
+	$start_time = time;
+
+	my @pid;      # The pids of the forked processes.
+	my $pid;      # A pid for one process.
+	my $region;   # A region name for the ldif source.
+	my $target;   # Target file name.
+	my %command=();  # A command that will return ldif.
+	my $n = 0;
+	my %infosys = (); # For statistics which are stored in 'o=infosys'
+
+	$infosys{'Sources'} = scalar @urls;
+	$infosys{'SourcesFailed'} = 0;
+	$infosys{'SourcesTimeout'} = 0;
+
+	print "Waiting $bdii_search_timeout s for query results.\n\n";
+	#Loop through for each ldif source
+	foreach(@urls){
+
+	    if ($n++ >= $bdii_bunch) {
+		my $child = 0;
+
+		eval {
+		    local $SIG{ALRM} = sub { die "timeout" };
+		    alarm($bdii_delay);
+		    $child = wait();
+		    alarm(0);
+		};
+
+		if (!$child) {
+
+		    # The active commands may all be hanging,
+		    # so launch another bunch...
+
+		    $n = 0;
+		} else {
+		    $n--;
+		}
+	    }
+
+	    if(m/ldap:/){
+		#Split the information from the url.
+		if (m|^([-.\w]+)\s+ldap://(.+):([0-9]+)/(.+)|) {
+		    $region=$1;
+		    $command{'default'}="ldapsearch -x -LLL -h $2 -p $3 -b $4 '$bdii_search_filter'";
+		    $command{'infosys'}="ldapsearch -x -h $2:$3 -s base -t 5 -b '$bdii_zipped_sfilter' "
+					."2>&1> /dev/null &&"
+					."ldapsearch -x -h $2 -p $3 -t -l $bdii_search_timeout "
+					."-b '$bdii_zipped_sfilter' Data | awk '/file/'";
+		} else {
+		    print STDERR "ignoring badly formatted line: '$_'\n";
+		    next;
+		}
+	    } elsif(m/file:/){
+		#Split the information from the url.
+		if (m|^([-.\w]+)\s+file://(.+)|) {
+		    $region=$1;
+		    $command{'default'}="$2";
+		} else {
+		    print STDERR "ignoring badly formatted line: '$_'\n";
+		    next;
+		}
+	    } else {
+		print STDERR "ignoring badly formatted line: '$_'\n";
+		next;
+	    }
+
+	    $target = "$bdii_tmp_dir/$region.ldif";
+	    $command{'default'} .= " > $target 2>&1";
+	    $command{'infosys'} .= " > $target 2>&1";
+
+	    # Fork the search.
+
+	    if (!defined($pid=fork)) {
+		print STDERR "cannot fork: $!\n";
+		next;
+	    }
+
+	    unless ($pid) {
+
+		# Set our process group to a distinct value.
+		setpgrp();
+		my $msg = "GOT TIRED OF WAITING";
+		my $retcode = 32;  # LDAP: 'Invalid DN'
+
+		# Eval will kill the process if it times out.
+		eval {
+		    local $SIG{ALRM} = sub { die "$msg" };
+		    alarm ($bdii_search_timeout);  #Will call alarm after the timeout.
+		    if ( $bdii_ccem == 2 ) {
+	               	system($command{'infosys'});
+			$retcode = $?>>8;
+			if ( ($retcode==0)  &&  -e $target  &&  ( (-s $target) > 0) ) {
+			   open(ZIPPED,'<',$target);
+			   my $file = scalar <ZIPPED>;
+			   chomp $file;
+			   $file =~ s/.*file:\/\/(.*)/$1/;
+			   close(ZIPPED);
+			   system("cat $file | gunzip - > $target");
+			   $retcode = $?>>8 ;
+			}
+		    }
+		    # only do normal search, when the CCEM hasn't been tried OR if it failed
+		    # due to 'Invalid DN'. But don't try it if the server wasn't available
+		    # during command{infosys}.
+		    if ( $retcode == 32 ) {
+		        if(system($command{'default'})){
+			    print "$region: ";
+			    system("cat $target");
+			    unlink($target);
+		        }
+		    }
+		    alarm(0);           # Cancel the pending alarm if responds.
+		};
+
+		# This section is executed if the process times out.
+		if ($@ =~ /$msg/) {
+		    unlink($target);
+		    print "$region: Timed out\n";
+ 		    `echo "Timeout: $region" >> $bdii_cur_stats`;
+
+		    # See if the entry still appears in the cache.
+
+		    for (my $gen = 1; $gen <= $bdii_cache_gen; $gen++) {
+			my $cache = "$bdii_cache_dir/$gen/$region.ldif";
+			if (-e $cache) {
+			    print "--> use entry from cache directory $gen\n";
+			    link($cache, $target) or
+				print STDERR "Cannot link '$cache' to '$target': $!\n";
+			    last;
+			}
+		    }
+
+		    kill (-SIGKILL(), getpgrp());
+		    exit 1;
+		}
+
+		if (-e $target) {
+		    my $cache = "$bdii_cache_dir/0/$region.ldif";
+		    link($target, $cache) or
+			die "Cannot link '$target' to '$cache': $!\n";
+		}
+		exit 0;
+	    }
+	    push @pid, $pid;
+	}
+	
+	foreach(@pid){
+	    waitpid($_, 0);
+	}
+	# the children are finished by now with writing messages
+
+	$end_time = time;
+	$elapsed = $end_time - $start_time;
+	print "Time for searches: $elapsed s\n";
+	$infosys{'SearchTime'} = $elapsed;
+
+	#Updates the file containing the ldif modifications.
+	undef $newConfig;
+	if ( $bdii_auto_modify=~m/^yes/i ){
+	    my $msg = "GOT TIRED OF WAITING";
+
+	    eval {
+		local $SIG{ALRM} = sub { die "$msg" };
+		alarm (10);
+		$newConfig=get($bdii_update_ldif);
+		alarm(0);
+	    };
+	    if ($@ =~ /$msg/) {
+		print "Timed out while downloading ldif.\n";
+	    }else{
+		if (defined($newConfig)) {
+		    open (CONFIG,">$bdii_mod_ldif") ||
+			die "Couldn't open file $bdii_mod_ldif: $!\n";
+		    print CONFIG $newConfig;
+		    close (CONFIG);
+		    print "Updated modification ldif file.\n";
+		}
+	    }
+	} else {
+	    unlink($bdii_mod_ldif);
+	}
+
+	my %strip;
+
+	if (-f "$bdii_mod_ldif") {
+	    open(MODS, $bdii_mod_ldif) or
+		warn "$0: cannot open '$bdii_mod_ldif': $!\n";
+
+	    my $rs = $/;
+	    $/ = "";
+
+	    while (<MODS>) {
+		s/\n //g;
+		s/^#.*\n//gm;
+
+		next if /^\s*$/;
+
+		(my $dn = $_) =~ s/\n.*//g;
+		s/.*\n//;
+		(my $ct = $_) =~ s/\n.*//g;
+		s/.*\n//;
+		(my $op = $_) =~ s/\n.*//g;
+		s/.*\n//;
+		(my $pr = $_) =~ s/\n.*//g;
+
+		if ($ct ne "changetype:modify") {
+		    warn "$0: ignoring unexpected change type: $ct\n";
+		    next;
+		}
+
+		if ($op !~ /^delete: Glue.*AccessControl.*Rule$/i) {
+		    warn "$0: ignoring unexpected operation: $op\n";
+		    next;
+		}
+
+		if ($pr !~ /^Glue.*AccessControl.*Rule: /i) {
+		    warn "$0: ignoring unexpected property: $pr\n";
+		    next;
+		}
+
+		$dn =~ tr/A-Z/a-z/;
+		push @{$strip{$dn}}, $pr;
+	    }
+
+	    close(MODS);
+	    $/ = $rs;
+	}
+
+	my $PGRP =`cat $bdii_var_dir/$bdii_port_write/slapd.pid`;
+	my @port2keep = (
+	    Proto     => 'tcp',
+	    Reuse     => 1,
+	    Listen    => SOMAXCONN,
+	    LocalPort => $bdii_port_write,
+	    LocalAddr => 'localhost'
+	);
+	my @port2skip = (
+	    Proto     => 'tcp',
+	    Reuse     => 1,
+	    Listen    => SOMAXCONN,
+	    LocalPort => 0,
+	    LocalAddr => 'localhost'
+	);
+	my $delta = 100;
+
+	#
+	# try ensure our port does not get taken by some other process
+	#
+
+	for (my $t = $delta; $t > 0; $t--) {
+	    my $s = IO::Socket::INET->new(@port2skip);
+	    my $p = $s->sockport;
+
+	    if ($bdii_port_write < $p || $p < $bdii_port_write - $delta) {
+		$t = 0;
+	    } 
+	    close($s);
+	}
+
+	#
+	# stop the DB to kill old connections
+	#
+
+	if ($PGRP){
+	    my $result;
+
+	    while (($result = kill(-SIGKILL(), $PGRP)) > 0) {
+		sleep(1);
+	    }
+	}
+
+	#
+	# keep the port occupied
+	#
+
+	my $guard = IO::Socket::INET->new(@port2keep);
+
+	
+
+	my $slapd_conf = "$bdii_var_dir/$bdii_port_write/bdii-slapd.conf";
+
+	$start_time = time;
+
+	my $compressed_content = "$bdii_var_dir/$bdii_port_write/compressedContent.ldif.gz";
+
+	#Createa bind point for the slapad command incase there are more dbs
+	my $bind = $bdii_bind;
+	$bind =~s/^.*,//;
+
+	# Open files and add entries in the loop below.
+	open (SLAPADD, "| $slapadd -c -d $slapd_debug_level -v -f $slapd_conf -b $bind"
+	    . " >/dev/null 2>$bdii_tmp_dir/stderr.log") ||
+	    die "SLAPD add failed on $bdii_port_write: $!\n";
+	open ( GZIP, "| gzip -cf - >$compressed_content") ||
+	    die "SLAPD compressed add failed on $bdii_port_write: $!\n";
+
+	#Read the default ldif file.
+	if ( $bdii_default_ldif =~ /\.ldif$/) {
+	    open (DEFAULT, "$bdii_default_ldif" ) || die "Couldn't open config file $bdii_default_ldif: $!\n";
+	    while (<DEFAULT>) {
+		print SLAPADD $_;
+		if ( $bdii_ccem > 0) {
+		    print GZIP $_;
+		}
+	    }
+	    close DEFAULT;
+	}elsif( -x $bdii_default_ldif ) {
+	    open (DEFAULT, "$bdii_default_ldif |" ) || die "Couldn't open config file $bdii_default_ldif: $!\n";
+	    while (<DEFAULT>) {
+		print SLAPADD $_;
+		if ( $bdii_ccem > 0) {
+		    print GZIP $_;
+		}
+	    }
+	    close DEFAULT;	
+	}else{
+	    print "WARNING: No default entries found. Will create o=grid";
+	    print SLAPADD  << "END"
+dn: o=grid
+objectClass: organization
+objectClass: GlueTop
+o: grid
+END
+        }        
+	print SLAPADD "\n\n";
+	print GZIP "\n\n" if ($bdii_ccem > 0);
+	
+       # this should be a (unique) hostname used to identify the entry with this host
+	my $host = "ldap://".hostname().":".$bdii_port_read;
+
+	my $infosys_ldif;
+	if ( $bdii_ccem > 0) {
+	    $infosys_ldif.= "dn: Hostname=$host,CompressionType=zip,o=infosys\n"
+                        ."objectClass: CompressedContent\n"
+                        ."CompressionType: zip\n"
+			."Hostname: $host\n"
+                        ."Data:< file://$compressed_content\n\n"
+	}
+
+	my @dn;           #An array of dn entries.
+	my $rs = $/;
+	$/ = "";
+
+	# Read in the ldif files and skip bad records.
+
+	# Example entry:
+	#
+	# dn: GlueSiteUniqueID=FOO-BAR, mds-vo-name=FOO-BAR, mds-vo-name=local,
+	#  o=grid
+	# objectClass: GlueTop
+	# objectClass: GlueSite
+	# objectClass: GlueKey
+	# objectClass: GlueSchemaVersion
+	# GlueSiteUniqueID: FOO-BAR
+	# GlueSiteName: FOO-BAR
+	# [...]
+	# GlueForeignKey: GlueSEUniqueID=a-string-that-got-folded-at-column-79-
+	#  to-continue-after-the-space-on-the-next-line
+	# GlueSchemaVersionMajor: 1
+	# GlueSchemaVersionMinor: 2
+	#
+	for (<$bdii_tmp_dir/*.ldif>) {
+	    open(LDIF, $_) || warn "Cannot open '$_': $!\n";
+
+	    while (<LDIF>) {
+		s/\n //g;
+
+		next if /^\s*$/;
+
+		(my $bad = $_)   =~ s/\n.*//s;
+		(my $dnU = $bad) =~ s/,\s+/,/g;
+
+		if ($dnU =~ m/[:\s,]$bdii_bind\s*$/i && $bdii_is_cache !~ m/^yes/i) {
+		    #
+		    # looks like recursive inclusion --> skip and warn!
+		    #
+		    warn "skipping '$bad'\n";
+		    next;
+		}
+
+		if ($bdii_modify_dn eq "yes") {
+		    $dnU =~ s/mds-vo-name=(local|resource),//i;
+		}
+
+		if ($dnU =~ m/[:\s,]$bdii_bind\s*$/i && $bdii_is_cache !~ m/^yes/i) {
+		    #
+		    # looks like recursive inclusion --> skip and warn!
+		    #
+		    warn "-- skipping '$bad'\n";
+		    next;
+		}
+
+		if ($bdii_modify_dn eq "yes") {
+		    $dnU =~ s/o=grid\s*$/$bdii_bind/i;
+		}
+
+		if ($dnU =~ m/^dn:\s+$bdii_bind/) {
+		    next;
+		}
+
+		(my $dnL = $dnU) =~ tr/A-Z/a-z/;
+
+		if (exists $strip{$dnL}) {
+		    print "modifying '$dnU'\n";
+
+		    for my $prop (@{$strip{$dnL}}) {
+			if (s/\n$prop\n/\n/i) {
+			    print "--> OK removed '$prop'\n";
+			} else {
+			    print "--> not found: '$prop'\n";
+			}
+		    }
+		}
+
+		s/[^\n]*/$dnU/;
+
+		print SLAPADD "$_";
+                print GZIP "$_" if ($bdii_ccem > 0);
+		push @dn, $dnU;
+	    }
+
+	    close LDIF;
+	}
+
+	close SLAPADD;
+        close GZIP if ($bdii_ccem > 0);
+	$/ = $rs;
+
+	$end_time = time;
+	$elapsed = $end_time - $start_time;
+	print "Time to update DB: $elapsed s\n";
+
+	$infosys{'UpdateTime'} = $elapsed;
+	$infosys{'Entries'} = scalar @dn;
+	open(CUR_STATS, $bdii_cur_stats);
+	while (<CUR_STATS> ) { 
+		$infosys{'SourcesTimeout'} +=1 if m/Timeout.*/;
+		$infosys{'SourcesFailed'} +=1 if m/Failed.*/;
+	}
+	close(CUR_STATS);
+
+	$infosys_ldif .= <<END;
+dn: o=infosys
+objectClass: organization
+o: infosys
+
+dn: CompressionType=zip,o=infosys
+objectClass: CompressedContent
+CompressionType: zip
+
+dn: Hostname=$host,o=infosys
+objectClass: InfoSystemStats
+Hostname: $host
+END
+	while ( my ($key, $value) = each(%infosys) ){
+		$infosys_ldif.= "$key: $value\n";
+	}
+	$infosys_ldif.="\n";
+	open(SLAPADD_INFO, "| $slapadd -c -d $slapd_debug_level -v -f $slapd_conf -b o=infosys"
+            . " >/dev/null 2>>$bdii_tmp_dir/stderr.log") ||
+            die "SLAPD add failed on $bdii_port_write: $!\n";
+        print SLAPADD_INFO $infosys_ldif;
+	close SLAPADD_INFO;
+
+
+	#
+	# again try ensure our port does not get taken by some other process
+	#
+
+	for (my $t = $delta; $t > 0; $t--) {
+	    my $s = IO::Socket::INET->new(@port2skip);
+	    my $p = $s->sockport;
+
+	    if ($bdii_port_write < $p || $p < $bdii_port_write - $delta) {
+		$t = 0;
+	    } 
+	    close($s);
+	}
+
+	#
+	# remove the guard and start the new DB
+	#
+
+	close($guard) if ($guard);
+
+	$start_time = time;
+
+	system("$slapd -f $slapd_conf -h "
+	     . "ldap://localhost:$bdii_port_write -u $bdii_user");
+
+	#
+	# Wait for the slapd to become responsive.
+	#
+
+	for (my $n = 0; $n < 60; $n++) {
+	  system("ldapsearch -x -LLL -h localhost -p $bdii_port_write"
+          . " -b $bdii_bind 2>&1 > /dev/null");
+	  last if ! ($?>>8) ;
+ 
+	  sleep(1);
+	}
+
+	#
+	# preload the DB in memory, so that the first clients do not have to wait
+	#
+	system("ldapsearch -x -LLL -h localhost -p $bdii_port_write "
+	     . "-b o=infosys > /dev/null") if ($bdii_ccem > 0);
+
+	$end_time = time;
+	$elapsed = $end_time - $start_time;
+	print "Time to load DB: $elapsed s\n";
+	print "Grabbing port $bdii_port_read for $bdii_port_write\n";
+
+	my $tmp = "$bdii_fwd_conf.tmp";
+	open(FWD, ">$tmp") or die "Cannot open '$tmp': $!\n";
+	print FWD "$bdii_port_write\n";
+	close(FWD);
+	rename($tmp, $bdii_fwd_conf) or
+	    die "Cannot rename '$tmp' to '$bdii_fwd_conf': $!\n";
+
+	if (!$fwd_started) {
+	    system("$bdii_fwd_prog --local 0.0.0.0 --service $bdii_port_read"
+		 . " --remote localhost --remoteservice $bdii_fwd_conf"
+		 . " >> $bdii_fwd_log 2>&1 < /dev/null &");
+	    $fwd_started = 1;
+	}
+
+	#
+	# collect the errors from the log file
+	#
+
+	open (ERROR, "$bdii_tmp_dir/stderr.log") ||
+	    die "Can't open $bdii_tmp_dir/stderr.log: $!\n";
+	while (<ERROR>) {
+	    if( m/^(str2entry|slapadd):/){
+		# Removed the printing of the DN as it is unreliable
+		print "==> $_";
+	    }
+	}
+	close ERROR;
+
+	#
+	# Rotate the cache.
+	#
+
+	system("rm -rf $bdii_cache_dir/$bdii_cache_gen");
+
+	for (my $gen = $bdii_cache_gen; $gen > 0; ) {
+	    my $prev = $gen--;
+	    my $pdir = "$bdii_cache_dir/$prev";
+	    my $cdir = "$bdii_cache_dir/$gen";
+	    rename($cdir, $pdir) or die "Cannot rename '$cdir' to '$pdir': $!\n";
+	}
+
+	system("date");
+	print "Sleeping for $bdii_breathe_time\n";
+	sleep $bdii_breathe_time;
+    }
+
+    close (STDOUT);
+    close (STDERR);
+}
