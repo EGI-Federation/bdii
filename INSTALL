@@ -22,7 +22,7 @@ install:
 	@install -m 0755 bin/bdii-proxy       $(prefix)/${location}/bin
 	@install -m 0644 etc/bdii.conf	      $(prefix)$(location)/etc/
 	@install -m 0644 etc/BDII.schema     $(prefix)$(location)/etc/
-	@install -m 0644 etc/bdii-slapd.conf  $(prefix)$(location)/etc/
+	@install -m 0600 etc/bdii-slapd.conf  $(prefix)$(location)/etc/
 	@install -m 0644 etc/DB_CONFIG        $(prefix)${location}/etc/
 	@install -m 0644 etc/default.ldif     $(prefix)/opt/glite/etc/gip/ldif
 	@install -m 0644 etc/logrotate.d/bdii $(prefix)/etc/logrotate.d

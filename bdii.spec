@@ -47,6 +47,12 @@ if ! /usr/bin/id edguser &>/dev/null; then
         logger -t bdii/rpm "Unexpected error adding user \"edguser\". Aborting installation."
 fi
 
+# Fix for permissions problem as not changed on upgrade
+if [ -f /opt/bdii/etc/bdii-slapd.conf ]; then
+    chown edguser:edguser /opt/bdii/etc/bdii-slapd.conf
+    chmod 0400 /opt/bdii/etc/bdii-slapd.conf
+fi
+
 %post
 sed -i  "s/.*rootpw.*/rootpw    $(/usr/bin/mkpasswd -s 0)/" /opt/bdii/etc/bdii-slapd.conf
 chkconfig --add bdii 
