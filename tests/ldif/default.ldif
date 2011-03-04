@@ -1,7 +1,3 @@
-dn: o=shadow
-objectClass: organization
-o: shadow
-
 dn: o=grid
 objectClass: organization
 o: grid
@@ -13,15 +9,3 @@ mds-vo-name: local
 dn: mds-vo-name=resource,o=grid
 objectClass: MDS
 mds-vo-name: resource
-
-dn: o=glue
-objectClass: organization
-o: glue
-
-dn: GLUE2GroupID=resource, o=glue
-objectClass: GLUE2Group
-GLUE2GroupID: resource
-
-dn: GLUE2GroupID=grid, o=glue
-objectClass: GLUE2Group
-GLUE2GroupID: grid

@@ -1,71 +1,42 @@
-NAME= $(shell grep Name: *.spec | sed 's/^[^:]*:[^a-zA-Z]*//' )
-VERSION= $(shell grep Version: *.spec | sed 's/^[^:]*:[^0-9]*//' )
-RELEASE= $(shell grep Release: *.spec |cut -d"%" -f1 |sed 's/^[^:]*:[^0-9]*//')
-build=$(shell pwd)/build
+include CONFIG
+PWD=$(shell pwd)
+control=scratch/${NAME}-${VERSION}/debian/control
+SCRATCH=${PWD}/scratch
 DATE=$(shell date "+%a, %d %b %Y %T %z")
+topdir:=$(shell rpm --eval %_topdir 2>/dev/null || ${SCRATCH} )
 
 default: 
 	@echo "Nothing to do"
 
-install:
-	@echo installing ...
-	@mkdir -p $(prefix)/usr/sbin/
-	@mkdir -p $(prefix)/var/lib/bdii/gip/ldif/
-	@mkdir -p $(prefix)/var/lib/bdii/gip/provider/
-	@mkdir -p $(prefix)/var/lib/bdii/gip/plugin/
-	@mkdir -p $(prefix)/opt/glite/etc/gip/ldif/
-	@mkdir -p $(prefix)/opt/glite/etc/gip/provider/
-	@mkdir -p $(prefix)/opt/glite/etc/gip/plugin/
-	@mkdir -p $(prefix)/opt/bdii/etc/
-	@mkdir -p $(prefix)/etc/bdii/
-	@mkdir -p $(prefix)/etc/sysconfig/
-	@mkdir -p $(prefix)/etc/init.d/
-	@mkdir -p $(prefix)/etc/logrotate.d/
-	@mkdir -p $(prefix)/etc/cron.d/
-	@mkdir -p $(prefix)/var/log/bdii/
-	@mkdir -p $(prefix)/usr/share/doc/bdii/
-
-	@install -m 0755 etc/init.d/bdii      $(prefix)/etc/init.d/
-	@install -m 0755 etc/sysconfig/bdii   $(prefix)/etc/sysconfig/
-	@install -m 0755 bin/bdii-update      $(prefix)/usr/sbin/
-	@install -m 0755 bin/bdii-proxy       $(prefix)/usr/sbin/
-	@install -m 0644 etc/bdii.conf	      $(prefix)/opt/bdii/etc/
-	@install -m 0644 etc/BDII.schema     $(prefix)/etc/bdii/
-	@install -m 0640 etc/bdii-slapd.conf  $(prefix)/etc/bdii/
-	@install -m 0640 etc/bdii-top-slapd.conf  $(prefix)/etc/bdii/
-	@install -m 0644 etc/DB_CONFIG        $(prefix)/etc/bdii/
-	@install -m 0644 etc/default.ldif     $(prefix)/var/lib/bdii/gip/ldif/
-	@install -m 0644 etc/default.ldif     $(prefix)/opt/glite/etc/gip/ldif/
-	@install -m 0644 etc/logrotate.d/bdii $(prefix)/etc/logrotate.d
-	@install -m 0644 etc/cron.d/bdii-proxy $(prefix)/etc/cron.d
-
-dist:
-	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
-	rsync -HaS --exclude ".svn" --exclude "$(build)" * $(build)/$(NAME)-$(VERSION)/
-	cd $(build); tar --gzip -cf $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)/; cd -
-
-sources: dist
-	cp $(build)/$(NAME)-$(VERSION).tar.gz .
-
-deb: dist
-	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; cd -
-
-prepare: dist
-	@mkdir -p  $(build)/RPMS/noarch
-	@mkdir -p  $(build)/SRPMS/
-	@mkdir -p  $(build)/SPECS/
-	@mkdir -p  $(build)/SOURCES/
-	@mkdir -p  $(build)/BUILD/
-	cp $(build)/$(NAME)-$(VERSION).tar.gz $(build)/SOURCES 
-
-srpm: prepare
-	@rpmbuild -bs --define='_topdir ${build}' $(NAME).spec
-
-rpm: srpm
-	@rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE).src.rpm
-
 clean:
-	rm -f *~ $(NAME)-$(VERSION).tar.gz
-	rm -rf $(build)
+	rm -f *~
+	rm -rf ${SCRATCH}
 
-.PHONY: dist srpm rpm sources clean 
+sdist:
+	@mkdir -p  ${SCRATCH}/SOURCES/
+	tar --gzip --exclude ".svn" --exclude "scratch" -cf ${SCRATCH}/${NAME}-${VERSION}.src.tgz *
+
+deb: sdist
+	@mkdir -p ${SCRATCH}/${NAME}-${VERSION}/
+	tar -zx -C ${SCRATCH}/${NAME}-${VERSION}/ -f \
+	${SCRATCH}/${NAME}-${VERSION}.src.tgz
+	echo "${NAME} (${VERSION}-${RELEASE}) dummy;" > ${SCRATCH}/${NAME}-${VERSION}/debian/changelog
+	echo "  * No data" >>  ${SCRATCH}/${NAME}-${VERSION}/debian/changelog
+	echo " -- ${PACKAGER}  ${DATE}" >> ${SCRATCH}/${NAME}-${VERSION}/debian/changelog
+
+	@sed -i "s/Package:.*/Package: ${NAME}/" ${control}
+	@sed -i "s/Source:.*/Source: ${NAME}/" ${control}
+	@sed -i "s/Version:.*/Version: ${VERSION}/" ${control}
+	@sed -i "s/Maintainer:.*/Maintainer: ${PACKAGER}/" ${control}
+	@sed -i "s/Description:.*/Description: ${DESCRIPTION}/" ${control}
+	@sed -i "s/Section:.*/Section: ${GROUP}/" ${control}
+	cd ${SCRATCH}/${NAME}-${VERSION}; dpkg-buildpackage -us -uc; cd ${PWD}
+
+rpm: sdist
+	mkdir -p ${topdir}/BUILD
+	mkdir -p ${topdir}/RPMS
+	mkdir -p ${topdir}/SRPMS
+	mkdir -p ${topdir}/SOURCES
+	mkdir -p ${topdir}/SPECS
+	cp ${SCRATCH}/${NAME}-${VERSION}.src.tgz ${topdir}/SOURCES
+	rpmbuild --define "_topdir ${topdir}" -ba ${NAME}.spec
