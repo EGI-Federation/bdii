@@ -42,7 +42,7 @@ if [ "x$RUN" != "xyes" ] ; then
     exit 0
 fi
 
-BDII_CONF=${BDII_CONF:-/opt/bdii/etc/bdii.conf}
+BDII_CONF=${BDII_CONF:-/etc/bdii/bdii.conf}
 
 if [ -f "${BDII_CONF}" ]; then
     . "${BDII_CONF}"
