@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.1.23
+Version:	5.2.0
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -59,14 +59,6 @@ chmod 0755 %{buildroot}%{_initrddir}/%{name}
 %clean
 rm -rf %{buildroot}
 
-%pre
-# Stop service if upgrading from version 5.0 to 5.1
-if [ -f /opt/bdii/bin/bdii-update ]; then 
-	service %{name} stop > /dev/null 2>&1
-	if [ -f /var/log/bdii/bdii-update.log ]; then
-	    rm -f /var/log/bdii/bdii-update.log
-	fi
-fi
  
 %post
 sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
@@ -87,11 +79,10 @@ fi
 %files
 %defattr(-,root,root,-)
 %attr(-,ldap,ldap) %{_localstatedir}/lib/%{name}
-%attr(-,ldap,ldap) /opt/glite/etc/gip
 %attr(-,ldap,ldap) %{_localstatedir}/log/%{name}
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}/DB_CONFIG
-%config(noreplace) /opt/%{name}/etc/bdii.conf
+%config(noreplace) /etc/%{name}/bdii.conf
 %config(noreplace) /etc/sysconfig/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}/BDII.schema
 %config(noreplace) %attr(-,ldap,ldap) %{_sysconfdir}/%{name}/bdii-slapd.conf
@@ -104,6 +95,8 @@ fi
 %doc copyright
 
 %changelog
+* Tue Mar 08 2011 Laurence Field <laurence.field@cern.ch> - 5.2.0-1
+- Addressed IS-2225, Now FHS compliant
 * Wed Mar 02 2011 Laurence Field <laurence.field@cern.ch> - 5.1.23-1
 - Addressed IS-219
 * Wed Feb 23 2011 Laurence Field <laurence.field@cern.ch> - 5.1.22-1
