@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.0
+Version:	5.2.1
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -95,6 +95,8 @@ fi
 %doc copyright
 
 %changelog
+* Tue Apr 05 2011 Laurence Field <laurence.field@cern.ch> - 5.2.1-1
+- Addressed cron job error due to FHS change
 * Tue Mar 08 2011 Laurence Field <laurence.field@cern.ch> - 5.2.0-1
 - Addressed IS-2225, Now FHS compliant
 * Wed Mar 02 2011 Laurence Field <laurence.field@cern.ch> - 5.1.23-1
