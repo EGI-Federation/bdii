@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.2
+Version:	5.2.3
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -114,6 +114,8 @@ fi
 %doc copyright
 
 %changelog
+* Mon Apr 18 2011 Laurence Field <laurence.field@cern.ch> - 5.2.3-1
+- Fix for IS-232
 * Mon Apr 18 2011 Laurence Field <laurence.field@cern.ch> - 5.2.2-1
 - Added SE Linux profile to address IS-231
 * Tue Apr 05 2011 Laurence Field <laurence.field@cern.ch> - 5.2.1-1

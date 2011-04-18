@@ -519,7 +519,7 @@ def fix(dns,ldif):
         if  ( dn[:11].lower() == "mds-vo-name" ):
             if 'objectclass' in entry:
                 if 'mds' in map( lambda x : x.lower(), entry['objectclass']):
-                    if 'gluetop' in map( lambda x : x.lower(), entry['objectclass']):
+                    if 'gluetop' or 'mdsvo' in map( lambda x : x.lower(), entry['objectclass']):
                         value=dn[12:dn.index(",")]
                         entry = { 'dn': [dn], 'objectclass': ['MDS'], 'mds-vo-name': [value] }
         entry = convert_back(entry)         
