@@ -1,0 +1,7 @@
+#!/bin/sh
+cat <<EOF
+
+dn: GlueServiceUniqueID=service_1,mds-vo-name=resource,o=grid
+GlueServiceStatus: Failed
+EOF
+
