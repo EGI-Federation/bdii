@@ -4,12 +4,12 @@ working_dir=$(mktemp -d)
 
 cp -r ldif provider plugin ${working_dir}
 
-. /opt/bdii/etc/bdii.conf
+. /etc/bdii/bdii.conf
 
 chown $BDII_USER:$BDII_USER ${working_dir}
 chmod +x ${working_dir}/provider/* ${working_dir}/plugin/*
 
-sed "s#/opt/glite/etc/gip#${working_dir}#"  /opt/bdii/etc/bdii.conf > ${working_dir}/bdii.conf
+sed "s#/var/lib/bdii/gip#${working_dir}#"  /etc/bdii/bdii.conf > ${working_dir}/bdii.conf
 
 sed -i "s#BDII_READ_TIMEOUT=.*#BDII_READ_TIMEOUT=3#"  ${working_dir}/bdii.conf
 sed -i "s#BDII_BREATHE_TIME=.*#BDII_BREATHE_TIME=10#" ${working_dir}/bdii.conf
@@ -59,7 +59,17 @@ fi
 
 echo -n "Testing GlueTop modification: "
 filter="objectClass=MDS"
-${command} ${filter} | grep "nordugrid" >/dev/null 2>/dev/null 
+${command} ${filter} | grep "nordugrid_1" >/dev/null 2>/dev/null 
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing MdsVO modification: "
+filter="objectClass=MDS"
+${command} ${filter} | grep "nordugrid_2" >/dev/null 2>/dev/null 
 if [ $? -gt 0 ]; then
     echo "FAIL"
     RETVAL=1
