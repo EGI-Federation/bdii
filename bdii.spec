@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.1
+Version:	5.2.2
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -23,6 +23,15 @@ Requires(preun):	initscripts
 Requires(preun):        lsb
 Requires(postun):	initscripts
 Requires(postun):       lsb
+
+%if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
+Requires(post):         policycoreutils
+Requires(postun):       policycoreutils
+%if %{?fedora}%{!?fedora:0} >= 11 || %{?rhel}%{!?rhel:0} >= 6
+Requires(post):         policycoreutils-python
+Requires(postun):       policycoreutils-python
+%endif
+%endif
 
 %description
 The Berkeley Database Information Index (BDII)
@@ -64,6 +73,10 @@ rm -rf %{buildroot}
 sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
     -i %{_sysconfdir}/%{name}/bdii-slapd.conf
 /sbin/chkconfig --add %{name}
+%if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
+semanage port -a -t ldap_port_t -p tcp 2170 2>/dev/null || :
+semanage fcontext -a -t slapd_db_t "%{_localstatedir}/run/%{name}(/.*)?" 2>/dev/null || :
+%endif
 
 %preun
 if [ $1 = 0 ]; then
@@ -75,6 +88,12 @@ fi
 if [ "$1" -ge "1" ]; then
   service %{name} condrestart > /dev/null 2>&1
 fi
+%if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
+if [ $1 -eq 0 ]; then
+  semanage port -d -t ldap_port_t -p tcp 2170 2>/dev/null || :
+  semanage fcontext -d -t slapd_db_t "%{_localstatedir}/run/%{name}(/.*)?" 2>/dev/null || :
+fi
+%endif
 
 %files
 %defattr(-,root,root,-)
@@ -95,6 +114,8 @@ fi
 %doc copyright
 
 %changelog
+* Mon Apr 18 2011 Laurence Field <laurence.field@cern.ch> - 5.2.2-1
+- Added SE Linux profile to address IS-231
 * Tue Apr 05 2011 Laurence Field <laurence.field@cern.ch> - 5.2.1-1
 - Addressed cron job error due to FHS change
 * Tue Mar 08 2011 Laurence Field <laurence.field@cern.ch> - 5.2.0-1
