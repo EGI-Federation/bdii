@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.3
+Version:	5.1.23
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -23,15 +23,6 @@ Requires(preun):	initscripts
 Requires(preun):        lsb
 Requires(postun):	initscripts
 Requires(postun):       lsb
-
-%if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
-Requires(post):         policycoreutils
-Requires(postun):       policycoreutils
-%if %{?fedora}%{!?fedora:0} >= 11 || %{?rhel}%{!?rhel:0} >= 6
-Requires(post):         policycoreutils-python
-Requires(postun):       policycoreutils-python
-%endif
-%endif
 
 %description
 The Berkeley Database Information Index (BDII)
@@ -68,15 +59,19 @@ chmod 0755 %{buildroot}%{_initrddir}/%{name}
 %clean
 rm -rf %{buildroot}
 
+%pre
+# Stop service if upgrading from version 5.0 to 5.1
+if [ -f /opt/bdii/bin/bdii-update ]; then 
+	service %{name} stop > /dev/null 2>&1
+	if [ -f /var/log/bdii/bdii-update.log ]; then
+	    rm -f /var/log/bdii/bdii-update.log
+	fi
+fi
  
 %post
 sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
     -i %{_sysconfdir}/%{name}/bdii-slapd.conf
 /sbin/chkconfig --add %{name}
-%if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
-semanage port -a -t ldap_port_t -p tcp 2170 2>/dev/null || :
-semanage fcontext -a -t slapd_db_t "%{_localstatedir}/run/%{name}(/.*)?" 2>/dev/null || :
-%endif
 
 %preun
 if [ $1 = 0 ]; then
@@ -88,20 +83,15 @@ fi
 if [ "$1" -ge "1" ]; then
   service %{name} condrestart > /dev/null 2>&1
 fi
-%if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
-if [ $1 -eq 0 ]; then
-  semanage port -d -t ldap_port_t -p tcp 2170 2>/dev/null || :
-  semanage fcontext -d -t slapd_db_t "%{_localstatedir}/run/%{name}(/.*)?" 2>/dev/null || :
-fi
-%endif
 
 %files
 %defattr(-,root,root,-)
 %attr(-,ldap,ldap) %{_localstatedir}/lib/%{name}
+%attr(-,ldap,ldap) /opt/glite/etc/gip
 %attr(-,ldap,ldap) %{_localstatedir}/log/%{name}
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}/DB_CONFIG
-%config(noreplace) /etc/%{name}/bdii.conf
+%config(noreplace) /opt/%{name}/etc/bdii.conf
 %config(noreplace) /etc/sysconfig/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}/BDII.schema
 %config(noreplace) %attr(-,ldap,ldap) %{_sysconfdir}/%{name}/bdii-slapd.conf
@@ -114,14 +104,6 @@ fi
 %doc copyright
 
 %changelog
-* Mon Apr 18 2011 Laurence Field <laurence.field@cern.ch> - 5.2.3-1
-- Fix for IS-232
-* Mon Apr 18 2011 Laurence Field <laurence.field@cern.ch> - 5.2.2-1
-- Added SE Linux profile to address IS-231
-* Tue Apr 05 2011 Laurence Field <laurence.field@cern.ch> - 5.2.1-1
-- Addressed cron job error due to FHS change
-* Tue Mar 08 2011 Laurence Field <laurence.field@cern.ch> - 5.2.0-1
-- Addressed IS-2225, Now FHS compliant
 * Wed Mar 02 2011 Laurence Field <laurence.field@cern.ch> - 5.1.23-1
 - Addressed IS-219
 * Wed Feb 23 2011 Laurence Field <laurence.field@cern.ch> - 5.1.22-1
