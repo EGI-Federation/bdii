@@ -1,0 +1,9 @@
+#!/bin/sh
+cat <<EOF
+
+dn: GlueServiceUniqueID=service_7,mds-vo-name=resource,o=grid
+changetype: modify
+add: GlueServiceAccessControlBaseRule
+GlueServiceAccessControlBaseRule: vo_2
+EOF
+
