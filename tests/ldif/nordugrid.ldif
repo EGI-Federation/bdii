@@ -2,10 +2,3 @@ dn: mds-vo-name=nordugrid_1,o=Grid
 objectclass: Mds
 objectclass: GlueTop
 mds-vo-name: nordugrid_1
-
-dn: Mds-Vo-name=nordugrid_2,o=Grid
-objectClass: Mds
-objectClass: MdsVo
-Mds-validfrom: 20110418135003Z
-Mds-validto: 20110418145003Z
-Mds-Vo-name: nordugrid_2

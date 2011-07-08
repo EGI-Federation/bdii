@@ -67,16 +67,6 @@ else
     echo "OK"
 fi 
 
-echo -n "Testing MdsVO modification: "
-filter="objectClass=MDS"
-${command} ${filter} | grep "nordugrid_2" >/dev/null 2>/dev/null 
-if [ $? -gt 0 ]; then
-    echo "FAIL"
-    RETVAL=1
-else
-    echo "OK"
-fi 
-
 echo -n "Testing provider: "
 filter="GlueServiceUniqueID=service_2"
 ${command} ${filter} | grep "service_2" >/dev/null 2>/dev/null 
