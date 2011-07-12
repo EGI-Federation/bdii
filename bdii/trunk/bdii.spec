@@ -107,10 +107,8 @@ fi
 %config(noreplace) %attr(-,ldap,ldap) %{_sysconfdir}/%{name}/bdii-slapd.conf
 %config(noreplace) %attr(-,ldap,ldap) %{_sysconfdir}/%{name}/bdii-top-slapd.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%config(noreplace) %{_sysconfdir}/cron.d/bdii-proxy
 %{_initrddir}/%{name}
 %{_sbindir}/bdii-update
-%{_sbindir}/bdii-proxy
 %doc copyright
 %doc /usr/share/man/man1/
 

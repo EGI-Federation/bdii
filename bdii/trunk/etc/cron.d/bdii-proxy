@@ -1,1 +1,0 @@
-37 5,11,17,23 * * * root /usr/sbin/bdii-proxy /etc/bdii/bdii.conf
