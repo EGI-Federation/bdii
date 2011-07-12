@@ -113,6 +113,8 @@ fi
 %doc /usr/share/man/man1/
 
 %changelog
+* Tue Jul 12 2011 Laurence Field <laurence.field@cern.ch> - 5.2.5-1
+- Fixed Bugs #84234 and #84236
 * Fri Jul 8 2011 Laurence Field <laurence.field@cern.ch> - 5.2.4-1
 - Fix for IS-245
 * Mon Apr 18 2011 Laurence Field <laurence.field@cern.ch> - 5.2.3-1
