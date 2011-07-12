@@ -112,6 +112,7 @@ fi
 %{_sbindir}/bdii-update
 %{_sbindir}/bdii-proxy
 %doc copyright
+%doc /usr/share/man/man1/
 
 %changelog
 * Fri Jul 8 2011 Laurence Field <laurence.field@cern.ch> - 5.2.4-1
