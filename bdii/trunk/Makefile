@@ -19,7 +19,7 @@ install:
 	@mkdir -p $(prefix)/etc/logrotate.d/
 	@mkdir -p $(prefix)/etc/cron.d/
 	@mkdir -p $(prefix)/var/log/bdii/
-	@mkdir -p $(prefix)/usr/share/doc/bdii/
+	@mkdir -p $(prefix)/usr/share/man/man1
 
 	@install -m 0755 etc/init.d/bdii      $(prefix)/etc/init.d/
 	@install -m 0755 etc/sysconfig/bdii   $(prefix)/etc/sysconfig/
@@ -33,6 +33,7 @@ install:
 	@install -m 0644 etc/default.ldif     $(prefix)/var/lib/bdii/gip/ldif/
 	@install -m 0644 etc/logrotate.d/bdii $(prefix)/etc/logrotate.d
 	@install -m 0644 etc/cron.d/bdii-proxy $(prefix)/etc/cron.d
+	@install -m 0644 man/bdii-update.1        $(prefix)/usr/share/man/man1/
 
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
