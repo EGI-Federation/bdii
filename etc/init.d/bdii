@@ -291,6 +291,21 @@ function status(){
         eval log_failure_msg
         return 1
     fi
+    
+    # Check for hanging process
+    response=$(ldapsearch -LLL -x -h ${SLAPD_HOST} -p ${SLAPD_PORT} -b o=infosys objectClass=UpdateStats modifyTimestamp 2>/dev/null | grep modifyTimestamp )
+    if [ $? -eq 0 ]; then
+	time_stamp=$(echo ${response} | cut -d" " -f2) 
+	time_string=$(echo ${time_stamp} | sed 's/^\([0-9][0-9][0-9][0-9]\)\([0-9][0-9]\)\([0-9][0-9]\)\([0-9][0-9]\)\([0-9][0-9]\).*/\1-\2-\3 \4:\5/')
+	time_int=$(date --utc --date "${time_string}" +%s)
+	let time_threshold=${time_int}+1200
+	time_now=$(date --utc +%s)
+	if [ ${time_now} -gt ${time_threshold} ]; then
+	    echo -n "BDII update process hanging" 1>&2
+	    eval log_failure_msg
+	    return 1
+	fi
+    fi
 
     echo -n "BDII Runnning "
     eval log_success_msg
