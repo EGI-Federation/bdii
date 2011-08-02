@@ -54,7 +54,6 @@ UPDATE_PID_FILE=${PID_FILE:-/var/run/bdii-update.pid}
 BDII_USER=${BDII_USER:-ldap}
 BDII_VAR_DIR=${BDII_VAR_DIR:-/var/run/bdii}
 BDII_UPDATE=${BDII_UPDATE:-/usr/sbin/bdii-update}
-BDII_PROXY=${BDII_PROXY:-/usr/sbin/bdii-proxy}
 SLAPD=${SLAPD:-/usr/sbin/slapd}
 SLAPD_CONF=${SLAPD_CONF:-/etc/bdii/bdii-slapd.conf}
 SLAPD_HOST=${SLAPD_HOST:-0.0.0.0}
@@ -83,9 +82,6 @@ function start(){
             exit 0
         fi
     fi
-
-    # Create proxy
-    ${BDII_PROXY} ${BDII_CONF}
 
     # Create RAM Disk
     if [ "${BDII_RAM_DISK}" = "yes" ]; then
