@@ -1,16 +1,17 @@
 Name:		bdii
 Version:	5.2.5
-Release:	2%{?dist}
+Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
 Group:		System Environment/Daemons
 License:	ASL 2.0
 URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
 #               wget -O %{name}-%{version}-443.tar.gz "http://svnweb.cern.ch/world/wsvn/gridinfo/bdii/tags/R_5_1_0?op=dl&rev=443"
-Source:		%{name}-%{version}.tar.gz
+Source:		%{name}-%{version}.%{?dist}.tar.gz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
+BuildRequires:  buildsys-macros
 Requires:	openldap-clients
 Requires:	openldap-servers
 Requires:	lsb

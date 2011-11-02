@@ -55,7 +55,7 @@ srpm: prepare
 	@rpmbuild -bs --define='_topdir ${build}' $(NAME).spec
 
 rpm: srpm
-	@rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE).src.rpm
+	@rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE).*.src.rpm
 
 clean:
 	rm -f *~ $(NAME)-$(VERSION).tar.gz
