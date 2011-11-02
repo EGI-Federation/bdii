@@ -47,7 +47,7 @@ The Berkeley Database Information Index (BDII)
 
 %install
 rm -rf %{buildroot}
-make install prefix=%{buildroot}
+make install prefix=%{buildroot} dist=%{?dist}
 
 # Turn off default enabling of the service
 if [ -f %{buildroot}%{_initrddir}/%{name} ]; then
