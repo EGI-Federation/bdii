@@ -36,10 +36,10 @@ install:
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
 	rsync -HaS --exclude ".svn" --exclude "$(build)" * $(build)/$(NAME)-$(VERSION)/
-	cd $(build); tar --gzip -cf $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)/; cd -
+	cd $(build); tar --gzip -cf $(NAME)-$(VERSION).src.tgz $(NAME)-$(VERSION)/; cd -
 
 sources: dist
-	cp $(build)/$(NAME)-$(VERSION).tar.gz .
+	cp $(build)/$(NAME)-$(VERSION).src.tgz .
 
 deb: dist
 	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; cd -
@@ -50,7 +50,7 @@ prepare: dist
 	@mkdir -p  $(build)/SPECS/
 	@mkdir -p  $(build)/SOURCES/
 	@mkdir -p  $(build)/BUILD/
-	cp $(build)/$(NAME)-$(VERSION).tar.gz $(build)/SOURCES 
+	cp $(build)/$(NAME)-$(VERSION).src.tgz $(build)/SOURCES 
 
 srpm: prepare
 	@rpmbuild -bs --define="dist ${dist}" --define='_topdir ${build}' $(NAME).spec
