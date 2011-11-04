@@ -59,7 +59,7 @@ rpm: srpm
 	@rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE)${dist}.src.rpm
 
 clean:
-	rm -f *~ $(NAME)-$(VERSION).tar.gz
+	rm -f *~ $(NAME)-$(VERSION).src.tgz
 	rm -rf $(build)
 
 .PHONY: dist srpm rpm sources clean 
