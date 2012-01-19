@@ -1,6 +1,6 @@
 Name:		bdii
 Version:	5.2.5
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
 Group:		System Environment/Daemons
@@ -72,6 +72,8 @@ rm -rf %{buildroot}
 %post
 sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
     -i %{_sysconfdir}/%{name}/bdii-slapd.conf
+sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
+    -i %{_sysconfdir}/%{name}/bdii-top-slapd.conf
 /sbin/chkconfig --add %{name}
 %if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
 semanage port -a -t ldap_port_t -p tcp 2170 2>/dev/null || :
@@ -113,6 +115,8 @@ fi
 %doc /usr/share/man/man1/
 
 %changelog
+* Thu Jan 12 2012 Laurence Field <laurence.field@cern.ch> - 5.2.5-3
+- Randomized password for bdii-top-slapd.conf
 * Tue Jul 12 2011 Laurence Field <laurence.field@cern.ch> - 5.2.5-2
 - Fixed Bugs #84234 and #84236
 * Fri Jul 8 2011 Laurence Field <laurence.field@cern.ch> - 5.2.4-1
