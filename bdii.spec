@@ -1,17 +1,19 @@
 Name:		bdii
-Version:	5.2.7
+Version:	5.2.6
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
 Group:		System Environment/Daemons
 License:	ASL 2.0
 URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
-#               wget -O %{name}-%{version}-443.tar.gz "http://svnweb.cern.ch/world/wsvn/gridinfo/bdii/tags/R_5_1_0?op=dl&rev=443"
-Source:		%{name}-%{version}.src.tgz
+# The source for this package was pulled from upstream's vcs.  Use the
+# following commands to generate the tarball:
+#   svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_6 %{name}-%{version}
+#  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
+Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
-#BuildRequires:  buildsys-macros
 Requires:	openldap-clients
 Requires:	openldap-servers
 Requires:	lsb
@@ -116,10 +118,8 @@ fi
 %doc /usr/share/man/man1/
 
 %changelog
-* Thu Jan 12 2012 Laurence Field <laurence.field@cern.ch> - 5.2.7-1
-- Randomized password for bdii-top-slapd.conf
-* Tue Nov 2 2011 Laurence Field <laurence.field@cern.ch> - 5.2.6-1
-- Fixed Bug #86270
+* Tue Jul 12 2011 Laurence Field <laurence.field@cern.ch> - 5.2.6-1
+- New upstream version that includes fedora patches and fix for EGI RT 3235
 * Tue Jul 12 2011 Laurence Field <laurence.field@cern.ch> - 5.2.5-2
 - Fixed Bugs #84234 and #84236
 * Fri Jul 8 2011 Laurence Field <laurence.field@cern.ch> - 5.2.4-1
