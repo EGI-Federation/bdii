@@ -1,12 +1,15 @@
 Name:		bdii
-Version:	5.2.5
-Release:	2%{?dist}
+Version:	5.2.6
+Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
 Group:		System Environment/Daemons
 License:	ASL 2.0
 URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
-#               wget -O %{name}-%{version}-443.tar.gz "http://svnweb.cern.ch/world/wsvn/gridinfo/bdii/tags/R_5_1_0?op=dl&rev=443"
+# The source for this package was pulled from upstream's vcs.  Use the
+# following commands to generate the tarball:
+#   svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_6 %{name}-%{version}
+#  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
@@ -72,6 +75,8 @@ rm -rf %{buildroot}
 %post
 sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
     -i %{_sysconfdir}/%{name}/bdii-slapd.conf
+sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
+    -i %{_sysconfdir}/%{name}/bdii-top-slapd.conf
 /sbin/chkconfig --add %{name}
 %if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
 semanage port -a -t ldap_port_t -p tcp 2170 2>/dev/null || :
@@ -113,6 +118,8 @@ fi
 %doc /usr/share/man/man1/
 
 %changelog
+* Tue Jul 12 2011 Laurence Field <laurence.field@cern.ch> - 5.2.6-1
+- New upstream version that includes fedora patches and fix for EGI RT 3235
 * Tue Jul 12 2011 Laurence Field <laurence.field@cern.ch> - 5.2.5-2
 - Fixed Bugs #84234 and #84236
 * Fri Jul 8 2011 Laurence Field <laurence.field@cern.ch> - 5.2.4-1

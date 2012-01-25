@@ -74,6 +74,9 @@ def get_config(config):
     if ( not config.has_key('BDII_DAEMON') ):
         config['BDII_DAEMON'] = False
         
+    if ( not config.has_key('BDII_PID_FILE') ):
+        config['BDII_PID_FILE'] = '/var/run/bdii/bdii-update.pid'
+        
     for parameter in ['BDII_LOG_FILE', 'BDII_LOG_LEVEL', 'BDII_LDIF_DIR',
                       'BDII_PROVIDER_DIR', 'BDII_PLUGIN_DIR',
                       'BDII_READ_TIMEOUT']:
@@ -176,7 +179,7 @@ def create_daemon(log_file):
     sys.stderr = os.fdopen(2, 'a', 0)
 
     # Write PID
-    pid_file = open("%s/bdii-update.pid" % (config['BDII_VAR_DIR']),'w')
+    pid_file = open(config['BDII_PID_FILE'],'w')
     pid_file.write("%s\n" % (str(os.getpid())))
     pid_file.close()
 

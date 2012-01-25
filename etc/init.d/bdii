@@ -18,14 +18,34 @@
 
 shopt -s expand_aliases
 
-if [ -f /lib/lsb/init-functions ]; then
-    . /lib/lsb/init-functions
+if [ -f /etc/init.d/functions ]; then
+    . /etc/init.d/functions
 else
-    echo "Error: Cannot source /lib/lsb/init-functions"
+    echo "Error: Cannot source /etc/init.d/functions"
 fi
 
+log_success_msg ()
+{
+  success
+  echo
+}
+
+log_failure_msg()
+{
+  failure
+  echo
+}
+
 prog=bdii
-lockfile=/var/lock/subsys/$prog
+
+# Debian does not have /var/lock/subsys
+if [ -d /var/lock/subsys ] ; then
+    LOCK_DIR=/var/lock/subsys
+else
+    LOCK_DIR=/var/lock
+fi
+
+lockfile=${LOCK_DIR}/$prog
 
 RUN=yes
 
@@ -48,18 +68,18 @@ if [ -f "${BDII_CONF}" ]; then
     . "${BDII_CONF}"
 fi
 
-UPDATE_LOCK_FILE=${UPDATE_LOCK_FILE:-/var/lock/subsys/bdii-update}
-SLAPD_LOCK_FILE=${SLAPD_LOCK_FILE:-/var/lock/subsys/bdii-slapd}
-UPDATE_PID_FILE=${PID_FILE:-/var/run/bdii-update.pid}
+UPDATE_LOCK_FILE=${UPDATE_LOCK_FILE:-${LOCK_DIR}/bdii-update}
+SLAPD_LOCK_FILE=${SLAPD_LOCK_FILE:-${LOCK_DIR}/bdii-slapd}
+UPDATE_PID_FILE=${BDII_PID_FILE:-/var/run/bdii/bdii-update.pid}
 BDII_USER=${BDII_USER:-ldap}
-BDII_VAR_DIR=${BDII_VAR_DIR:-/var/run/bdii}
+BDII_VAR_DIR=${BDII_VAR_DIR:-/var/lib/bdii}
 BDII_UPDATE=${BDII_UPDATE:-/usr/sbin/bdii-update}
 SLAPD=${SLAPD:-/usr/sbin/slapd}
 SLAPD_CONF=${SLAPD_CONF:-/etc/bdii/bdii-slapd.conf}
 SLAPD_HOST=${SLAPD_HOST:-0.0.0.0}
 SLAPD_PORT=${SLAPD_PORT:-2170}
 SLAPD_DB_DIR=${SLAPD_DB_DIR:-$BDII_VAR_DIR/db}
-SLAPD_PID_FILE=${SLAPD_PID_FILE:-$SLAPD_DB_DIR/slapd.pid}
+SLAPD_PID_FILE=${SLAPD_PID_FILE:-/var/run/bdii/db/slapd.pid}
 DB_CONFIG=${DB_CONFIG:-/etc/bdii/DB_CONFIG}
 
 if [ -x /sbin/runuser ] ; then
@@ -91,19 +111,20 @@ function start(){
     #Initialize the database directory.
     mkdir -p ${SLAPD_DB_DIR}/stats
     mkdir -p ${SLAPD_DB_DIR}/glue2
-    mkdir -p ${BDII_VAR_DIR}/archive
-    mkdir -p /var/lock/subsys
-    chown -R ${BDII_USER}:${BDII_USER} ${BDII_VAR_DIR}
-    [ -x /sbin/restorecon ] && /sbin/restorecon -R ${BDII_VAR_DIR}
     chown -R ${BDII_USER}:${BDII_USER} ${SLAPD_DB_DIR}
+    [ -x /sbin/restorecon ] && /sbin/restorecon -R ${SLAPD_DB_DIR}
+    mkdir -p ${BDII_VAR_DIR}/archive
+    chown -R ${BDII_USER}:${BDII_USER} ${BDII_VAR_DIR}
+    mkdir -p /var/run/bdii/db
+    chown -R ${BDII_USER}:${BDII_USER} /var/run/bdii
+    [ -x /sbin/restorecon ] && /sbin/restorecon -R /var/run/bdii/db
     $RUNUSER -s /bin/sh ${BDII_USER} -c "rm -f ${SLAPD_DB_DIR}/stats/* 2>/dev/null"
     $RUNUSER -s /bin/sh ${BDII_USER} -c "rm -f ${SLAPD_DB_DIR}/glue2/* 2>/dev/null"
     $RUNUSER -s /bin/sh ${BDII_USER} -c "rm -f ${SLAPD_DB_DIR}/* 2>/dev/null"
     $RUNUSER -s /bin/sh ${BDII_USER} -c "rm -f ${BDII_VAR_DIR}/old.ldif 2>/dev/null"
     $RUNUSER -s /bin/sh ${BDII_USER} -c "cp ${DB_CONFIG} ${SLAPD_DB_DIR}"
-    $RUNUSER -s /bin/sh ${BDII_USER} -c "cp ${DB_CONFIG} ${SLAPD_DB_DIR}/stats/"
-    $RUNUSER -s /bin/sh ${BDII_USER} -c "cp ${DB_CONFIG} ${SLAPD_DB_DIR}/glue2/"
- 
+    $RUNUSER -s /bin/sh ${BDII_USER} -c "cp ${DB_CONFIG} ${SLAPD_DB_DIR}/stats"
+    $RUNUSER -s /bin/sh ${BDII_USER} -c "cp ${DB_CONFIG} ${SLAPD_DB_DIR}/glue2"
 
     echo -n "Starting BDII slapd: "
     COMMAND="${SLAPD} -f ${SLAPD_CONF} -h ldap://${SLAPD_HOST}:${SLAPD_PORT} -u ${BDII_USER}"
@@ -136,13 +157,10 @@ function start(){
     $RUNUSER -s /bin/sh ${BDII_USER} -c "${BDII_UPDATE} -c ${BDII_CONF} -d"
     touch ${UPDATE_LOCK_FILE}
 
-    if [ ! -f ${BDII_VAR_DIR}/bdii-update.pid ]; then
+    if [ ! -f ${UPDATE_PID_FILE} ]; then
         sleep 2
     fi
-    if [ -f ${BDII_VAR_DIR}/bdii-update.pid ]; then
-        touch ${UPDATE_PID_FILE}
-        chown ${BDII_USER} ${UPDATE_PID_FILE}
-        mv ${BDII_VAR_DIR}/bdii-update.pid ${UPDATE_PID_FILE}
+    if [ -f ${UPDATE_PID_FILE} ]; then
         ps $(cat ${UPDATE_PID_FILE}) >/dev/null 2>&1
         RETVAL=$?
     else
