@@ -1,8 +1,15 @@
 # Maintain transaction logs in memory rather than on disk
 set_flags DB_LOG_INMEMORY
 
+# Set in-memory transaction log cache (10MB)
+set_lg_bsize 10485760
+
 # Automatically remove log files as soon as they are no longer needed
 set_flags DB_LOG_AUTOREMOVE
 
 # Do not write or synchronously flush the log on transaction commit
 set_flags DB_TXN_NOSYNC
+
+# Set the size of the shared memory buffer pool (gbytes, bytes, ncache)
+set_cachesize 0 524288000 1
+

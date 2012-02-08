@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.6
+Version:	5.2.7
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -8,7 +8,7 @@ License:	ASL 2.0
 URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_6 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_7 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
@@ -40,44 +40,38 @@ Requires(postun):       policycoreutils-python
 The Berkeley Database Information Index (BDII)
 
 %prep
-%setup -q
-#change to the one below if you are building against downloaded tarball from svnweb.cern.ch
-#%setup -q -n trunk.r443
 
-%build
-# Nothing to build
+%setup -q
 
 %install
 rm -rf %{buildroot}
 make install prefix=%{buildroot}
 
-# Turn off default enabling of the service
-if [ -f %{buildroot}%{_initrddir}/%{name} ]; then
-    sed -e 's/\(chkconfig: \)\w*/\1-/' \
-        -e '/Default-Start/d' \
-        -e 's/\(Default-Stop:\s*\).*/\10 1 2 3 4 5 6/' \
-        -i %{buildroot}%{_sysconfdir}/init.d/%{name}
-else
-    mkdir -p %{buildroot}%{_initrddir}
-    sed -e 's/\(chkconfig: \)\w*/\1-/' \
-	-e '/Default-Start/d' \
-	-e 's/\(Default-Stop:\s*\).*/\10 1 2 3 4 5 6/' \
-	%{buildroot}%{_sysconfdir}/init.d/%{name} > %{buildroot}%{_initrddir}/%{name}
-    rm %{buildroot}%{_sysconfdir}/init.d/%{name}
-fi
-chmod 0755 %{buildroot}%{_initrddir}/%{name}
-
-
 %clean
 rm -rf %{buildroot}
 
+%pre
+# Temp fix for upgrade from 5.2.5 to 5.2.7
+service %{name} status > /dev/null 2>&1
+if [ $? = 0 ]; then 
+    touch /tmp/bdii.upgrade
+    service %{name} stop > /dev/null 2>&1
+fi
  
 %post
 sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
     -i %{_sysconfdir}/%{name}/bdii-slapd.conf
 sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
     -i %{_sysconfdir}/%{name}/bdii-top-slapd.conf
+
+# Temp fix for upgrade from 5.2.5 to 5.2.7
+if [ -f /tmp/bdii.upgrade ]; then
+    rm -f /tmp/bdii.upgrade
+    service %{name} start > /dev/null 2>&1
+fi
+
 /sbin/chkconfig --add %{name}
+
 %if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
 semanage port -a -t ldap_port_t -p tcp 2170 2>/dev/null || :
 semanage fcontext -a -t slapd_db_t "%{_localstatedir}/run/%{name}(/.*)?" 2>/dev/null || :
@@ -90,9 +84,10 @@ if [ $1 = 0 ]; then
 fi
 
 %postun
-if [ "$1" -ge "1" ]; then
-  service %{name} condrestart > /dev/null 2>&1
-fi
+#if [ "$1" -ge "1" ]; then
+#  service %{name} condrestart > /dev/null 2>&1
+#fi
+
 %if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
 if [ $1 -eq 0 ]; then
   semanage port -d -t ldap_port_t -p tcp 2170 2>/dev/null || :
@@ -105,12 +100,12 @@ fi
 %attr(-,ldap,ldap) %{_localstatedir}/lib/%{name}
 %attr(-,ldap,ldap) %{_localstatedir}/log/%{name}
 %dir %{_sysconfdir}/%{name}
-%config(noreplace) %{_sysconfdir}/%{name}/DB_CONFIG
-%config(noreplace) /etc/%{name}/bdii.conf
+%config %{_sysconfdir}/%{name}/DB_CONFIG
+%config /etc/%{name}/bdii.conf
 %config(noreplace) /etc/sysconfig/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}/BDII.schema
-%config(noreplace) %attr(-,ldap,ldap) %{_sysconfdir}/%{name}/bdii-slapd.conf
-%config(noreplace) %attr(-,ldap,ldap) %{_sysconfdir}/%{name}/bdii-top-slapd.conf
+%config %attr(-,ldap,ldap) %{_sysconfdir}/%{name}/bdii-slapd.conf
+%config %attr(-,ldap,ldap) %{_sysconfdir}/%{name}/bdii-top-slapd.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %{_initrddir}/%{name}
 %{_sbindir}/bdii-update
@@ -118,6 +113,8 @@ fi
 %doc /usr/share/man/man1/
 
 %changelog
+* Tue Feb 7 2012 Laurence Field <laurence.field@cern.ch> - 5.2.7-1
+- Performance improvements to reduce memory and disk usage
 * Tue Jul 12 2011 Laurence Field <laurence.field@cern.ch> - 5.2.6-1
 - New upstream version that includes fedora patches and fix for EGI RT 3235
 * Tue Jul 12 2011 Laurence Field <laurence.field@cern.ch> - 5.2.5-2
