@@ -1,9 +1,11 @@
+
 NAME= $(shell grep Name: *.spec | sed 's/^[^:]*:[^a-zA-Z]*//' )
 VERSION= $(shell grep Version: *.spec | sed 's/^[^:]*:[^0-9]*//' )
 RELEASE= $(shell grep Release: *.spec |cut -d"%" -f1 |sed 's/^[^:]*:[^0-9]*//')
 build=$(shell pwd)/build
 DATE=$(shell date "+%a, %d %b %Y %T %z")
 dist=$(shell rpm --eval '%dist' | sed 's/%dist/.el5/')
+init_dir=$(shell rpm --eval '%{_initrddir}' )
 
 default: 
 	@echo "Nothing to do"
@@ -16,12 +18,12 @@ install:
 	@mkdir -p $(prefix)/var/lib/bdii/gip/plugin/
 	@mkdir -p $(prefix)/etc/bdii/
 	@mkdir -p $(prefix)/etc/sysconfig/
-	@mkdir -p $(prefix)/etc/init.d/
+	@mkdir -p $(prefix)$(init_dir)/
 	@mkdir -p $(prefix)/etc/logrotate.d/
 	@mkdir -p $(prefix)/var/log/bdii/
 	@mkdir -p $(prefix)/usr/share/man/man1
 
-	@install -m 0755 etc/init.d/bdii      $(prefix)/etc/init.d/
+	@install -m 0755 etc/init.d/bdii      $(prefix)/${init_dir}/
 	@install -m 0755 etc/sysconfig/bdii   $(prefix)/etc/sysconfig/
 	@install -m 0755 bin/bdii-update      $(prefix)/usr/sbin/
 	@install -m 0644 etc/bdii.conf	      $(prefix)/etc/bdii/
