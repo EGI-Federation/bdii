@@ -24,7 +24,7 @@ install:
 	@mkdir -p $(prefix)/usr/share/man/man1
 
 	@install -m 0755 etc/init.d/bdii      $(prefix)/${init_dir}/
-	@install -m 0755 etc/sysconfig/bdii   $(prefix)/etc/sysconfig/
+	@install -m 0644 etc/sysconfig/bdii   $(prefix)/etc/sysconfig/
 	@install -m 0755 bin/bdii-update      $(prefix)/usr/sbin/
 	@install -m 0644 etc/bdii.conf	      $(prefix)/etc/bdii/
 	@install -m 0644 etc/BDII.schema     $(prefix)/etc/bdii/
