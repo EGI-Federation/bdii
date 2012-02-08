@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.7
+Version:	5.2.8
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -8,7 +8,7 @@ License:	ASL 2.0
 URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_7 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_8 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
@@ -97,6 +97,7 @@ fi
 
 %files
 %defattr(-,root,root,-)
+%attr(-,ldap,ldap) %{_localstatedir}/run/%{name}
 %attr(-,ldap,ldap) %{_localstatedir}/lib/%{name}
 %attr(-,ldap,ldap) %{_localstatedir}/log/%{name}
 %dir %{_sysconfdir}/%{name}
@@ -113,6 +114,8 @@ fi
 %doc /usr/share/man/man1/
 
 %changelog
+* Tue Feb 8 2012 Laurence Field <laurence.field@cern.ch> - 5.2.8-1
+- Fixed a base64 encoding issue and added /var/run/bdii to the rpm
 * Tue Feb 7 2012 Laurence Field <laurence.field@cern.ch> - 5.2.7-1
 - Performance improvements to reduce memory and disk usage
 * Tue Jul 12 2011 Laurence Field <laurence.field@cern.ch> - 5.2.6-1

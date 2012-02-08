@@ -378,11 +378,8 @@ def convert_entry(entry_string):
         index = line.find(":")
         if (index > -1):
             attribute = line[:index].lower()
-            if ( attribute == "objectclass" ):
-                value = line[index + 2:]
-            else:
-                value = line[index + 2:]
-
+            value = line[index + 1:].strip()
+            
             if entry.has_key(attribute):
                 if not value in entry[attribute]:
                     entry[attribute].append(value)
