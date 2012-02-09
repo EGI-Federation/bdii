@@ -1,0 +1,42 @@
+dn: GlueServiceUniqueID=service_\\slash,mds-vo-name=resource,o=grid
+objectClass: GlueTop
+objectClass: GlueService
+GlueServiceUniqueID: service_\slash
+
+dn: GlueServiceUniqueID=service_\,comma,mds-vo-name=resource,o=grid
+objectClass: GlueTop
+objectClass: GlueService
+GlueServiceUniqueID: service_,comma
+
+dn: GlueServiceUniqueID=service_\=equals,mds-vo-name=resource,o=grid
+objectClass: GlueTop
+objectClass: GlueService
+GlueServiceUniqueID: service_=equals
+
+dn: GlueServiceUniqueID=service_\+plus,mds-vo-name=resource,o=grid
+objectClass: GlueTop
+objectClass: GlueService
+GlueServiceUniqueID: service_+plus
+
+dn: GlueServiceUniqueID=service_\;semi,mds-vo-name=resource,o=grid
+objectClass: GlueTop
+objectClass: GlueService
+GlueServiceUniqueID: service_;semi
+
+dn: GlueServiceUniqueID=service_\"quote,mds-vo-name=resource,o=grid
+objectClass: GlueTop
+objectClass: GlueService
+GlueServiceUniqueID: service_"quote
+
+dn: GlueServiceUniqueID=service_\>greater,mds-vo-name=resource,o=grid
+objectClass: GlueTop
+objectClass: GlueService
+GlueServiceUniqueID: service_>greater
+
+dn: GlueServiceUniqueID=service_\<less,mds-vo-name=resource,o=grid
+objectClass: GlueTop
+objectClass: GlueService
+GlueServiceUniqueID: service_<less
+
+
+
