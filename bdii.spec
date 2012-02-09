@@ -10,42 +10,47 @@ URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
 # following commands to generate the tarball:
 #   svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_8 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
+
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
 Requires:	openldap-clients
 Requires:	openldap-servers
-Requires:	lsb
 Requires:	glue-schema >= 2.0.0
 
 Requires(post):		chkconfig
 Requires(post):		expect
 Requires(preun):	chkconfig
 Requires(preun):	initscripts
-Requires(preun):        lsb
 Requires(postun):	initscripts
-Requires(postun):       lsb
 
 %if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
-Requires(post):         policycoreutils
-Requires(postun):       policycoreutils
+Requires(post):		policycoreutils
+Requires(postun):	policycoreutils
 %if %{?fedora}%{!?fedora:0} >= 11 || %{?rhel}%{!?rhel:0} >= 6
-Requires(post):         policycoreutils-python
-Requires(postun):       policycoreutils-python
+Requires(post):		policycoreutils-python
+Requires(postun):	policycoreutils-python
 %endif
 %endif
 
 %description
-The Berkeley Database Information Index (BDII)
+The Berkeley Database Information Index (BDII) consists of a standard
+LDAP database which is updated by an external process. The update process
+obtains LDIF from a number of sources and merges them. It then compares
+this to the contents of the database and creates an LDIF file of the
+differences. This is then used to update the database.
 
 %prep
-
 %setup -q
+
+%build
 
 %install
 rm -rf %{buildroot}
 make install prefix=%{buildroot}
+
+chmod 644 %{buildroot}%{_sysconfdir}/sysconfig/%{name}
 
 %clean
 rm -rf %{buildroot}
@@ -54,19 +59,18 @@ rm -rf %{buildroot}
 # Temp fix for upgrade from 5.2.5 to 5.2.7
 service %{name} status > /dev/null 2>&1
 if [ $? = 0 ]; then 
-    touch /tmp/bdii.upgrade
+    touch /var/run/bdii/bdii.upgrade
     service %{name} stop > /dev/null 2>&1
 fi
- 
+
 %post
 sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
-    -i %{_sysconfdir}/%{name}/bdii-slapd.conf
-sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
-    -i %{_sysconfdir}/%{name}/bdii-top-slapd.conf
+    -i %{_sysconfdir}/%{name}/bdii-slapd.conf \
+       %{_sysconfdir}/%{name}/bdii-top-slapd.conf
 
 # Temp fix for upgrade from 5.2.5 to 5.2.7
-if [ -f /tmp/bdii.upgrade ]; then
-    rm -f /tmp/bdii.upgrade
+if [ -f /var/run/bdii/bdii.upgrade ]; then
+    rm -f /var/run/bdii/bdii.upgrade
     service %{name} start > /dev/null 2>&1
 fi
 
@@ -74,24 +78,27 @@ fi
 
 %if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
 semanage port -a -t ldap_port_t -p tcp 2170 2>/dev/null || :
-semanage fcontext -a -t slapd_db_t "%{_localstatedir}/run/%{name}(/.*)?" 2>/dev/null || :
+semanage fcontext -a -t slapd_db_t "%{_localstatedir}/lib/%{name}/db(/.*)?" 2>/dev/null || :
+semanage fcontext -a -t slapd_var_run_t "%{_localstatedir}/run/%{name}/db(/.*)?" 2>/dev/null || :
+# Remove selinux labels for old bdii var dir
+semanage fcontext -d -t slapd_db_t "%{_localstatedir}/run/%{name}(/.*)?" 2>/dev/null || :
 %endif
 
 %preun
-if [ $1 = 0 ]; then
+if [ $1 -eq 0 ]; then
   service %{name} stop > /dev/null 2>&1
   /sbin/chkconfig --del %{name}
 fi
 
 %postun
-#if [ "$1" -ge "1" ]; then
-#  service %{name} condrestart > /dev/null 2>&1
-#fi
-
+if [ $1 -ge 1 ]; then
+  service %{name} condrestart > /dev/null 2>&1
+fi
 %if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
 if [ $1 -eq 0 ]; then
   semanage port -d -t ldap_port_t -p tcp 2170 2>/dev/null || :
-  semanage fcontext -d -t slapd_db_t "%{_localstatedir}/run/%{name}(/.*)?" 2>/dev/null || :
+  semanage fcontext -d -t slapd_db_t "%{_localstatedir}/lib/%{name}/db(/.*)?" 2>/dev/null || :
+  semanage fcontext -d -t slapd_var_run_t "%{_localstatedir}/run/%{name}/db(/.*)?" 2>/dev/null || :
 fi
 %endif
 
@@ -101,60 +108,81 @@ fi
 %attr(-,ldap,ldap) %{_localstatedir}/lib/%{name}
 %attr(-,ldap,ldap) %{_localstatedir}/log/%{name}
 %dir %{_sysconfdir}/%{name}
-%config %{_sysconfdir}/%{name}/DB_CONFIG
-%config /etc/%{name}/bdii.conf
-%config(noreplace) /etc/sysconfig/%{name}
+%config(noreplace) %{_sysconfdir}/%{name}/DB_CONFIG
+%config(noreplace) %{_sysconfdir}/%{name}/bdii.conf
 %config(noreplace) %{_sysconfdir}/%{name}/BDII.schema
-%config %attr(-,ldap,ldap) %{_sysconfdir}/%{name}/bdii-slapd.conf
-%config %attr(-,ldap,ldap) %{_sysconfdir}/%{name}/bdii-top-slapd.conf
+%attr(-,ldap,ldap) %config %{_sysconfdir}/%{name}/bdii-slapd.conf
+%attr(-,ldap,ldap) %config %{_sysconfdir}/%{name}/bdii-top-slapd.conf
+%config(noreplace) %{_sysconfdir}/sysconfig/%{name}
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %{_initrddir}/%{name}
 %{_sbindir}/bdii-update
+%{_mandir}/man1/bdii-update.1*
 %doc copyright
-%doc /usr/share/man/man1/
 
 %changelog
 * Tue Feb 8 2012 Laurence Field <laurence.field@cern.ch> - 5.2.8-1
-- Fixed a base64 encoding issue and added /var/run/bdii to the rpm
+- Fixed a base64 encoding issue and added /var/run/bdii to the package
+
 * Tue Feb 7 2012 Laurence Field <laurence.field@cern.ch> - 5.2.7-1
 - Performance improvements to reduce memory and disk usage
-* Tue Jul 12 2011 Laurence Field <laurence.field@cern.ch> - 5.2.6-1
+
+* Wed Jan 25 2012 Laurence Field <laurence.field@cern.ch> - 5.2.6-1
 - New upstream version that includes fedora patches and fix for EGI RT 3235
-* Tue Jul 12 2011 Laurence Field <laurence.field@cern.ch> - 5.2.5-2
-- Fixed Bugs #84234 and #84236
-* Fri Jul 8 2011 Laurence Field <laurence.field@cern.ch> - 5.2.4-1
-- Fix for IS-245
-* Mon Apr 18 2011 Laurence Field <laurence.field@cern.ch> - 5.2.3-1
-- Fix for IS-232
-* Mon Apr 18 2011 Laurence Field <laurence.field@cern.ch> - 5.2.2-1
-- Added SE Linux profile to address IS-231
-* Tue Apr 05 2011 Laurence Field <laurence.field@cern.ch> - 5.2.1-1
-- Addressed cron job error due to FHS change
-* Tue Mar 08 2011 Laurence Field <laurence.field@cern.ch> - 5.2.0-1
-- Addressed IS-2225, Now FHS compliant
-* Wed Mar 02 2011 Laurence Field <laurence.field@cern.ch> - 5.1.23-1
-- Addressed IS-219
-* Wed Feb 23 2011 Laurence Field <laurence.field@cern.ch> - 5.1.22-1
-- Addressed IS-218
-* Tue Feb 15 2011 Laurence Field <laurence.field@cern.ch> - 5.1.21-1
-- Increase RAM disk size to 1500M
-* Wed Feb 9 2011 Laurence Field <laurence.field@cern.ch> - 5.1.19-1
-- Address IS-209, IS-211
-* Wed Feb 2 2011 Laurence Field <laurence.field@cern.ch> - 5.1.17-1
-- Address IS-192, IS-194, IS-195, IS-196, IS-197, IS-198, IS-200
-* Mon Jan 31 2011 Laurence Field <laurence.field@cern.ch> - 5.1.16-1
-- Added IS-179, delayed delete function
-* Fri Nov 26 2010 Laurence Field <laurence.field@cern.ch> - 5.1.11-1
-- Fixed IS-96, IS-160, IS-163, IS-164, IS-165, IS-172
-* Mon Sep 06 2010 Laurence Field <laurence.field@cern.ch> - 5.1.9-1
-- Fixed IS-145
-* Thu May 20 2010 Laurence Field <laurence.field@cern.ch> - 5.1.5-1
-- Added /opt/glite/etc/gip
-* Mon Mar 29 2010 Laurence Field <laurence.field@cern.ch> - 5.1.0-1
-- New stable version
-* Thu Feb 25 2010 Daniel Johansson <daniel@nsc.liu.se> - 5.0.8-2.443
-- Update packaging etc (svn revision 443)
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.2.5-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Sun Sep  4 2011 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.2.5-1
+- New upstream version 5.2.5
+
+* Tue Jul 26 2011 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.2.4-1
+- New upstream version 5.2.4
+- Drop patch accepted upstream: bdii-mdsvo.patch
+- Move large files away from /var/run in order not to fill up /run partition
+
+* Mon Jun 27 2011 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.2.3-2
+- Revert upstream hack that breaks ARC infosys
+
+* Mon Jun 13 2011 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.2.3-1
+- New upstream version 5.2.3
+- Drop patches accepted upstream: bdii-runuser.patch, bdii-context.patch,
+  bdii-default.patch, bdii-shadowerr.patch, bdii-sysconfig.patch
+
+* Mon Feb 07 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.1.13-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
+* Sat Jan 01 2011 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.1.13-1
+- New upstream version 5.1.13
+- Move restorecon from post sctiptlet to startup script in order to support
+  /var/run on tmpfs
+
+* Thu Sep 23 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.1.9-1
+- New upstream version 5.1.9
+
+* Thu Sep 02 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.1.8-1
+- New upstream version 5.1.8
+
+* Fri Jun 18 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.1.7-1
+- New upstream version 5.1.7
+
+* Sun May 23 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.1.5-1
+- New upstream release 5.1.5
+- Get rid of lsb initscript dependency
+
+* Mon Apr 05 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.1.0-1
+- New upstream verison 5.1.0
+- Add SELinux context management to scriptlets
+
+* Thu Mar 25 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.0.8-4.460
+- Update (svn revision 460)
+- Use proper anonymous svn checkout instead of svnweb generated tarball
+
+* Fri Feb 26 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.0.8-3.443
+- Update (svn revision 443)
+
 * Wed Feb 24 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.0.8-2.436
 - Update (svn revision 436)
-* Mon Feb 08 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.0.8-1
+
+* Mon Feb 08 2010 Mattias Ellert <mattias.ellert@fysast.uu.se> - 5.0.8-1.375
 - Initial package (svn revision 375)
