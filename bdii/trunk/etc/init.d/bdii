@@ -25,6 +25,11 @@ fi
 
 prog=bdii
 lockfile=/var/lock/subsys/$prog
+rundir=/var/run/bdii
+
+if [ ! -d ${rundir} ]; then
+    mkdir -p /var/run/bdii
+fi
 
 RUN=yes
 
