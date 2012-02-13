@@ -1,0 +1,8 @@
+# Maintain transaction logs in memory rather than on disk
+set_flags DB_LOG_INMEMORY
+
+# Automatically remove log files as soon as they are no longer needed
+set_flags DB_LOG_AUTOREMOVE
+
+# Do not write or synchronously flush the log on transaction commit
+set_flags DB_TXN_NOSYNC
