@@ -25,11 +25,6 @@ fi
 
 prog=bdii
 lockfile=/var/lock/subsys/$prog
-rundir=/var/run/bdii
-
-if [ ! -d ${rundir} ]; then
-    mkdir -p /var/run/bdii
-fi
 
 RUN=yes
 
@@ -71,6 +66,15 @@ if [ -x /sbin/runuser ] ; then
 else
     RUNUSER=su
 fi
+
+rundir=/var/run/${prog}
+
+if [ ! -d ${rundir} ]; then
+    mkdir -p ${rundir}
+fi
+
+chown ldap:ldap ${rundir}
+
 
 function start(){
 
