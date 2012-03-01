@@ -1,0 +1,17 @@
+dn: GlueServiceUniqueID=service_this_is_a_really_really_long_dn_to_test_for_the_correct_handling_of_wrapping,mds-vo-name=resource,o=grid
+objectClass: GlueTop
+objectClass: GlueService
+objectClass: GlueKey
+objectClass: GlueSchemaVersion
+GlueServiceUniqueID: service_this_is_a_really_really_long_dn_to_test_for_the_correct_handling_of_wrapping
+GlueServiceName: Test Service Three
+GlueServiceType: bdii
+GlueServiceVersion: 3.0.0
+GlueServiceEndpoint: ldap://host-invalid:2170/mds-vo-name=resource,o=grid
+GlueServiceStatus: OK
+GlueServiceStatusInfo: BDII Runnning
+GlueServiceAccessControlBaseRule: dteam
+GlueForeignKey: GlueSiteUniqueID=my-site-name
+GlueSchemaVersionMajor: 1
+GlueSchemaVersionMinor: 3
+

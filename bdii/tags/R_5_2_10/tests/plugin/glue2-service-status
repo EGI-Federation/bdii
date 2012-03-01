@@ -1,0 +1,7 @@
+#!/bin/sh
+cat <<EOF
+
+dn: GLUE2ServiceId=glue2-service.mysite.com,GLUE2GroupID=resource,o=GLUE
+GLUE2ServiceQualityLevel: GLUE2_Serivce_OK
+
+EOF
