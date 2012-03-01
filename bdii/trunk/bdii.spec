@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.9
+Version:	5.2.10
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -108,6 +108,7 @@ fi
 %attr(-,ldap,ldap) %{_localstatedir}/log/%{name}
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}/DB_CONFIG
+%config(noreplace) %{_sysconfdir}/%{name}/DB_CONFIG_top
 %config(noreplace) %{_sysconfdir}/%{name}/bdii.conf
 %config(noreplace) %{_sysconfdir}/%{name}/BDII.schema
 %attr(-,ldap,ldap) %config %{_sysconfdir}/%{name}/bdii-slapd.conf
@@ -120,6 +121,9 @@ fi
 %doc copyright
 
 %changelog
+* Thu Mar 8 2012 Laurence Field <laurence.field@cern.ch> - 5.2.10-1
+- New upsteam version that includes a new DB_CONFIG
+
 * Tue Feb 8 2012 Laurence Field <laurence.field@cern.ch> - 5.2.9-1
 - Fixed /var/run packaging issue
 
