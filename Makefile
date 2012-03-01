@@ -32,6 +32,7 @@ install:
 	@install -m 0640 etc/bdii-slapd.conf  $(prefix)/etc/bdii/
 	@install -m 0640 etc/bdii-top-slapd.conf  $(prefix)/etc/bdii/
 	@install -m 0644 etc/DB_CONFIG        $(prefix)/etc/bdii/
+	@install -m 0644 etc/DB_CONFIG_top    $(prefix)/etc/bdii/
 	@install -m 0644 etc/default.ldif     $(prefix)/var/lib/bdii/gip/ldif/
 	@install -m 0644 etc/logrotate.d/bdii $(prefix)/etc/logrotate.d
 	@install -m 0644 man/bdii-update.1        $(prefix)/usr/share/man/man1/
