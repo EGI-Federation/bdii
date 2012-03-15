@@ -10,7 +10,7 @@ configure-stamp: $(QUILT_STAMPFN)
 
 build: build-stamp
 
-build-stamp: configure-stamp 
+build-stamp: configure-stamp
 	dh_testdir
 	touch $@
 
@@ -19,14 +19,14 @@ clean: unpatch
 	dh_testroot
 	rm -f debian/bdii.init
 	rm -f build-stamp configure-stamp
-	dh_clean 
+	dh_clean
 
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k 
+	dh_prep
 	dh_installdirs
-	$(MAKE) -f INSTALL prefix=debian/bdii install
+	$(MAKE) install prefix=debian/bdii
 	mv debian/bdii/etc/init.d/bdii debian/bdii.init
 
 	slapd_modulepath="modulepath      /usr/lib/ldap" ; \
@@ -34,7 +34,6 @@ install: build
 	sed -e "/allow bind_v2/i$${slapd_modulepath}\n$${slapd_moduleload}" \
 	    -e "s!etc/openldap/schema!etc/ldap/schema!" \
 	    -i debian/bdii/etc/bdii/bdii-slapd.conf ; \
-
 	sed "s/BDII_USER=.*/BDII_USER=openldap/" \
 	    -i debian/bdii/etc/bdii/bdii.conf
 
@@ -50,6 +49,7 @@ binary-indep: build install
 	dh_install
 	dh_installman
 	dh_installinit
+	dh_lintian
 	dh_compress
 	dh_fixperms
 	dh_perl

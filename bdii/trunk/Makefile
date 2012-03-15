@@ -5,7 +5,7 @@ RELEASE= $(shell grep Release: *.spec |cut -d"%" -f1 |sed 's/^[^:]*:[^0-9]*//')
 build=$(shell pwd)/build
 DATE=$(shell date "+%a, %d %b %Y %T %z")
 dist=$(shell rpm --eval '%dist' | sed 's/%dist/.el5/')
-init_dir=$(shell rpm --eval '%{_initrddir}' )
+init_dir=$(shell rpm --eval '%{_initrddir}' || echo '/etc/init.d/')
 
 default: 
 	@echo "Nothing to do"
