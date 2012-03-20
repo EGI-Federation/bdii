@@ -30,7 +30,7 @@ install: build
 	mv debian/bdii/etc/init.d/bdii debian/bdii.init
 
 	slapd_modulepath="modulepath      /usr/lib/ldap" ; \
-	slapd_moduleload="moduleload      back_bdb" ; \
+	slapd_moduleload="moduleload      back_hdb" ; \
 	sed -e "/allow bind_v2/i$${slapd_modulepath}\n$${slapd_moduleload}" \
 	    -e "s!etc/openldap/schema!etc/ldap/schema!" \
 	    -i debian/bdii/etc/bdii/bdii-slapd.conf ; \

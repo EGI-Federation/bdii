@@ -1,10 +1,12 @@
 Source: bdii
+Maintainer: Mattias Ellert <mattias.ellert@fysast.uu.se>
 Section: net
 Priority: optional
-Maintainer: Mattias Ellert <mattias.ellert@fysast.uu.se>
 Build-Depends: debhelper (>= 5), quilt, python-support
-Standards-Version: 3.8.4
+Standards-Version: 3.9.3
 Homepage: https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
+Vcs-Browser: http://svnweb.cern.ch/world/wsvn/gridinfo/bdii/
+Vcs-Svn: https://svn.cern.ch/reps/gridinfo/bdii/
 DM-Upload-Allowed: yes
 
 Package: bdii
