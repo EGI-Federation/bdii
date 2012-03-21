@@ -1,34 +1,10 @@
 #!/usr/bin/make -f
 
-include /usr/share/quilt/quilt.make
+%:
+	dh $@
 
-configure: configure-stamp
-
-configure-stamp: $(QUILT_STAMPFN)
-	dh_testdir
-	touch $@
-
-build: build-stamp
-
-build-stamp: configure-stamp
-	dh_testdir
-	touch $@
-
-clean: unpatch
-	dh_testdir
-	dh_testroot
-	rm -f debian/bdii.init
-	rm -f build-stamp configure-stamp
-	dh_clean
-
-install: build
-	dh_testdir
-	dh_testroot
-	dh_prep
-	dh_installdirs
-	$(MAKE) install prefix=debian/bdii
-	mv debian/bdii/etc/init.d/bdii debian/bdii.init
-
+override_dh_auto_install:
+	$(MAKE) prefix=debian/bdii install
 	slapd_modulepath="modulepath      /usr/lib/ldap" ; \
 	slapd_moduleload="moduleload      back_hdb" ; \
 	sed -e "/allow bind_v2/i$${slapd_modulepath}\n$${slapd_moduleload}" \
@@ -36,30 +12,3 @@ install: build
 	    -i debian/bdii/etc/bdii/bdii-slapd.conf ; \
 	sed "s/BDII_USER=.*/BDII_USER=openldap/" \
 	    -i debian/bdii/etc/bdii/bdii.conf
-
-binary-arch:
-#	:
-
-binary-indep: build install
-	dh_testdir
-	dh_testroot
-	dh_installdocs
-	dh_installchangelogs
-	dh_installexamples
-	dh_install
-	dh_installman
-	dh_installinit
-	dh_lintian
-	dh_compress
-	dh_fixperms
-	dh_perl
-	dh_pysupport
-	dh_installdeb
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
-
-binary: binary-indep binary-arch
-	:
-
-.PHONY: build clean binary-indep binary-arch binary install configure
