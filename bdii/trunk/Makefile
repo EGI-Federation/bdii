@@ -47,6 +47,8 @@ sources: dist
 
 deb: dist
 	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; cd -
+	# ETICS packager can't find build packages....
+	mkdir $(build)/deb ; cp $(build)/*.deb $(build)/*.dsc $(build)/deb/
 
 prepare: dist
 	@mkdir -p  $(build)/RPMS/noarch
