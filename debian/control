@@ -2,7 +2,7 @@ Source: bdii
 Maintainer: Mattias Ellert <mattias.ellert@fysast.uu.se>
 Section: net
 Priority: optional
-Build-Depends: debhelper (>= 5), quilt, python-support
+Build-Depends: debhelper (>= 5), python-support
 Standards-Version: 3.9.3
 Homepage: https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
 Vcs-Browser: http://svnweb.cern.ch/world/wsvn/gridinfo/bdii/
