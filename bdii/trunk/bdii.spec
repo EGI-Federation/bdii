@@ -31,7 +31,7 @@ Requires(postun):	policycoreutils
 %if %{?fedora}%{!?fedora:0} >= 11 || %{?rhel}%{!?rhel:0} >= 6
 Requires(post):		policycoreutils-python
 Requires(postun):	policycoreutils-python
-%endif
+svn export https://svnweb.cern.ch/trac/gridinfo/browser/lcg-infosites/tags/R_3_1_0%endif
 %endif
 
 %description
