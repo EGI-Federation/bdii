@@ -75,6 +75,10 @@ fi
 
 chown ldap:ldap ${rundir}
 
+if [ ! -d ${SLAPD_DB_DIR} ]; then
+    mkdir -p ${SLAPD_DB_DIR}
+fi
+
 
 function start(){
 
