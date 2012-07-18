@@ -79,6 +79,8 @@ if [ ! -d ${SLAPD_DB_DIR} ]; then
     mkdir -p ${SLAPD_DB_DIR}
 fi
 
+chown -R ${BDII_USER}:${BDII_USER} ${BDII_VAR_DIR} 
+chown -R ${BDII_USER}:${BDII_USER} ${SLAPD_DB_DIR}
 
 function start(){
 
