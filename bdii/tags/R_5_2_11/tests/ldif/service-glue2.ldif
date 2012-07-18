@@ -1,8 +1,0 @@
-dn: GLUE2ServiceId=glue2-service.mysite.com,GLUE2GroupID=resource,o=GLUE
-objectClass: GLUE2Service
-GLUE2ServiceId: glue2-service.mysite.com
-GLUE2ServiceCapability: Dummy
-GLUE2ServiceType: Generic
-GLUE2ServiceQualityLevel: Test
-GLUE2ServiceStatusInfo: http://glue2-service.mysite.com/get-status
-GLUE2ServiceAdminDomainForeignKey: mysite.com

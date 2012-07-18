@@ -1,4 +1,0 @@
-dn: mds-vo-name=nordugrid_1,o=Grid
-objectclass: Mds
-objectclass: GlueTop
-mds-vo-name: nordugrid_1
