@@ -8,7 +8,7 @@ License:	ASL 2.0
 URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_9 %{name}-%{version}
+#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_11 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 
 Source:		%{name}-%{version}.tar.gz
@@ -121,6 +121,10 @@ fi
 %doc copyright
 
 %changelog
+* Wed Jul 18 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.11-1
+- BUG 95122: Created SLAPD_DB_DIR directoy with correct ownership if it doesn't exist
+- BUG 95839: Added BDII_IPV6_SUPPORT
+
 * Thu Mar 8 2012 Laurence Field <laurence.field@cern.ch> - 5.2.10-1
 - New upsteam version that includes a new DB_CONFIG
 
