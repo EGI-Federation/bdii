@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.11
+Version:	5.2.12
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -8,7 +8,7 @@ License:	ASL 2.0
 URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_11 %{name}-%{version}
+#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_12 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 
 Source:		%{name}-%{version}.tar.gz
@@ -121,6 +121,9 @@ fi
 %doc copyright
 
 %changelog
+* Fri Jul 20 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.12-1
+- Fixed BDII_IPV6_SUPPORT after testing
+
 * Wed Jul 18 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.11-1
 - BUG 95122: Created SLAPD_DB_DIR directoy with correct ownership if it doesn't exist
 - BUG 95839: Added BDII_IPV6_SUPPORT

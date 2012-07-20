@@ -65,7 +65,7 @@ DB_CONFIG=${DB_CONFIG:-/etc/bdii/DB_CONFIG}
 
 
 if [ "x${BDII_IPV6_SUPPORT}" == "xyes" ]; then 
-   SLAPD_HOST_STRING="ldap://${SLAPD_HOST}:${SLAPD_PORT} ldap://[${SLAPD_HOST6}]" 
+   SLAPD_HOST_STRING="'ldap://${SLAPD_HOST}:${SLAPD_PORT} ldap://[${SLAPD_HOST6}]:${SLAPD_PORT}'" 
 else
    SLAPD_HOST_STRING="ldap://${SLAPD_HOST}:${SLAPD_PORT}"
 fi
@@ -136,7 +136,7 @@ function start(){
 
     echo -n "Starting BDII slapd: "
     COMMAND="${SLAPD} -f ${SLAPD_CONF} -h ${SLAPD_HOST_STRING} -u ${BDII_USER}"
-    ${COMMAND}
+    eval ${COMMAND}
     touch ${SLAPD_LOCK_FILE}
     if [ ! -f "${SLAPD_PID_FILE}" ]; then
         sleep 2
