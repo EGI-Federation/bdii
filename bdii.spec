@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.12
+Version:	5.2.13
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -8,7 +8,7 @@ License:	ASL 2.0
 URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_12 %{name}-%{version}
+#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_13 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 
 Source:		%{name}-%{version}.tar.gz
@@ -58,9 +58,9 @@ rm -rf %{buildroot}
 %pre
 # Temp fix for upgrade from 5.2.5 to 5.2.7
 service %{name} status > /dev/null 2>&1
-if [ $? = 0 ]; then 
-    touch /var/run/bdii/bdii.upgrade
-    service %{name} stop > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+  touch %{_localstatedir}/run/%{name}/bdii.upgrade
+  service %{name} stop > /dev/null 2>&1
 fi
 
 %post
@@ -69,9 +69,9 @@ sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
        %{_sysconfdir}/%{name}/bdii-top-slapd.conf
 
 # Temp fix for upgrade from 5.2.5 to 5.2.7
-if [ -f /var/run/bdii/bdii.upgrade ]; then
-    rm -f /var/run/bdii/bdii.upgrade
-    service %{name} start > /dev/null 2>&1
+if [ -f %{_localstatedir}/run/%{name}/bdii.upgrade ]; then
+  rm -f %{_localstatedir}/run/%{name}/bdii.upgrade
+  service %{name} start > /dev/null 2>&1
 fi
 
 /sbin/chkconfig --add %{name}
@@ -121,6 +121,9 @@ fi
 %doc copyright
 
 %changelog
+* Wed Aug 15 2012 Laurence Field <Laurence.Field@cern.ch> - 5.2.13-1
+- Included Fedora patches upstream.
+
 * Fri Jul 20 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.12-1
 - Fixed BDII_IPV6_SUPPORT after testing
 
