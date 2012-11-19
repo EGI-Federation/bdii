@@ -82,6 +82,7 @@ SLAPD_HOST6=${SLAPD_HOST6:-::}
 SLAPD_DB_DIR=${SLAPD_DB_DIR:-$BDII_VAR_DIR/db}
 SLAPD_PID_FILE=${SLAPD_PID_FILE:-/var/run/bdii/db/slapd.pid}
 DB_CONFIG=${DB_CONFIG:-/etc/bdii/DB_CONFIG}
+DELAYED_DELETE=${DELAYED_DELETE:-${BDII_VAR_DIR}/delayed_delete.pkl}
 
 
 if [ "x${BDII_IPV6_SUPPORT}" == "xyes" ]; then 
@@ -91,7 +92,7 @@ else
 fi
 
 if [ -x /sbin/runuser ] ; then
-    RUNUSER=runuser
+    RUNUSER=/sbin/runuser
 else
     RUNUSER=su
 fi
@@ -117,6 +118,11 @@ function start(){
 	mount -t tmpfs -o size=1500M,mode=0744 tmpfs ${SLAPD_DB_DIR}
     fi
 
+    # Remove delayed_delete.pkl if it exists
+    if [ -f "${DELAYED_DELETE}" ] ; then
+	rm -f ${DELAYED_DELETE}
+    fi
+	
     #Initialize the database directory.
     mkdir -p ${SLAPD_DB_DIR}/stats
     mkdir -p ${SLAPD_DB_DIR}/glue
