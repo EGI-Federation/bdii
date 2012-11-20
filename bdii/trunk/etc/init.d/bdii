@@ -92,7 +92,7 @@ else
 fi
 
 if [ -x /sbin/runuser ] ; then
-    RUNUSER=runuser
+    RUNUSER=/sbin/runuser
 else
     RUNUSER=su
 fi
