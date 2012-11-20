@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.13
+Version:	5.2.14
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -8,7 +8,7 @@ License:	ASL 2.0
 URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_13 %{name}-%{version}
+#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_14 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 
 Source:		%{name}-%{version}.tar.gz
@@ -121,8 +121,16 @@ fi
 %doc copyright
 
 %changelog
+* Tue Nov 20 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.14-1 
+- BUG #98931: /sbin/runuser instead of runuser
+- BUG #98711: Optimise LDAP queries in GLUE 2.0
+- BUG #98682: Delete delayed_delete.pkl when BDII is restarted
+- BUG #97717: Relay database created to be able to define the GLUE2GroupName and services alias 
+
 * Wed Aug 15 2012 Laurence Field <Laurence.Field@cern.ch> - 5.2.13-1
-- Included Fedora patches upstream.
+- Included Fedora patches upstream:
+- BUG #97223: Changes needed for EPEL
+- BUG #97217: Issues with lsb dependencies
 
 * Fri Jul 20 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.12-1
 - Fixed BDII_IPV6_SUPPORT after testing
