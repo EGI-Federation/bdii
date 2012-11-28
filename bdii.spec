@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.14
+Version:	5.2.15
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -8,7 +8,7 @@ License:	ASL 2.0
 URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_14 %{name}-%{version}
+#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_15 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 
 Source:		%{name}-%{version}.tar.gz
@@ -121,6 +121,9 @@ fi
 %doc copyright
 
 %changelog
+* Wed Nov 28 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.15-1
+- Fixes after testing: Load rwm and back_relay modules in the slapd configuration for site and resource BDII
+
 * Tue Nov 20 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.14-1 
 - BUG #98931: /sbin/runuser instead of runuser
 - BUG #98711: Optimise LDAP queries in GLUE 2.0
