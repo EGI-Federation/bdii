@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.15
+Version:	5.2.16
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -15,7 +15,10 @@ Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
-Requires:	openldap-clients
+%if "%{?dist}" == ".el5"
+Requires: openldap2.4-servers
+%endif
+Requires: openldap-servers
 Requires:	openldap-servers
 Requires:	glue-schema >= 2.0.0
 
@@ -121,6 +124,9 @@ fi
 %doc copyright
 
 %changelog
+* Thu Jan 10 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.16-1
+- BUG #99622: Add dependency on openldap2.4-servers in SL5
+
 * Wed Nov 28 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.15-1
 - Fixes after testing: Load rwm and back_relay modules in the slapd configuration for site and resource BDII
 
