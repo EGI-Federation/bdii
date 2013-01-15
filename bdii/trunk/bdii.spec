@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.16
+Version:	5.2.17
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -17,10 +17,11 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
 %if "%{?dist}" == ".el5"
 Requires: openldap2.4-servers
+Requires: openldap2.4-clients
 %endif
+Requires: openldap-clients
 Requires: openldap-servers
-Requires:	openldap-servers
-Requires:	glue-schema >= 2.0.0
+Requires: glue-schema >= 2.0.0
 
 Requires(post):		chkconfig
 Requires(post):		expect
@@ -124,6 +125,9 @@ fi
 %doc copyright
 
 %changelog
+* Tue Jan 15 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.17-1
+- BUG #99622: Add dependency on openldap2.4-clients in SL5
+
 * Thu Jan 10 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.16-1
 - BUG #99622: Add dependency on openldap2.4-servers in SL5
 
