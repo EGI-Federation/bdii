@@ -279,7 +279,7 @@ def get_dns(ldif):
         dn = dn.replace("\\3e","\\>") # Replace encoded greater than
         dn = dn.replace("\\3c","\\<") # Replace encoded less than
         end_entry_index = ldif.find("\n\n",dn_index, last_dn_index) 
-        dns[dn] = (dn_index, last_dn_index)
+        dns[dn] = (dn_index, last_dn_index, end_dn_index)
         last_dn_index = dn_index
     return dns
 
@@ -647,7 +647,7 @@ def main(config, log):
         # Checking for removed entries
         for dn in old_dns.keys():
             if not new_dns.has_key(dn):
-                ldif_delete.append(dn)
+                ldif_delete.append(old_ldif[old_dns[dn][0] + 4:old_dns[dn][2]].strip())
         
         log.debug("Finished Diff")
         
