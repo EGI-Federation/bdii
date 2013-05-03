@@ -1,0 +1,30 @@
+.TH BDII_UPDATE 1 
+.SH NAME
+bdii-update \- the bdii update process
+.SH SYNOPSIS
+.B bdii-update [-d ] -c 
+.I config-file
+.SH DESCRIPTION
+The
+.B bdii-update 
+process obtains 
+the LDIF by reading files found the 
+.B ldif
+directory, running providers found in the 
+.B provider
+directory and running plugins found in the 
+.B plugin
+ directory. 
+The difference between providers and plugins is that providers return complete entries and plugins provide modifications to existing entries.
+The process can be run either as a daemon that periodically syncronizes an LDAP database or as a command that will print the result to stdout.
+.SH OPTIONS
+.IP -d
+Run as a daemon process.
+.IP "-c config"
+The configuration to use.
+.SH FILES
+.I /etc/bdii.conf
+.RS
+The default configuration file.
+.SH AUTHOR
+Laurence Field <Laurence.Field at cern dot ch>
