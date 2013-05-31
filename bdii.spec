@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.19
+Version:	5.2.20
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -8,7 +8,7 @@ License:	ASL 2.0
 URL:		http://gridinfo.web.cern.ch
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_19 %{name}-%{version}
+#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_20 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 
 Source:		%{name}-%{version}.tar.gz
@@ -125,10 +125,12 @@ fi
 %doc copyright
 
 %changelog
-* Fri May 31 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.19-1
-- BUG #101090: added missing symlink to DB_CONFIG_top for GLUE2 DB backend
+* Fri May 31 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.20-1
 - Changed URL in spec file to point to new Information System web pages
 - Added missing dist in the rpm target of the Makefile
+
+* Fri May 31 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.19-1
+- BUG #101090: added missing symlink to DB_CONFIG_top for GLUE2 DB backend
 
 * Fri May 03 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.18-1
 - BUG #101237: bdii-update: GLUE2 entries marked for deletion keep the correct case and can be deleted 
