@@ -148,6 +148,7 @@ function start(){
     if [ ${SLAPD_CONF} = "/etc/bdii/bdii-top-slapd.conf" ] ; then
 	$RUNUSER -s /bin/sh ${BDII_USER} -c "ln -sf ${DB_CONFIG}_top ${SLAPD_DB_DIR}/grid/DB_CONFIG"
 	$RUNUSER -s /bin/sh ${BDII_USER} -c "ln -sf ${DB_CONFIG}_top ${SLAPD_DB_DIR}/stats/DB_CONFIG"
+	$RUNUSER -s /bin/sh ${BDII_USER} -c "ln -sf ${DB_CONFIG}_top ${SLAPD_DB_DIR}/glue/DB_CONFIG"
     fi
 
     echo -n "Starting BDII slapd: "
