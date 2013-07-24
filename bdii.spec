@@ -127,6 +127,7 @@ fi
 %changelog
 * Wed Jul 24 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.21-1
 - BUG #101389: RAM size can be now configured
+- BUG #101398: Defined the max log file size for the LDAP DB backend in top level BDIIs
 
 * Fri May 31 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.20-1
 - Changed URL in spec file to point to new Information System web pages
