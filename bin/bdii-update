@@ -109,20 +109,33 @@ def get_config(config):
                 sys.exit(1)
         if ( os.path.exists(config['SLAPD_CONF']) ):
             config['BDII_PASSWD'] = {}
+            config['BDII_PASSWD_FILE'] = {}
+            if not os.path.exists("/var/run/bdii"):
+                os.makedirs("/var/run/bdii")
             rootdn = False
             rootpw = False
+            filename = ""
             for line in open(config['SLAPD_CONF']):
                 if ( line.find("rootdn") > -1 ):
                     rootdn = line.replace("rootdn","").strip()
                     rootdn = rootdn.replace('"','').replace(" ","")
+                    filename = rootdn.replace('o=','')
                     if ( rootpw ):
                         config['BDII_PASSWD'][rootdn] = rootpw
+                        config['BDII_PASSWD_FILE'][rootdn] = ("/var/run/bdii/%s" % filename) 
+                        pf = os.open("/var/run/bdii/%s" % (filename),  os.O_WRONLY | os.O_CREAT, 0600)
+                        os.write(pf,rootpw) 
+                        os.close(pf) 
                         rootdn = False
                         rootpw = False
                 if ( line.find("rootpw") > -1 ):
                     rootpw = line.replace("rootpw","").strip()
                     if ( rootdn ):
                         config['BDII_PASSWD'][rootdn] = rootpw
+                        config['BDII_PASSWD_FILE'][rootdn] = ("/var/run/bdii/%s" % filename)
+                        pf = os.open("/var/run/bdii/%s" % (filename), os.O_WRONLY | os.O_CREAT, 0600)
+                        os.write(pf,rootpw)
+                        os.close(pf)
                         rootdn = False
                         rootpw = False
         config['BDII_BREATHE_TIME'] = float(config['BDII_BREATHE_TIME'])
@@ -685,7 +698,7 @@ def main(config, log):
                 if "o=shadow" in config['BDII_PASSWD']:
                     if root == "o=grid":
                         bind = "o=shadow"
-                input_fh=os.popen("ldapadd -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD'][bind], error_file), 'w')
+                input_fh=os.popen("ldapadd -d 256 -x -c -h %s -p %s -D %s -y %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD_FILE'][bind], error_file), 'w')
                 for dn in roots[root]:
                     input_fh.write(new_ldif[new_dns[dn][0]:new_dns[dn][1]])
                     input_fh.write("\n")
@@ -719,7 +732,7 @@ def main(config, log):
                 if "o=shadow" in config['BDII_PASSWD']:
                     if root == "o=grid":
                         bind = "o=shadow"
-                input_fh=os.popen("ldapmodify -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD'][bind], error_file), 'w')
+                input_fh=os.popen("ldapmodify -d 256 -x -c -h %s -p %s -D %s -y %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD_FILE'][bind], error_file), 'w')
                 for dn in roots[root]:
                     input_fh.write(ldif_modify[ldif_modify_dns[dn][0]:ldif_modify_dns[dn][1]])
                     input_fh.write("\n")
@@ -794,7 +807,7 @@ def main(config, log):
                 if "o=shadow" in config['BDII_PASSWD']:
                     if root == "o=grid":
                         bind = "o=shadow"
-                input_fh=os.popen("ldapdelete -d 256 -x -c -h %s -p %s -D %s -w %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD'][bind], error_file), 'w')
+                input_fh=os.popen("ldapdelete -d 256 -x -c -h %s -p %s -D %s -y %s >/dev/null 2>%s" %(config['BDII_HOSTNAME'], config['BDII_PORT'], bind, config['BDII_PASSWD_FILE'][bind], error_file), 'w')
                 for dn in roots[root]:
                     input_fh.write("%s\n" % (dn))
                     log.debug("Deleting %s" %(dn))
@@ -849,7 +862,7 @@ def main(config, log):
             infosys_output+="replace: Data\n"
             infosys_output+="Data: file://%s\n\n" %(out_file)
         try:
-            output_fh = os.popen("%s -x -c -h %s -p %s -D o=infosys -w %s >/dev/null" %(command, config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_PASSWD']['o=infosys']), 'w')
+            output_fh = os.popen("%s -x -c -h %s -p %s -D o=infosys -y %s >/dev/null" %(command, config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_PASSWD_FILE']['o=infosys']), 'w')
             output_fh.write(infosys_output)
             output_fh.close()
         except IOError, KeyError:
@@ -912,7 +925,7 @@ def main(config, log):
                     infosys_output+="-\n"
             infosys_output+="\n"
         try:
-            output_fh = os.popen("%s -x -c -h %s -p %s -D o=infosys -w %s >/dev/null" %(command, config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_PASSWD']['o=infosys']), 'w')
+            output_fh = os.popen("%s -x -c -h %s -p %s -D o=infosys -y %s >/dev/null" %(command, config['BDII_HOSTNAME'], config['BDII_PORT'], config['BDII_PASSWD_FILE']['o=infosys']), 'w')
             output_fh.write(infosys_output)
             output_fh.close()
         except IOError, KeyError:
