@@ -125,7 +125,8 @@ fi
 %doc copyright
 
 %changelog
-* Mon Jul 29 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.21-1
+* Tue Jul 30 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.21-1
+- BUG #101709: Start bdii-update daemon with -l option
 - BUG #102140: Start daemons from "/"
 - BUG #101389: RAM size can be now configured
 - BUG #101398: Defined the max log file size for the LDAP DB backend in top level BDIIs
