@@ -123,7 +123,7 @@ function start(){
     if [ -f "${DELAYED_DELETE}" ] ; then
 	rm -f ${DELAYED_DELETE}
     fi
-	
+
     #Initialize the database directory.
     mkdir -p ${SLAPD_DB_DIR}/stats
     mkdir -p ${SLAPD_DB_DIR}/glue
@@ -150,8 +150,19 @@ function start(){
 	$RUNUSER -s /bin/sh ${BDII_USER} -c "ln -sf ${DB_CONFIG}_top ${SLAPD_DB_DIR}/grid/DB_CONFIG"
 	$RUNUSER -s /bin/sh ${BDII_USER} -c "ln -sf ${DB_CONFIG}_top ${SLAPD_DB_DIR}/stats/DB_CONFIG"
 	$RUNUSER -s /bin/sh ${BDII_USER} -c "ln -sf ${DB_CONFIG}_top ${SLAPD_DB_DIR}/glue/DB_CONFIG"
+        # Remove top BDII cache files
+        $RUNUSER -s /bin/sh ${BDII_USER} -c "rm -f ${BDII_VAR_DIR}/gip/cache/gip/top-urls.conf/* 2>/dev/null"
+        $RUNUSER -s /bin/sh ${BDII_USER} -c "rm -f ${BDII_VAR_DIR}/gip/cache/gip/top-urls.conf-glue2/* 2>/dev/null"
+        $RUNUSER -s /bin/sh ${BDII_USER} -c "rm -f /var/cache/glite/top-urls.conf 2>/dev/null"
+        $RUNUSER -s /bin/sh ${BDII_USER} -c "rm -f /var/cache/glite/glite-info-update-endpoints/* 2>/dev/null"
+    else
+        if [ -f "${BDII_VAR_DIR}/gip/cache" ]; then
+             # Remove site BDII cache files
+             $RUNUSER -s /bin/sh ${BDII_USER} -c "rm -f ${BDII_VAR_DIR}/gip/cache/gip/site-urls.conf/* 2>/dev/null"
+             $RUNUSER -s /bin/sh ${BDII_USER} -c "rm -f ${BDII_VAR_DIR}/gip/cache/gip/site-urls.conf-glue2/* 2>/dev/null" 
+        fi
     fi
- 
+
     cd /
 
     echo -n "Starting BDII slapd: "
