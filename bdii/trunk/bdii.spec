@@ -126,6 +126,7 @@ fi
 
 %changelog
 * Tue Jul 30 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.21-1
+- BUG #102014: Clean caches after a BDII restart
 - BUG #101709: Start bdii-update daemon with -l option
 - BUG #102140: Start daemons from "/"
 - BUG #101389: RAM size can be now configured
