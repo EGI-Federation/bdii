@@ -503,6 +503,8 @@ def modify_entry(entry, mods):
                 if (entry.has_key(attribute)):
                     if (mods.has_key(attribute)):
                         entry[attribute] = mods[attribute]
+                    else:
+                else:
 
         # Handle LDIF add attribute
         if ( mods.has_key('add')):
@@ -760,7 +762,15 @@ def main(config, log):
             log.debug("Doing Delayed Delete")
             delete_timestamp = time.time()
 
-            delayed_delete_file = '%s/delayed_delete.pkl' % (config['BDII_VAR_DIR'],)
+            # Get DNs of entries to be deleted not yet in delayed delete so their status can be updated
+            new_delayed_delete_file = '%s/new_delayed_delete.pkl' % (config['BDII_VAR_DIR'])
+            try:
+                nfh = open(new_delayed_delete_file,'w')
+                nfh.write("")
+            except IOError:
+                log.error("Unable to open new_delayed_delete file %s" % (new_delayed_delete))
+
+            delayed_delete_file = '%s/delayed_delete.pkl' % (config['BDII_VAR_DIR'])
             if os.path.exists(delayed_delete_file):
                 file_handle = open(delayed_delete_file, 'rb')
                 delay_delete = pickle.load(file_handle)
@@ -778,6 +788,8 @@ def main(config, log):
             for dn in ldif_delete:
                 if dn not in delay_delete:
                     delay_delete[dn] = delete_timestamp
+                    nfh.write("%s\n" % (dn))
+            nfh.close()
 
             # Remove delayed deletes from LDIF or remove from cache
             for dn in delay_delete.keys():
