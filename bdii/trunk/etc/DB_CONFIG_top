@@ -4,6 +4,9 @@ set_flags DB_LOG_INMEMORY
 # Set in-memory transaction log cache (10MB)
 set_lg_bsize 10485760
 
+# Set the maximum size of log files (40MB)
+set_lg_max 41943040
+
 # Automatically remove log files as soon as they are no longer needed
 set_flags DB_LOG_AUTOREMOVE
 
