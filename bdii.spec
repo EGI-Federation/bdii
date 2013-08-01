@@ -126,6 +126,7 @@ fi
 
 %changelog
 * Fri Aug 1 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.21-1
+- Do not clean glite-update-endpoints cache files
 - Fixed wrong 'if' check in init.d script
 - BUG #99298: Set status attributes of delayed delete entries to 'Unknown'
 - BUG #102014: Clean caches after a BDII restart
