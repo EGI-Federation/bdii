@@ -125,7 +125,8 @@ fi
 %doc copyright
 
 %changelog
-* Wed Jul 31 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.21-1
+* Fri Aug 1 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.21-1
+- Fixed wrong 'if' check in init.d script
 - BUG #99298: Set status attributes of delayed delete entries to 'Unknown'
 - BUG #102014: Clean caches after a BDII restart
 - BUG #101709: Start bdii-update daemon with -l option
