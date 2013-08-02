@@ -597,6 +597,7 @@ def main(config, log):
         stats['providers_stop'] = time.time()
 
         new_dns = get_dns(new_ldif)
+        ldif_modify=""
 
         log.info("Running Plugins")
         stats['plugins_start'] = time.time()
@@ -608,11 +609,14 @@ def main(config, log):
                 modify_dns = get_dns(response)
                 for dn in modify_dns.keys():
                     if ( new_dns.has_key(dn)):
-                        mod_entry = modify_entry( new_ldif[new_dns[dn][0]:new_dns[dn][1]],  response[modify_dns[dn][0]:modify_dns[dn][1]])
+                        mod_entry = modify_entry( new_ldif[new_dns[dn][0]:new_dns[dn][1]],\
+                                                  response[modify_dns[dn][0]:modify_dns[dn][1]])
                         start = len(new_ldif)
                         end = start + len(mod_entry)
                         new_dns[dn]=(start, end)
                         new_ldif = new_ldif + mod_entry
+                    else:
+                        ldif_modify += response[modify_dns[dn][0]:modify_dns[dn][1]]
         stats['plugins_stop'] = time.time()
 
         log.debug("Doing Fix")
@@ -639,7 +643,6 @@ def main(config, log):
         
         log.debug("Starting Diff")
         ldif_add=[]
-        ldif_modify = ""
         ldif_delete=[]
 
         new_dns = get_dns(new_ldif)

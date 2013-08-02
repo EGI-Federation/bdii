@@ -125,7 +125,8 @@ fi
 %doc copyright
 
 %changelog
-* Fri Aug 1 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.21-1
+* Fri Aug 2 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.21-1
+- Add plugin modifications to LDIF modify instead of LDIF new for cached objects
 - Do not clean glite-update-endpoints cache files
 - Fixed wrong 'if' check in init.d script
 - BUG #99298: Set status attributes of delayed delete entries to 'Unknown'
