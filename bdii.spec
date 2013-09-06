@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.21
+Version:	5.2.22
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -8,7 +8,7 @@ License:	ASL 2.0
 URL:		http://gridinfo.web.cern.ch
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_21 %{name}-%{version}
+#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_22_1 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 
 Source:		%{name}-%{version}.tar.gz
@@ -125,6 +125,9 @@ fi
 %doc copyright
 
 %changelog
+* Fri Sep 9 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.22-1
+- BUG #102503: Make /var/run/bdii configurable
+
 * Fri Aug 2 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.21-1
 - Add plugin modifications to LDIF modify instead of LDIF new for cached objects
 - Do not clean glite-update-endpoints cache files

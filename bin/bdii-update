@@ -74,8 +74,11 @@ def get_config(config):
     if ( not config.has_key('BDII_DAEMON') ):
         config['BDII_DAEMON'] = False
 
+    if ( not config.has_key('BDII_RUN_DIR') ):
+        config['BDII_RUN_DIR'] = '/var/run/bdii'
+
     if ( not config.has_key('BDII_PID_FILE') ):
-        config['BDII_PID_FILE'] = '/var/run/bdii/bdii-update.pid'
+        config['BDII_PID_FILE'] = "%s/bdii-update.pid" % config['BDII_RUN_DIR']
 
     for parameter in ['BDII_LOG_FILE', 'BDII_LOG_LEVEL', 'BDII_LDIF_DIR',
                       'BDII_PROVIDER_DIR', 'BDII_PLUGIN_DIR',
@@ -110,8 +113,8 @@ def get_config(config):
         if ( os.path.exists(config['SLAPD_CONF']) ):
             config['BDII_PASSWD'] = {}
             config['BDII_PASSWD_FILE'] = {}
-            if not os.path.exists("/var/run/bdii"):
-                os.makedirs("/var/run/bdii")
+            if not os.path.exists(config['BDII_RUN_DIR']):
+                os.makedirs(config['BDII_RUN_DIR'])
             rootdn = False
             rootpw = False
             filename = ""
@@ -122,8 +125,8 @@ def get_config(config):
                     filename = rootdn.replace('o=','')
                     if ( rootpw ):
                         config['BDII_PASSWD'][rootdn] = rootpw
-                        config['BDII_PASSWD_FILE'][rootdn] = ("/var/run/bdii/%s" % filename) 
-                        pf = os.open("/var/run/bdii/%s" % (filename),  os.O_WRONLY | os.O_CREAT, 0600)
+                        config['BDII_PASSWD_FILE'][rootdn] = "%s/%s" % (config['BDII_RUN_DIR'], filename) 
+                        pf = os.open(config['BDII_PASSWD_FILE'][rootdn], os.O_WRONLY | os.O_CREAT, 0600)
                         os.write(pf,rootpw) 
                         os.close(pf) 
                         rootdn = False
@@ -132,8 +135,8 @@ def get_config(config):
                     rootpw = line.replace("rootpw","").strip()
                     if ( rootdn ):
                         config['BDII_PASSWD'][rootdn] = rootpw
-                        config['BDII_PASSWD_FILE'][rootdn] = ("/var/run/bdii/%s" % filename)
-                        pf = os.open("/var/run/bdii/%s" % (filename), os.O_WRONLY | os.O_CREAT, 0600)
+                        config['BDII_PASSWD_FILE'][rootdn] = "%s/%s" % (config['BDII_RUN_DIR'], filename)
+                        pf = os.open(config['BDII_PASSWD_FILE'][rootdn], os.O_WRONLY | os.O_CREAT, 0600)
                         os.write(pf,rootpw)
                         os.close(pf)
                         rootdn = False
