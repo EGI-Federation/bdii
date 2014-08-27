@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.22
+Version:	5.2.23
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -8,7 +8,7 @@ License:	ASL 2.0
 URL:		http://gridinfo.web.cern.ch
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_22_1 %{name}-%{version}
+#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_23_1 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 
 Source:		%{name}-%{version}.tar.gz
@@ -125,6 +125,9 @@ fi
 %doc copyright
 
 %changelog
+* Wed Aug 27 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.23-1
+- #GRIDINFO-55: Increase the number of simultaneous threads 
+
 * Fri Sep 9 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.22-1
 - BUG #102503: Make /var/run/bdii configurable
 
