@@ -10,6 +10,7 @@ Welcome to BDII's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   source/intro
 
 
 Indices and tables
