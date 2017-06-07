@@ -7,7 +7,7 @@
 
 # Use a custom rpm target
 rpm: sources
-	docker-rpm-builder dir --bash-on-failure alanfranz/drb-epel-6-x86-64:latest . .
+	docker-rpm-builder dir --bash-on-failure alanfranz/drb-epel-7-x86-64:latest . .
 
 # Build bdii-build-docker container
 dockerdebbuild:
