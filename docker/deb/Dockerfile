@@ -1,5 +1,5 @@
 # Docker image for building deb packages
-FROM ubuntu:trusty
+FROM ubuntu:xenial
 MAINTAINER Baptiste Grenier <baptiste.grenier@egi.eu>
 
 ENV DEBIAN_FRONTEND noninteractive
