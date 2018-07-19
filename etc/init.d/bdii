@@ -44,7 +44,7 @@ else
     LOCK_DIR=/var/lock
 fi
 
-lockfile=${LOCK_DIR}/$prog
+lockfile=${LOCK_DIR}/$prog    # TODO is it necessary??
 
 RUN=yes
 
@@ -98,19 +98,70 @@ else
     RUNUSER=su
 fi
 
+# Return code
+# 0 process is running
+# 1 process has been stopped (correctly)
+# 2 process has been aborted
+function check_slapd(){
+    if [ ! -f "${SLAPD_PID_FILE}" ] ; then
+        [ ! -f "${SLAPD_LOCK_FILE}" ] || return 2
+        return 1
+    fi
+    ps $(cat ${SLAPD_PID_FILE}) >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        return 0
+    fi
+    if [ -n "${1}" -a "${1}" == "reset" ]; then
+        rm -f ${SLAPD_PID_FILE}
+        rm -f ${SLAPD_LOCK_FILE}
+    fi
+    return 2
+}
+
+function check_updater(){
+    if [ ! -f "${UPDATE_PID_FILE}" ]; then
+        [ ! -f "${UPDATE_LOCK_FILE}" ] || return 2
+        return 1
+    fi
+    ps $(cat ${UPDATE_PID_FILE}) >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        return 0
+    fi
+    if [ -n "${1}" -a "${1}" == "reset" ]; then
+        rm -f ${UPDATE_PID_FILE}
+        rm -f ${UPDATE_LOCK_FILE}
+    fi
+    return 2
+}
+
+function check_updater_hanging(){
+    # Check for hanging process
+    response=$(ldapsearch -LLL -x -h ${SLAPD_HOST} -p ${SLAPD_PORT} -b o=infosys objectClass=UpdateStats modifyTimestamp 2>/dev/null | grep modifyTimestamp )
+    if [ $? -eq 0 ]; then
+	    time_stamp=$(echo ${response} | cut -d" " -f2)
+	    time_string=$(echo ${time_stamp} | sed 's/^\([0-9][0-9][0-9][0-9]\)\([0-9][0-9]\)\([0-9][0-9]\)\([0-9][0-9]\)\([0-9][0-9]\).*/\1-\2-\3 \4:\5/')
+	    time_int=$(date --utc --date "${time_string}" +%s)
+	    let time_threshold=${time_int}+1200
+	    time_now=$(date --utc +%s)
+	    if [ ${time_now} -gt ${time_threshold} ]; then
+	        return 1
+	    fi
+    fi
+    return 0   # TODO failsafe?
+}
+
 function start(){
 
     # Check status
-    if [ -f "${SLAPD_LOCK_FILE}" ] || [ -f "${UPDATE_LOCK_FILE}" ] ; then
-        echo -n "Starting BDII: "
-        result=$($0 status)
-        if [ $? -gt 0 ]; then
-            echo ${result} 1>&2
-            exit 1
-        else
-            echo "BDII already started"
-            exit 0
-        fi
+    check_slapd reset
+    RETVAL1=$?
+
+    check_updater reset
+    RETVAL2=$?
+
+    if [ $RETVAL1 -eq 0 -a $RETVAL2 -eq 0 ] ; then
+        echo "BDII already started"
+        exit 0
     fi
 
     # Create RAM Disk
@@ -159,89 +210,75 @@ function start(){
         fi
     fi
 
-    cd /
+    if [ $RETVAL1 -ne 0 ] ; then
+        cd /tmp
 
-    echo -n "Starting BDII slapd: "
-    COMMAND="${SLAPD} -f ${SLAPD_CONF} -h ${SLAPD_HOST_STRING} -u ${BDII_USER}"
-    eval ${COMMAND}
-    touch ${SLAPD_LOCK_FILE}
-    if [ ! -f "${SLAPD_PID_FILE}" ]; then
-        sleep 2
-    fi
+        echo -n "Starting BDII slapd: "
+        COMMAND="${SLAPD} -f ${SLAPD_CONF} -h ${SLAPD_HOST_STRING} -u ${BDII_USER}"
+        eval ${COMMAND}
+        touch ${SLAPD_LOCK_FILE}
+        [ -f "${SLAPD_PID_FILE}" ] || sleep 2
 
-    if [ -f "${SLAPD_PID_FILE}" ]; then
-        ps $(cat ${SLAPD_PID_FILE}) >/dev/null 2>&1
+        check_slapd reset
         RETVAL=$?
-    else
-        RETVAL=1
+
+        if [ ${RETVAL} -gt 0 ]; then
+            echo -n "BDII slapd failed to start" 1>&2
+            eval log_failure_msg
+
+            # TODO check a sysconfig option DEBUG_MODE
+            echo "${COMMAND} -d 256"
+            ${COMMAND} -d 256
+            return 1
+        else
+            eval log_success_msg
+        fi
     fi
 
-    if [ ${RETVAL} -gt 0 ]; then
-        echo -n "BDII slapd failed to start" 1>&2
+    if [ $RETVAL2 -ne 0 ] ; then
+        cd /tmp
 
-        rm -f ${SLAPD_LOCK_FILE}
-        eval log_failure_msg
-        echo "${COMMAND} -d 256"
-        ${COMMAND} -d 256
-        return 1
-    else
-        eval log_success_msg
-    fi
+        echo -n "Starting BDII update process: "
+        export SLAPD_CONF=${SLAPD_CONF}
+        $RUNUSER -s /bin/sh ${BDII_USER} -c "sh -l -c '${BDII_UPDATE} -c ${BDII_CONF} -d'"
+        touch ${UPDATE_LOCK_FILE}
+        [ -f ${UPDATE_PID_FILE} ] || sleep 2
 
-    cd /
-
-    export SLAPD_CONF=${SLAPD_CONF}
-    $RUNUSER -s /bin/sh ${BDII_USER} -c "sh -l -c '${BDII_UPDATE} -c ${BDII_CONF} -d'"
-    touch ${UPDATE_LOCK_FILE}
-
-    if [ ! -f ${UPDATE_PID_FILE} ]; then
-        sleep 2
-    fi
-    if [ -f ${UPDATE_PID_FILE} ]; then
-        ps $(cat ${UPDATE_PID_FILE}) >/dev/null 2>&1
+        check_updater reset
         RETVAL=$?
-    else
-        RETVAL=1
+
+        if [ ${RETVAL} -gt 0 ]; then
+            echo -n "BDII update process failed to start" 1>&2
+            eval log_failure_msg
+            return 1
+        else
+            eval log_success_msg
+        fi
     fi
 
-    echo -n "Starting BDII update process: "
-    if [ ${RETVAL} -gt 0 ]; then
-        echo -n "BDII update process failed to start" 1>&2
-        rm -f ${UPDATE_LOCK_FILE}
-        eval log_failure_msg
-        return 1
-    else
-        eval log_success_msg
-        touch $lockfile
-        return 0
-    fi
+    touch $lockfile
+    return 0
 }
 
 function stop(){
 
-    # Check the existance of the lock file
-    if [ ! -f "${SLAPD_LOCK_FILE}" ] &&  [ ! -f "${UPDATE_LOCK_FILE}" ]; then
-        echo -n "Stopping BDII: "
-        result=$($0 status)
-        if [ $? -gt 0 -a $? -ne 3 ]; then
-            echo ${result} 1>&2
-            return 1
-        else
-            echo "BDII already stopped"
-            return 0
-        fi
-    fi
+    check_slapd
+    RETVAL1=$?
+
+    check_updater
+    RETVAL2=$?
 
     RETVAL=0
 
     echo -n "Stopping BDII update process: "
 
-    if [ -f "${UPDATE_PID_FILE}" ]; then
+    if [ $RETVAL1 -gt 0 ] ; then
+        echo -n "already stopped" 1>&2
+        eval log_success_msg
+    else
         UPDATE_PID=$(cat ${UPDATE_PID_FILE})
-    fi
 
-    $RUNUSER -s /bin/sh ${BDII_USER} -c "kill -15 ${UPDATE_PID} 2>/dev/null"
-    if [ -n "${UPDATE_PID}" ]; then
+        $RUNUSER -s /bin/sh ${BDII_USER} -c "kill -15 ${UPDATE_PID} 2>/dev/null"
         ps ${UPDATE_PID} >/dev/null 2>&1
         if [ $? = 0 ]; then
             sleep 2
@@ -252,28 +289,28 @@ function stop(){
                 ps ${UPDATE_PID} >/dev/null 2>&1
                 if [ $? = 0 ]; then
                     echo -n "Could not kill BDII update process ${UPDATE_PID}" 1>&2
+                    eval log_failure_msg
                     RETVAL=1
                 fi
             fi
         fi
-    fi
 
-    if [ ${RETVAL} = 0 ];  then
-        rm -f ${UPDATE_PID_FILE}
-        rm -f ${UPDATE_LOCK_FILE}
-        eval log_success_msg
-    else
-        eval log_failure_msg
+        if [ ${RETVAL} = 0 ];  then
+            rm -f ${UPDATE_PID_FILE}
+            rm -f ${UPDATE_LOCK_FILE}
+            eval log_success_msg
+        fi
     fi
 
     echo -n "Stopping BDII slapd: "
 
-    if [ -f "${SLAPD_PID_FILE}" ]; then
+    if [ $RETVAL1 -gt 0 ] ; then
+        echo -n "already stopped" 1>&2
+        eval log_success_msg
+    else
         SLAPD_PID=$(cat ${SLAPD_PID_FILE})
-    fi
 
-    $RUNUSER -s /bin/sh ${BDII_USER} -c "kill -15 ${SLAPD_PID} 2>/dev/null"
-    if [ -n "${SLAPD_PID}" ]; then
+        $RUNUSER -s /bin/sh ${BDII_USER} -c "kill -15 ${SLAPD_PID} 2>/dev/null"
         ps ${SLAPD_PID} >/dev/null 2>&1
         if [ $? = 0 ]; then
             sleep 2
@@ -284,26 +321,23 @@ function stop(){
                 ps ${SLAPD_PID} >/dev/null 2>&1
                 if [ $? = 0 ]; then
                     echo -n "Could not kill BDII slapd process ${SLAPD_PID}" 1>&2
+                    eval log_failure_msg
                     RETVAL=2
-                else
-                    rm -f {SLAPD_PID_FILE}
                 fi
             fi
         fi
+
+        if [ ${RETVAL} -ne 2 ];  then
+            rm -f ${SLAPD_PID_FILE}
+            rm -f ${SLAPD_LOCK_FILE}
+            eval log_success_msg
+        fi
     fi
 
-    
-    if [ ${RETVAL} = 2 ];  then
-        eval log_failure_msg
-    else
-        rm -f ${SLAPD_LOCK_FILE}
-        eval log_success_msg
-    fi
-
-    if [ ! ${RETVAL} = 0 ];  then
+    if [ ${RETVAL} -ne 0 ];  then
         return 1
     else
-	mountpoint -q ${SLAPD_DB_DIR} && umount ${SLAPD_DB_DIR}
+	    mountpoint -q ${SLAPD_DB_DIR} && umount ${SLAPD_DB_DIR}
         rm -f $lockfile
         return 0
     fi
@@ -311,55 +345,50 @@ function stop(){
 
 function status(){
 
-    if [ ! -f "${SLAPD_LOCK_FILE}" ] && [ ! -f "${UPDATE_LOCK_FILE}" ]; then
-        echo -n "BDII Stopped"
+    check_slapd
+    RETVAL1=$?
+
+    check_updater
+    RETVAL2=$?
+
+    if [ $RETVAL1 -eq 1 ] ; then
+        echo -n "BDII slapd stopped" 1>&2
         eval log_success_msg
+    elif [ $RETVAL1 -eq 2 ] ; then
+        echo -n "BDII slapd aborted" 1>&2
+        eval log_failure_msg
+    else
+        echo -n "BDII slapd running "
+        eval log_success_msg
+    fi
+
+    if [ $RETVAL2 -eq 1 ] ; then
+        echo -n "BDII updater stopped" 1>&2
+        eval log_success_msg
+    elif 
+        [ $RETVAL2 -eq 2 ] ; then
+        echo -n "BDII updater aborted" 1>&2
+        eval log_failure_msg
+    else
+        check_updater_hanging
+        RETVAL=$?
+        if [ $RETVAL -eq 1 ] ; then
+	        echo -n "BDII update process hanging" 1>&2
+	        eval log_failure_msg
+        else
+            echo -n "BDII updater running "
+            eval log_success_msg
+        fi
+    fi
+
+    if [ $RETVAL1 -eq 1 -a $RETVAL2 -eq 1 ] ; then
         return 3
     fi
 
-    if [ -f ${SLAPD_PID_FILE} ]; then
-        ps $(cat ${SLAPD_PID_FILE}) >/dev/null 2>&1
-        if [ ! $? = 0 ]; then
-            echo -n "BDII slapd PID file exists but the process died" 1>&2
-            eval log_failure_msg
-            return 1
-        fi
-    else
-        echo -n "BDII slapd PID file ${SLAPD_PID_FILE} does not exist" 1>&2
-        eval log_failure_msg
+    if [ $RETVAL1 -eq 2 -o $RETVAL2 -eq 2 ] ; then
         return 1
     fi
 
-    if [ -f ${UPDATE_PID_FILE} ]; then
-        ps $(cat ${UPDATE_PID_FILE}) >/dev/null 2>&1
-        if [ ! $? = 0 ]; then
-            echo -n "BDII update process died" 1>&2
-            eval log_failure_msg
-            return 1
-        fi
-    else
-        echo -n "BDII update process failed to start" 1>&2
-        eval log_failure_msg
-        return 1
-    fi
-    
-    # Check for hanging process
-    response=$(ldapsearch -LLL -x -h ${SLAPD_HOST} -p ${SLAPD_PORT} -b o=infosys objectClass=UpdateStats modifyTimestamp 2>/dev/null | grep modifyTimestamp )
-    if [ $? -eq 0 ]; then
-	time_stamp=$(echo ${response} | cut -d" " -f2) 
-	time_string=$(echo ${time_stamp} | sed 's/^\([0-9][0-9][0-9][0-9]\)\([0-9][0-9]\)\([0-9][0-9]\)\([0-9][0-9]\)\([0-9][0-9]\).*/\1-\2-\3 \4:\5/')
-	time_int=$(date --utc --date "${time_string}" +%s)
-	let time_threshold=${time_int}+1200
-	time_now=$(date --utc +%s)
-	if [ ${time_now} -gt ${time_threshold} ]; then
-	    echo -n "BDII update process hanging" 1>&2
-	    eval log_failure_msg
-	    return 1
-	fi
-    fi
-
-    echo -n "BDII Runnning "
-    eval log_success_msg
     return 0
 }
 
