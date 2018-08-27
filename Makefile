@@ -22,6 +22,7 @@ install:
 	@mkdir -p $(prefix)$(init_dir)/
 	@mkdir -p $(prefix)/etc/logrotate.d/
 	@mkdir -p $(prefix)/var/log/bdii/
+	@mkdir -p $(prefix)/usr/share/doc/bdii/
 	@mkdir -p $(prefix)/usr/share/man/man1
 
 	@install -m 0755 etc/init.d/bdii      $(prefix)/${init_dir}/
@@ -36,6 +37,10 @@ install:
 	@install -m 0644 etc/default.ldif     $(prefix)/var/lib/bdii/gip/ldif/
 	@install -m 0644 etc/logrotate.d/bdii $(prefix)/etc/logrotate.d
 	@install -m 0644 man/bdii-update.1        $(prefix)/usr/share/man/man1/
+	@install -m 0644 README.md $(prefix)/usr/share/doc/bdii/
+	@install -m 0644 AUTHORS $(prefix)/usr/share/doc/bdii/
+	@install -m 0644 COPYRIGHT $(prefix)/usr/share/doc/bdii/
+	@install -m 0644 LICENSE.txt $(prefix)/usr/share/doc/bdii/
 
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
