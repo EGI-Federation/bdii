@@ -1,5 +1,5 @@
 Source: bdii
-Maintainer: Mattias Ellert <mattias.ellert@fysast.uu.se>
+Maintainer: Baptiste Grenier <baptiste.grenier@egi.eu>
 Section: net
 Priority: optional
 Build-Depends:
