@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.23
+Version:	5.2.24
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -128,6 +128,11 @@ fi
 %doc /usr/share/doc/bdii/LICENSE.txt
 
 %changelog
+
+* Mon Aug 27 2018 Baptiste Grenier <baptiste.grenier@egi.eu> - 5.2.24-1
+- Fix #3: init script failing on stale PID (Paolo Andreetto)
+- Update build, documetation and link to new GitHub repository (Baptiste Grenier)
+
 * Wed Aug 27 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.23-1
 - #GRIDINFO-55: Increase the number of simultaneous threads 
 

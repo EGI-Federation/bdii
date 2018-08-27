@@ -1,3 +1,10 @@
+bdii (5.2.24-1) UNRELEASED; urgency=low
+
+  * Fix #3: init script failing on stale PID (Paolo Andreetto)
+  * Update build, documetation and link to new GitHub repository (Baptiste Grenier)
+
+ -- Baptiste Grenier <baptiste.grenier@egi.eu>  Mon, 27 Aug 2018 18:44:00 +0100
+
 bdii (5.2.23-1) UNRELEASED; urgency=low
 
   * New upstream release
