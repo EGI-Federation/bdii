@@ -5,7 +5,7 @@ Summary:	The Berkeley Database Information Index (BDII)
 
 Group:		System Environment/Daemons
 License:	ASL 2.0
-URL:		http://gridinfo.web.cern.ch
+URL:		https://github.com/EGI-Foundation/bdii
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
 #  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_23_1 %{name}-%{version}
@@ -122,7 +122,10 @@ fi
 %{_initrddir}/%{name}
 %{_sbindir}/bdii-update
 %{_mandir}/man1/bdii-update.1*
-%doc copyright
+%doc /usr/share/doc/bdii/README.md
+%doc /usr/share/doc/bdii/AUTHORS
+%doc /usr/share/doc/bdii/COPYRIGHT
+%doc /usr/share/doc/bdii/LICENSE.txt
 
 %changelog
 * Wed Aug 27 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.23-1
