@@ -61,20 +61,43 @@ make install
 
 ## Building packages
 
-* It is possible to easily build pacakges for Ubuntu and CentOS using
-  the provided `Makefile-build-docker` makefile leveraging the use of
-  docker containers.
+### Building a RPM
+
+The required build dependencies are:
+- rpm-build
+- make
+- rsync
 
 ```sh
-# Building an Ubuntu Xenial deb
-make -f Makefile-build-docker deb
-# Building a CentOS 7 RPM
-make -f Makefile-build-docker rpm
+# Checkout tag to be packaged
+git clone https://github.com/EGI-Foundation/bdii.git
+cd bdii
+git checkout X.X.X
+# Building in a container
+docker run --rm -v $(pwd):/source -it centos:7
+yum install -y rpm-build make rsync
+cd /source && make rpm
 ```
+
+The RPM will be available into the `build/RPMS` directory.
+
+### Building a deb
+
+```sh
+# Checkout tag to be packaged
+git clone https://github.com/EGI-Foundation/bdii.git
+cd bdii
+git checkout X.X.X
+# Building in a container using the source files
+docker run --rm -v $(pwd):/source -it ubuntu:xenial
+apt update
+apt install -y devscripts debhelper make rsync python-all-dev
+cd /source && make deb
+```
+
+The DEB will be available into the `build/` directory.
 
 ## History
 
-Original version David Groep, NIKHEF
-22-01-2004 Restructured by Laurence Field
-2005 Restructured by Maarten Litmaath
-2008 Enhanced by Felix Ehm
+This work started under the EGEE project, and was hosted and maintained for a long time by CERN.
+This is now hosted here on GitHub, maintained by the BDII community with support of members of the EGI Federation.
