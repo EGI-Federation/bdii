@@ -47,6 +47,10 @@
   "citation": "",
   "dateCreated": "",
   "dateModified": "",
-  "keywords": [],
-  "license": ""
+  "keywords": [
+    "grid",
+    "information",
+    "index"
+  ],
+  "license": "Apache-2.0"
 }
