@@ -1,0 +1,52 @@
+{
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@type": "Code",
+  "name": "Berkeley Database Information Index (BDII)",
+  "description": "The BDII implementation of the information",
+  "provider": {
+    "@type": "Organization",
+    "name": "",
+    "url": ""
+  },
+  "maintainer": [
+    {
+      "@type": "Person",
+      "@id": "https://orcid.org/0000-0002-5686-3193",
+      "name": " Baptiste",
+      "familyName": "Grenier",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "EGI Foundation",
+        "url": "http://www.egi.eu"
+      }
+    },
+    {
+      "@type": "Role",
+      "roleName": "Security and Vulnerability",
+      "url": ""
+    }
+  ],
+  "operatingSystem": [
+    "LINUX-2.4",
+    "centos 6",
+    "centos 7"
+  ],
+  "installUrl": "https://malandes.web.cern.ch/malandes/infosys/rpms/emi-bdii-site-1.0.2-1.el7.cern.noarch.rpm",
+  "buildInstructions": "http://gridinfo-documentation.readthedocs.io/",
+  "releaseNotes": "",
+  "codeRepository": "https://github.com/EGI-Foundation/bdii",
+  "contIntegration": "https://travis-ci.org/EGI-Foundation/bdii",
+  "networkStack": "",
+  "supportUnit": {
+    "@type": "contactPoint",
+    "contactType": "GGUS",
+    "name": "Information System Development"
+  },
+  "developmentStatus": "supported",
+  "author": [],
+  "citation": "",
+  "dateCreated": "",
+  "dateModified": "",
+  "keywords": [],
+  "license": ""
+}
