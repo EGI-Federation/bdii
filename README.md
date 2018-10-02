@@ -24,7 +24,7 @@ Whenever a remote server is contacted and the ldapsearch command times out
 the update process tries to find an (old) cached entry in the `/var/cache/`
 directory. If no entry is found a message is printed to the logfile.
 
-! Attention !
+*Attention!*
 If the remote host cannot be contacted due to a connection problem
 no cached entry is taken. No message is printed to the logfile.
 
