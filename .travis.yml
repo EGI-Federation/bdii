@@ -30,7 +30,7 @@ script:
   - rpmlint bdii.spec
   - flake8 bin/bdii-update
   # Then, start the build container
-  - docker run --name build_container -d -ti -v $PWD:/tmp -w /tmp $OS_NAME:$OS_MAJOR_VERSION /bin/bash -c 'while true ; do sleep 1000 ; done'
+  - docker run --name build_container -d -ti -v $PWD:/tmp -w /tmp $OS_NAME:$OS_MAJOR_VERSION sh -c 'while true ; do sleep 1000 ; done'
   # Now, install prerequisites for the build
   - docker exec -i -w /root build_container yum install -y rpm-build make rsync
   # Eventually build the rpm
