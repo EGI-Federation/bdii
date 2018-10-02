@@ -11,6 +11,7 @@ Welcome to BDII's documentation!
    :caption: Contents:
 
    source/intro
+   source/metadata
 
 
 Indices and tables
