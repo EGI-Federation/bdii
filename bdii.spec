@@ -6,22 +6,15 @@ Summary:	The Berkeley Database Information Index (BDII)
 Group:		System Environment/Daemons
 License:	ASL 2.0
 URL:		https://github.com/EGI-Foundation/bdii
-# The source for this package was pulled from upstream's vcs.  Use the
-# following commands to generate the tarball:
-#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii/tags/R_5_2_23_1 %{name}-%{version}
-#  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
-%if "%{?dist}" == ".el5"
-Requires: openldap2.4-servers
-Requires: openldap2.4-clients
-%endif
 Requires: openldap-clients
 Requires: openldap-servers
 Requires: glue-schema >= 2.0.0
+Requires: python
 
 Requires(post):		chkconfig
 Requires(post):		expect
@@ -136,7 +129,7 @@ fi
 * Wed Aug 27 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.23-1
 - #GRIDINFO-55: Increase the number of simultaneous threads 
 
-* Fri Sep 9 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.22-1
+* Mon Sep 9 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.22-1
 - BUG #102503: Make /var/run/bdii configurable
 
 * Fri Aug 2 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.21-1
@@ -190,10 +183,10 @@ fi
 * Thu Mar 8 2012 Laurence Field <laurence.field@cern.ch> - 5.2.10-1
 - New upsteam version that includes a new DB_CONFIG
 
-* Tue Feb 8 2012 Laurence Field <laurence.field@cern.ch> - 5.2.9-1
+* Wed Feb 8 2012 Laurence Field <laurence.field@cern.ch> - 5.2.9-1
 - Fixed /var/run packaging issue
 
-* Tue Feb 8 2012 Laurence Field <laurence.field@cern.ch> - 5.2.8-1
+* Wed Feb 8 2012 Laurence Field <laurence.field@cern.ch> - 5.2.8-1
 - Fixed a base64 encoding issue and added /var/run/bdii to the package
 
 * Tue Feb 7 2012 Laurence Field <laurence.field@cern.ch> - 5.2.7-1
