@@ -1054,8 +1054,8 @@ def main(config, log):
         log.info("Sleeping for %i seconds" % int(config['BDII_BREATHE_TIME']))
         time.sleep(config['BDII_BREATHE_TIME'])
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     config = parse_options()
     config = get_config(config)
     if config['BDII_DAEMON']:
