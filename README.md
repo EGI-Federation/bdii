@@ -48,7 +48,7 @@ BDII_CCEM=no
 The BDII Status Information Mechanism is intended to allow better monitoring
 possibilities, spotting of upraising problems and resulting failure prevention.
 It adds status information about the BDII instance into the 'o=infosys' root
-containing metrics like the number of entries added in the last cyle,
+containing metrics like the number of entries added in the last cycle,
 the time to do so, etc.
 The description of thoese metrics can be found in the etc/BDII.schema file.
 
