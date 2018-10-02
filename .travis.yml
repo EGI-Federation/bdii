@@ -30,14 +30,18 @@ script:
   - rpmlint bdii.spec
   - flake8 bin/bdii-update
   # Then, start the build container
-  - docker run --name build_container -d -ti -v $PWD:/tmp -w /tmp $OS_NAME:$OS_MAJOR_VERSION sh -c 'while true ; do sleep 1000 ; done'
+  - docker run --name build_container -d -ti -v $PWD:/src -w /src $OS_NAME:$OS_MAJOR_VERSION sh -c 'while true ; do sleep 1000 ; done'
   # Now, install prerequisites for the build
-  - docker exec -i -w /root build_container yum install -y rpm-build make rsync
+  - docker exec -i -w /root build_container yum install -y rpm-build rpmlint make rsync
   # Eventually build the rpm
-  - docker exec -i -w /tmp build_container make rpm
+  - docker exec -i -w /src build_container make rpm
+  # lint the RPM
+  - docker exec -i -w /root/rpmbuild build_container sh -c "rpmlint RPMS/"
+  # Now, start the test container
+  - docker run --name install_container -d -ti -v $PWD:/src -w /src $OS_NAME:$OS_VERSION /bin/sh -c 'while true ; do sleep 1000 ; done'
   # and install it
-  # XXX some non standard dependencies are needed, skip them for now
-  - docker exec -i -w /tmp/build/RPMS/noarch build_container sh -c "yum localinstall -y --skip-broken bdii*.el${OS_MAJOR_VERSION}.noarch.rpm"
+  - docker exec -i -w /src/build/RPMS/noarch install_container yum install -y epel-release
+  - docker exec -i -w /src/build/RPMS/noarch install_container sh -c "yum localinstall -y bdii*.el${OS_MAJOR_VERSION}.noarch.rpm"
 deploy:
   provider: releases
   api_key:
