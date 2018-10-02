@@ -31,7 +31,7 @@
     "centos 6",
     "centos 7"
   ],
-  "installUrl": "https://malandes.web.cern.ch/malandes/infosys/rpms/emi-bdii-site-1.0.2-1.el7.cern.noarch.rpm",
+  "installUrl": "https://github.com/EGI-Foundation/glite-info-update-endpoints/releases",
   "buildInstructions": "http://gridinfo-documentation.readthedocs.io/",
   "releaseNotes": "",
   "codeRepository": "https://github.com/EGI-Foundation/bdii",
