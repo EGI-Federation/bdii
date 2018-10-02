@@ -38,7 +38,7 @@ script:
   # lint the RPM
   - docker exec -i -w /src/build build_container rpmlint RPMS/
   # Now, start the test container
-  - docker run --name install_container -d -ti -v $PWD:/src -w /src $OS_NAME:$OS_VERSION sh -c 'while true ; do sleep 1000 ; done'
+  - docker run --name install_container -d -ti -v $PWD:/src -w /src $OS_NAME:$OS_MAJOR_VERSION sh -c 'while true ; do sleep 1000 ; done'
   # and install it
   - docker exec -i -w /src/build/RPMS/noarch install_container yum install -y epel-release
   - docker exec -i -w /src/build/RPMS/noarch install_container sh -c "yum localinstall -y bdii*.el${OS_MAJOR_VERSION}.noarch.rpm"
