@@ -36,7 +36,7 @@ script:
   # Eventually build the rpm
   - docker exec -i -w /src build_container make rpm
   # lint the RPM
-  - docker exec -i -w /src/build build_container rpmlint --option UseVarLockSubsys=False --option UseVarLockSubsys='tuple(default=list(0o644, 0o755, 0o640))' RPMS/
+  - docker exec -i -w /src/build build_container rpmlint --file ../.rpmlint.ini RPMS/
   # Now, start the test container
   - docker run --name install_container -d -ti -v $PWD:/src -w /src $OS_NAME:$OS_MAJOR_VERSION sh -c 'while true ; do sleep 1000 ; done'
   # and install it
