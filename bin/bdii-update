@@ -293,7 +293,7 @@ def read_ldif(source):
 def get_dns(ldif):
     dns = {}
     last_dn_index = len(ldif)
-    while 1:
+    while True:
         dn_index = ldif.rfind("dn:", 0, last_dn_index)
         if dn_index == -1:
             break
@@ -343,78 +343,6 @@ def group_dns(dns):
 
 
 def convert_entry(entry_string):
-    # multivalued = ['objectclass',
-    #                'gluehostapplicationsoftwareruntimeenvironment',
-    #                'glueserviceaccesscontrolrule',
-    #                'glueserviceaccesscontrolbaserule',
-    #                'glueceaccesscontrolbaserule',
-    #                'gluesaaccesscontrolbaserule',
-    #                'gluesecontrolprotocolcapability',
-    #                'glueseaccessprotocolsupportedsecurity',
-    #                'gluesacapability',
-    #                'gluevoinfoaccesscontrolbaserule',
-    #                'gluesecontrolprotocolcapability',
-    #                'gluecesebindgroupseuniqueid',
-    #                'gluecesebindseuniqueid',
-    #                'gluecesebindmountinfo',
-    #                'gluecesebindweight',
-    #                'glueserviceowner',
-    #                'gluechunkkey',
-    #                'glueforeignkey',
-    #                'gluecesebindmountinfo',
-    #                'glueseaccessprotocolcapability',
-    #                'gluesiteotherinfo',
-    #                'gluesitesponsor',
-    #                'gluececapability',
-    #                'glueclusterservice',
-    #                'glue2entityotherinfo',
-    #                'glue2extensionentityforeignkey',
-    #                'glue2locationserviceforeignkey',
-    #                'glue2locationdomainforeignkey',
-    #                'glue2contactserviceforeignkey',
-    #                'glue2contactdomainforeignkey',
-    #                'glue2domainwww',
-    #                'glue2admindomainowner',
-    #                'glue2admindomainadmindomainforeignkey',
-    #                'glue2userdomainusermanager',
-    #                'glue2userdomainmember',
-    #                'glue2userdomainuserdomainforeignkey',
-    #                'glue2servicecapability',
-    #                'glue2servicestatusinfo',
-    #                'glue2serviceadmindomainforeignkey',
-    #                'glue2serviceserviceforeignkey',
-    #                'glue2endpointcapability',
-    #                'glue2endpointinterfaceextension',
-    #                'glue2endpointwsdl',
-    #                'glue2endpointsupportedprofile',
-    #                'glue2endpointsemantics',
-    #                'glue2endpointtrustedca',
-    #                'glue2shareendpointforeignkey',
-    #                'glue2shareresourceforeignkey',
-    #                'glue2activityactivityforeignkey',
-    #                'glue2policyrule',
-    #                'glue2policyuserdomainforeignkey',
-    #                'glue2accesspolicyendpointforeignkey',
-    #                'glue2mappingpolicyshareforeignkey',
-    #                'glue2computingendpointjobdescription',
-    #                'glue2computingsharetag',
-    #                'glue2computingsharecomputingendpointforeignkey',
-    #                'glue2computingshareexecutionenvironmentforeignkey',
-    #                'glue2computingmanagernetworkinfo',
-    #                'glue2executionenvironmentnetworkinfo',
-    #                'glue2applicationenvironmentbestbenchmark',
-    #                'glue2applicationenvironmentexecutionenvironmentforeignkey',
-    #                'glue2computingactivitystate',
-    #                'glue2computingactivityrestartstate',
-    #                'glue2computingactivityrequestedapplicationenvironment',
-    #                'glue2computingactivityexecutionnode',
-    #                'glue2storageshareaccessmode',
-    #                'glue2storageshareretentionpolicy',
-    #                'glue2storagesharestorageendpointforeignkey',
-    #                'glue2storagesharedatastoreforeignkey',
-    #                'glue2storagesharecapacitystorageshareforeignkey',
-    #                'glue2tocomputingservicestorageaccessprotocolforeignkey']
-
     entry = {}
     for line in entry_string.split("\n"):
         index = line.find(":")
@@ -599,7 +527,7 @@ def log_errors(error_file, dns):
 def main(config, log):
 
     log.info("Starting Update Process")
-    while 1:
+    while True:
         log.info("Starting Update")
         stats = {}
         stats['update_start'] = time.time()
