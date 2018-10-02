@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.24
+Version:	5.2.25
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -121,6 +121,10 @@ fi
 %doc /usr/share/doc/bdii/LICENSE.txt
 
 %changelog
+
+* Tue Oct 2 2018 Baptiste Grenier <baptiste.grenier@egi.eu> - 5.2.25-1
+- Import product card JSON in codemeta.json format (Bruce Becker)
+- Lint, build, test install and attach packages to GitHub tags using Travis. (Baptiste Grenier)
 
 * Mon Aug 27 2018 Baptiste Grenier <baptiste.grenier@egi.eu> - 5.2.24-1
 - Fix #3: init script failing on stale PID (Paolo Andreetto)
