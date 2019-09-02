@@ -134,7 +134,8 @@ def get_config(config):
                         config['BDII_PASSWD_FILE'][rootdn] = "%s/%s" % (
                                 config['BDII_RUN_DIR'], filename)
                         pf = os.open(config['BDII_PASSWD_FILE'][rootdn],
-                                     os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+                                     os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+                                     0o600)
                         os.write(pf, rootpw)
                         os.close(pf)
                         rootdn = False
@@ -146,7 +147,8 @@ def get_config(config):
                         config['BDII_PASSWD_FILE'][rootdn] = "%s/%s" % (
                                config['BDII_RUN_DIR'], filename)
                         pf = os.open(config['BDII_PASSWD_FILE'][rootdn],
-                                     os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+                                     os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+                                     0o600)
                         os.write(pf, rootpw)
                         os.close(pf)
                         rootdn = False
