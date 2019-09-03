@@ -390,7 +390,7 @@ def ldif_diff(dn, old_entry, new_entry):
 
             # If the old entries are different find the modify.
             if not new_entry[attribute] == old_entry[attribute]:
-                    replace_attribute[attribute] = new_entry[attribute]
+                replace_attribute[attribute] = new_entry[attribute]
 
         # The old entry does not have the attribute so add it.
         else:
