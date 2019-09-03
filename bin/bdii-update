@@ -301,8 +301,8 @@ def get_dns(ldif):
             break
         end_dn_index = ldif.find("\n", dn_index, last_dn_index)
         dn = ldif[dn_index + 4:end_dn_index].lower()
-        dn = re.sub("\s*,\s*", ",", dn)
-        dn = re.sub("\s*=\s*", "=", dn)
+        dn = re.sub("\\s*,\\s*", ",", dn)
+        dn = re.sub("\\s*=\\s*", "=", dn)
         # Replace encoded slash
         dn = dn.replace("\\5c", "\\\\")
         # Replace encoded comma
