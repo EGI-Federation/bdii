@@ -205,11 +205,13 @@ def create_daemon(log_file):
     os.open("/dev/null", os.O_RDONLY)
     os.close(1)
     os.open("/dev/null", os.O_WRONLY)
+
     # connect stderr to log file
     e = os.open(log_file, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o644)
     os.dup2(e, 2)
     os.close(e)
     sys.stderr = os.fdopen(2, 'a')
+
     # Write PID
     pid_file = open(config['BDII_PID_FILE'], 'w')
     pid_file.write("%s\n" % str(os.getpid()))
@@ -1026,5 +1028,6 @@ if __name__ == '__main__':
         os.dup2(e, 2)
         os.close(e)
         sys.stderr = os.fdopen(2, 'a')
+
     log = get_logger(config['BDII_LOG_FILE'], config['BDII_LOG_LEVEL'])
     main(config, log)
