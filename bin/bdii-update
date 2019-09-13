@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 ##############################################################################
 # Copyright (c) Members of the EGEE Collaboration. 2004.
 # See http://www.eu-egee.org/partners/ for details on the copyright
@@ -146,6 +146,7 @@ def get_config(config):
                         rootpw = False
                 if line.find("rootpw") > -1:
                     rootpw = line.replace("rootpw", "").strip()
+                    rootpw = str.encode(rootpw)
                     if rootdn:
                         config['BDII_PASSWD'][rootdn] = rootpw
                         config['BDII_PASSWD_FILE'][rootdn] = "%s/%s" % (
@@ -204,13 +205,11 @@ def create_daemon(log_file):
     os.open("/dev/null", os.O_RDONLY)
     os.close(1)
     os.open("/dev/null", os.O_WRONLY)
-
     # connect stderr to log file
     e = os.open(log_file, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o644)
     os.dup2(e, 2)
     os.close(e)
-    sys.stderr = os.fdopen(2, 'a', 0)
-
+    sys.stderr = os.fdopen(2, 'a')
     # Write PID
     pid_file = open(config['BDII_PID_FILE'], 'w')
     pid_file.write("%s\n" % str(os.getpid()))
@@ -669,7 +668,7 @@ def main(config, log):
         log.debug("Finished Diff")
 
         log.debug("Sorting Add Keys")
-        ldif_add.sort(lambda x, y: cmp(len(x), len(y)))
+        ldif_add.sort(key = lambda x: len(x))
 
         log.debug("Writing ldif_add to disk")
         if config['BDII_LOG_LEVEL'] == 'DEBUG':
@@ -765,7 +764,7 @@ def main(config, log):
                 os.remove(error_file)
 
         log.debug("Sorting Delete Keys")
-        ldif_delete.sort(lambda x, y: cmp(len(y), len(x)))
+        ldif_delete.sort(key = lambda x: len(x))
 
         log.debug("Writing ldif_delete to disk")
         if config['BDII_LOG_LEVEL'] == 'DEBUG':
@@ -1026,7 +1025,6 @@ if __name__ == '__main__':
                     os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o644)
         os.dup2(e, 2)
         os.close(e)
-        sys.stderr = os.fdopen(2, 'a', 0)
-
+        sys.stderr = os.fdopen(2, 'a')
     log = get_logger(config['BDII_LOG_FILE'], config['BDII_LOG_LEVEL'])
     main(config, log)
