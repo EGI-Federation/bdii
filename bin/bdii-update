@@ -641,7 +641,7 @@ def main(config, log):
         log.debug("Finished Diff")
 
         log.debug("Sorting Add Keys")
-        ldif_add.sort(key = lambda x: len(x))
+        ldif_add.sort(key=lambda x: len(x))
 
         log.debug("Writing ldif_add to disk")
         if config['BDII_LOG_LEVEL'] == 'DEBUG':
@@ -737,7 +737,7 @@ def main(config, log):
                 os.remove(error_file)
 
         log.debug("Sorting Delete Keys")
-        ldif_delete.sort(key = lambda x: len(x))
+        ldif_delete.sort(key=lambda x: len(x))
 
         log.debug("Writing ldif_delete to disk")
         if config['BDII_LOG_LEVEL'] == 'DEBUG':
