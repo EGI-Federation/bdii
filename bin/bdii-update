@@ -518,9 +518,8 @@ def fix(dns, ldif):
         entry = convert_entry(ldif[dns[dn][0]:dns[dn][1]])
         if dn[:11].lower() == "mds-vo-name":
             if 'objectclass' in entry:
-                if 'mds' in map(lambda x: x.lower(), entry['objectclass']):
-                    if 'gluetop' in map(lambda x: x.lower(),
-                                        entry['objectclass']):
+                if 'mds' in [x.lower() for x in entry['objectclass']]:
+                    if 'gluetop' in [x.lower() for x in entry['objectclass']]:
                         value = dn[12:dn.index(",")]
                         entry = {'dn': [dn],
                                  'objectclass': ['MDS'],
@@ -689,7 +688,7 @@ def main(config, log):
             error_file = tempfile.mktemp()
 
         roots = group_dns(ldif_add)
-        suffixes = roots.keys()
+        suffixes = list(roots.keys())
         if "o=shadow" in suffixes:
             index = suffixes.index("o=shadow")
             if index > 0:
@@ -760,7 +759,7 @@ def main(config, log):
                 log.error("Could not modify entries in the database.")
 
             modify_error_counter += log_errors(error_file,
-                                               ldif_modify_dns.keys())
+                                               list(ldif_modify_dns.keys()))
 
             if config['BDII_LOG_LEVEL'] != 'DEBUG':
                 os.remove(error_file)
