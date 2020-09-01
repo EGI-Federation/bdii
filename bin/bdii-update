@@ -17,6 +17,7 @@
 # limitations under the License.
 ##############################################################################
 
+import base64
 import getopt
 import logging
 import os
@@ -348,18 +349,26 @@ def convert_entry(entry_string):
     entry = {}
     for line in entry_string.split("\n"):
         index = line.find(":")
-        if index == -1:
-            continue
-        attribute = line[:index].lower()
-        value = line[index + 1:].strip()
-        if value and line[index + 1] == ":":
-            # we have a base64 encoded value, add an extra : to the attribute
-            attribute += ":"
-            value = line[index + 2].strip()
-        attr_values = entry.get(attribute, [value])
-        attr_values.append(value)
-        entry[attribute] = attr_values
+        if index > -1:
+            attribute = line[:index].lower()
+            value = line[index + 1:].strip()
+            if value and line[index + 1] == ":":
+                value = base64.b64decode(line[index + 2].strip())
+            if attribute in entry:
+                if value not in entry[attribute]:
+                    entry[attribute].append(value)
+            else:
+                entry[attribute] = [value]
     return entry
+
+
+def needs_encoding(value):
+    if value and value[0] in [" ", "<", ":"]:
+        return True
+    if "\n" in value or "\0" in value:
+        return True
+    # non ascii data ?
+    return False
 
 
 def convert_back(entry):
@@ -368,7 +377,10 @@ def convert_back(entry):
     for attribute in entry.keys():
         attribute = attribute.lower()
         for value in entry[attribute]:
-            entry_string += "%s: %s\n" % (attribute, value)
+            if needs_encoding(value):
+                entry_string += "%s:: %s\n" % (attribute, base64.b64encode(value))
+            else:
+                entry_string += "%s: %s\n" % (attribute, value)
 
     return entry_string
 
