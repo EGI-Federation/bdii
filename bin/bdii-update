@@ -348,15 +348,16 @@ def convert_entry(entry_string):
     entry = {}
     for line in entry_string.split("\n"):
         index = line.find(":")
-        if index > -1:
-            attribute = line[:index].lower()
-            value = line[index + 1:].strip()
-
-            if attribute in entry:
-                if value not in entry[attribute]:
-                    entry[attribute].append(value)
-            else:
-                entry[attribute] = [value]
+        if index == -1:
+            continue
+        attribute = line[:index].lower()
+        value = line[index + 1:].strip()
+        if value and line[index + 1] == ":"
+            # we have a base64 encoded value, add an extra : to the attribute
+            attribute += ":"
+        attr_values = entry.get(attribute, [value])
+        attr_values.append(value)
+        entry[attribute] = attr_values
     return entry
 
 
