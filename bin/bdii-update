@@ -378,7 +378,8 @@ def convert_back(entry):
         attribute = attribute.lower()
         for value in entry[attribute]:
             if needs_encoding(value):
-                entry_string += "%s:: %s\n" % (attribute, base64.b64encode(value))
+                entry_string += "%s:: %s\n" % (attribute,
+                                               base64.b64encode(value))
             else:
                 entry_string += "%s: %s\n" % (attribute, value)
 
