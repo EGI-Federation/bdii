@@ -362,13 +362,22 @@ def convert_entry(entry_string):
     return entry
 
 
+# From RFC2849
+# SAFE-CHAR                = %x01-09 / %x0B-0C / %x0E-7F
+#                           ; any value <= 127 decimal except NUL, LF,
+#                           ; and CR
+# SAFE-INIT-CHAR           = %x01-09 / %x0B-0C / %x0E-1F /
+#                            %x21-39 / %x3B / %x3D-7F
+#                            ; any value <= 127 except NUL, LF, CR,
+#                            ; SPACE, colon (":", ASCII 58 decimal)
+#                            ; and less-than ("<" , ASCII 60 decimal)
+# SAFE-STRING              = [SAFE-INIT-CHAR *SAFE-CHAR]
+safe_string = re.compile("^[\x01-\x09\x0B-\x0C\x0E-\x1F\x21-\x39\x3B\x3D-\x7F]"
+                         "[\x01-\x09\x0B-\x0C\x0E-\x7F]*$")
+
+
 def needs_encoding(value):
-    if value and value[0] in [" ", "<", ":"]:
-        return True
-    if "\n" in value or "\0" in value:
-        return True
-    # non ascii data ?
-    return False
+    return safe_string.search(value) is None
 
 
 def convert_back(entry):
