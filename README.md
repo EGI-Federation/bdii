@@ -24,7 +24,7 @@ Whenever a remote server is contacted and the ldapsearch command times out
 the update process tries to find an (old) cached entry in the `/var/cache/`
 directory. If no entry is found a message is printed to the logfile.
 
-*Attention!*
+_Attention!_
 If the remote host cannot be contacted due to a connection problem
 no cached entry is taken. No message is printed to the logfile.
 
@@ -58,8 +58,8 @@ The description of thoese metrics can be found in the etc/BDII.schema file.
 make install
 ```
 
-* Build dependencies: None
-* Runtime dependencies: openldap
+- Build dependencies: None
+- Runtime dependencies: openldap
 
 ## Building packages
 
@@ -67,9 +67,9 @@ make install
 
 The required build dependencies are:
 
-* rpm-build
-* make
-* rsync
+- rpm-build
+- make
+- rsync
 
 ```sh
 # Checkout tag to be packaged
@@ -99,6 +99,17 @@ cd /source && make deb
 ```
 
 The DEB will be available into the `build/` directory.
+
+## Preparing a release
+
+- Prepare a changelog from the last version, including contributors' names
+- Prepare a PR with
+  - Updating version and changelog in `bdii.spec`
+  - Updating version and changelog in `debian/changelog`
+  - Updating authors in `AUTHORS`
+  - Updating `codemeta.json` if needed
+- Once the PR has been merged tag and release a new version in GitHub
+  - Packages will be built using Travis and attached to the release page
 
 ## History
 

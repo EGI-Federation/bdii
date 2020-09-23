@@ -1,5 +1,5 @@
 Name:		bdii
-Version:	5.2.25
+Version:	5.2.26
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
@@ -121,6 +121,11 @@ fi
 %doc /usr/share/doc/bdii/LICENSE.txt
 
 %changelog
+
+* Wed Sep 23 2020 Baptiste Grenier <baptiste.grenier@egi.eu> - 5.2.26-1
+- Truncate LDIF password file before updating (Petr Vokac)
+- Preserve base64 entries (Enol Fernández, Andrea Manzi)
+- Allow BDII_HOSTNAME configuration and default to localhost (Andrea Manzi)
 
 * Tue Oct 2 2018 Baptiste Grenier <baptiste.grenier@egi.eu> - 5.2.25-1
 - Import product card JSON in codemeta.json format (Bruce Becker)

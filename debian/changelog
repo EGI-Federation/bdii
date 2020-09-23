@@ -1,3 +1,11 @@
+bdii (5.2.26-1) UNRELEASED; urgency=low
+
+  * Truncate LDIF password file before updating (Petr Vokac)
+  * Preserve base64 entries (Enol Fernández, Andrea Manzi)
+  * Allow BDII_HOSTNAME configuration and default to localhost (Andrea Manzi)
+
+ -- Baptiste Grenier <baptiste.grenier@egi.eu> Wed, 23 Sep 2020 11:02:00 +0100
+
 bdii (5.2.24-1) UNRELEASED; urgency=low
 
   * Fix #3: init script failing on stale PID (Paolo Andreetto)
