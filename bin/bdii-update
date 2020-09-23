@@ -80,6 +80,9 @@ def get_config(config):
     if 'BDII_PID_FILE' not in config:
         config['BDII_PID_FILE'] = "%s/bdii-update.pid" % config['BDII_RUN_DIR']
 
+    if 'BDII_HOSTNAME' not in config:
+        config['BDII_HOSTNAME'] = 'localhost'
+
     for parameter in ['BDII_LOG_FILE', 'BDII_LOG_LEVEL', 'BDII_LDIF_DIR',
                       'BDII_PROVIDER_DIR', 'BDII_PLUGIN_DIR',
                       'BDII_READ_TIMEOUT']:
@@ -157,7 +160,6 @@ def get_config(config):
         config['BDII_BREATHE_TIME'] = float(config['BDII_BREATHE_TIME'])
         config['BDII_ARCHIVE_SIZE'] = int(config['BDII_ARCHIVE_SIZE'])
         config['BDII_DELETE_DELAY'] = int(config['BDII_DELETE_DELAY'])
-        config['BDII_HOSTNAME'] = 'localhost'
 
     return config
 
