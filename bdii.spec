@@ -123,8 +123,8 @@ fi
 %changelog
 
 * Wed Sep 23 2020 Baptiste Grenier <baptiste.grenier@egi.eu> - 5.2.26-1
-- Truncate LDIF password file before updating (Enol Fernández, Andrea Manzi)
-- Preserve base64 entries (Petr Vokac)
+- Truncate LDIF password file before updating (Petr Vokac)
+- Preserve base64 entries (Enol Fernández, Andrea Manzi)
 - Allow BDII_HOSTNAME configuration and default to localhost (Andrea Manzi)
 
 * Tue Oct 2 2018 Baptiste Grenier <baptiste.grenier@egi.eu> - 5.2.25-1

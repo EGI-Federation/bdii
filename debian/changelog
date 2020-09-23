@@ -1,7 +1,7 @@
 bdii (5.2.26-1) UNRELEASED; urgency=low
 
-  * Truncate LDIF password file before updating (Enol Fernández, Andrea Manzi)
-  * Preserve base64 entries (Petr Vokac)
+  * Truncate LDIF password file before updating (Petr Vokac)
+  * Preserve base64 entries (Enol Fernández, Andrea Manzi)
   * Allow BDII_HOSTNAME configuration and default to localhost (Andrea Manzi)
 
  -- Baptiste Grenier <baptiste.grenier@egi.eu> Wed, 23 Sep 2020 11:02:00 +0100
