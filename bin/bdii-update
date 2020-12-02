@@ -146,7 +146,6 @@ def get_config(config):
                         rootpw = False
                 if line.find("rootpw") > -1:
                     rootpw = line.replace("rootpw", "").strip()
-                    rootpw = str.encode(rootpw)
                     if rootdn:
                         config['BDII_PASSWD'][rootdn] = rootpw
                         config['BDII_PASSWD_FILE'][rootdn] = "%s/%s" % (
@@ -154,7 +153,7 @@ def get_config(config):
                         pf = os.open(config['BDII_PASSWD_FILE'][rootdn],
                                      os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
                                      0o600)
-                        os.write(pf, rootpw)
+                        os.write(pf, rootpw.encode())
                         os.close(pf)
                         rootdn = False
                         rootpw = False
@@ -356,7 +355,7 @@ def convert_entry(entry_string):
             attribute = line[:index].lower()
             value = line[index + 1:].strip()
             if value and line[index + 1] == ":":
-                value = base64.b64decode(line[index + 2:].strip())
+                value = base64.b64decode(line[index + 2:].strip()).decode()
             if attribute in entry:
                 if value not in entry[attribute]:
                     entry[attribute].append(value)
@@ -393,7 +392,7 @@ def convert_back(entry):
         for value in entry[attribute]:
             if needs_encoding(value):
                 entry_string += "%s:: %s\n" % (attribute,
-                                               base64.b64encode(value))
+                                               base64.b64encode(value.encode()).decode())
             else:
                 entry_string += "%s: %s\n" % (attribute, value)
 
