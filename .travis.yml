@@ -9,7 +9,6 @@ env:
   global:
     - OS_NAME=centos
   matrix:
-    - OS_MAJOR_VERSION=6
     - OS_MAJOR_VERSION=7
 before_install:
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
