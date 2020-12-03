@@ -17,17 +17,7 @@ before_install:
   - sudo apt update
   - sudo apt install -y docker-ce
   - docker --version
-install:
-  - wget http://archive.ubuntu.com/ubuntu/pool/universe/r/rpmlint/rpmlint_1.7-1_all.deb
-  - sudo dpkg -i rpmlint_1.7-1_all.deb || sudo apt install -f -y
-  - gem install mdl
-  - if [[  $TRAVIS_PYTHON_VERSION == 2.6 ]]; then pip install 'flake8<3.0.0'; fi
-  - if [[  $TRAVIS_PYTHON_VERSION == 2.7 ]]; then pip install flake8 flake8-import-order hacking; fi
 script:
-  # First syntax, linting and pre-test stages
-  - mdl -s relaxed README.md
-  - rpmlint bdii.spec
-  - flake8 bin/bdii-update
   # Then, start the build container
   - docker run --name build_container -d -ti -v $PWD:/src -w /src $OS_NAME:$OS_MAJOR_VERSION sh -c 'while true ; do sleep 1000 ; done'
   # Now, install prerequisites for the build
