@@ -26,6 +26,9 @@ jobs:
           path: |
             build/RPMS/noarch/bdii-*-1.el7.noarch.rpm
 
+  # XXX BDII dependencies are taken from EPEL
+  # glue-schema
+  # openldap-servers, openldap-clients
   centos7-install:
     name: install centos 7 rpms
     needs: centos7
@@ -37,4 +40,5 @@ jobs:
           name: rpms
       - name: install generated rpms
         run: |
+          yum localinstall -y epel-release
           yum localinstall -y bdii-*.rpm
