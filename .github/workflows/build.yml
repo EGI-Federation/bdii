@@ -40,5 +40,5 @@ jobs:
           name: rpms
       - name: install generated rpms
         run: |
-          yum localinstall -y epel-release
+          yum install -y epel-release
           yum localinstall -y bdii-*.rpm
