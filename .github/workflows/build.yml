@@ -24,7 +24,7 @@ jobs:
         with:
           name: rpms
           path: |
-            RPMS/noarch/bdii-*-1.el7.noarch.rpm
+            build/RPMS/noarch/bdii-*-1.el7.noarch.rpm
 
   centos7-install:
     name: install centos 7 rpms
