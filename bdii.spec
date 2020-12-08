@@ -1,3 +1,10 @@
+	
+%if %{?fedora}%{!?fedora:0} >= 25 || %{?rhel}%{!?rhel:0} >= 8
+%global use_systemd 1
+%else
+%global use_systemd 0
+%endif
+
 Name:		bdii
 Version:	5.2.26
 Release:	1%{?dist}
@@ -16,11 +23,15 @@ Requires: openldap-servers
 Requires: glue-schema >= 2.0.0
 Requires: python3
 
+Requires(post):		/usr/bin/mkpasswd
+%if %{use_systemd}
+%{?systemd_requires}
+%else
 Requires(post):		chkconfig
-Requires(post):		expect
 Requires(preun):	chkconfig
 Requires(preun):	initscripts
 Requires(postun):	initscripts
+%endif
 
 %if %{?fedora}%{!?fedora:0} >= 32 || %{?rhel}%{!?rhel:0} >= 8
 Requires(post):		policycoreutils-python-utils
@@ -46,12 +57,27 @@ differences. This is then used to update the database.
 rm -rf %{buildroot}
 make install prefix=%{buildroot}
 
+%if %{use_systemd}
+rm %{buildroot}%{_initrddir}/%{name}
+mkdir -p %{buildroot}%{_unitdir}
+install -m 644 -p etc/systemd/bdii.service etc/systemd/bdii-slapd.service %{buildroot}%{_unitdir}
+mkdir -p %{buildroot}%{_datadir}/%{name}
+install -p etc/systemd/bdii-slapd-start %{buildroot}%{_datadir}/%{name}
+%endif
+
+rm -rf %{buildroot}%{_docdir}/%{name}
+
 chmod 644 %{buildroot}%{_sysconfdir}/sysconfig/%{name}
 
 %clean
 rm -rf %{buildroot}
 
 %pre
+%if %{use_systemd}
+# Remove old init config when systemd is used
+/sbin/chkconfig --del %{name} >/dev/null 2>&1 || :
+%endif
+
 # Temp fix for upgrade from 5.2.5 to 5.2.7
 service %{name} status > /dev/null 2>&1
 if [ $? -eq 0 ]; then
@@ -70,33 +96,42 @@ if [ -f %{_localstatedir}/run/%{name}/bdii.upgrade ]; then
   service %{name} start > /dev/null 2>&1
 fi
 
+%if %{use_systemd}
+%systemd_post %{name}.service
+%else
 /sbin/chkconfig --add %{name}
+%endif
 
-%if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
 semanage port -a -t ldap_port_t -p tcp 2170 2>/dev/null || :
 semanage fcontext -a -t slapd_db_t "%{_localstatedir}/lib/%{name}/db(/.*)?" 2>/dev/null || :
 semanage fcontext -a -t slapd_var_run_t "%{_localstatedir}/run/%{name}/db(/.*)?" 2>/dev/null || :
 # Remove selinux labels for old bdii var dir
 semanage fcontext -d -t slapd_db_t "%{_localstatedir}/run/%{name}(/.*)?" 2>/dev/null || :
-%endif
 
 %preun
+%if %{use_systemd}
+%systemd_preun %{name}.service
+%else
 if [ $1 -eq 0 ]; then
   service %{name} stop > /dev/null 2>&1
   /sbin/chkconfig --del %{name}
 fi
+%endif
 
 %postun
+%if %{use_systemd}
+%systemd_postun_with_restart %{name}.service
+%else
 if [ $1 -ge 1 ]; then
   service %{name} condrestart > /dev/null 2>&1
 fi
-%if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
+%endif
+
 if [ $1 -eq 0 ]; then
   semanage port -d -t ldap_port_t -p tcp 2170 2>/dev/null || :
   semanage fcontext -d -t slapd_db_t "%{_localstatedir}/lib/%{name}/db(/.*)?" 2>/dev/null || :
   semanage fcontext -d -t slapd_var_run_t "%{_localstatedir}/run/%{name}/db(/.*)?" 2>/dev/null || :
 fi
-%endif
 
 %files
 %defattr(-,root,root,-)
@@ -111,13 +146,18 @@ fi
 %attr(-,ldap,ldap) %config %{_sysconfdir}/%{name}/bdii-top-slapd.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/%{name}
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
+%if %{use_systemd}
+%{_unitdir}/bdii.service
+%{_unitdir}/bdii-slapd.service
+%dir %{_datadir}/%{name}
+%{_datadir}/%{name}/bdii-slapd-start
+%else
 %{_initrddir}/%{name}
+%endif
 %{_sbindir}/bdii-update
 %{_mandir}/man1/bdii-update.1*
-%doc /usr/share/doc/bdii/README.md
-%doc /usr/share/doc/bdii/AUTHORS
-%doc /usr/share/doc/bdii/COPYRIGHT
-%doc /usr/share/doc/bdii/LICENSE.txt
+%doc AUTHORS README.md
+%license COPYRIGHT LICENSE.txt
 
 %changelog
 
