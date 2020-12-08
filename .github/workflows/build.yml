@@ -49,9 +49,7 @@ jobs:
           path: |
             build/RPMS/noarch/bdii-*-1.el8.noarch.rpm
 
-  # XXX BDII dependencies are taken from EPEL
-  # glue-schema
-  # openldap-servers, openldap-clients
+  # XXX BDII dependency taken from EPEL: glue-schema
   centos7-install:
     name: Install CentOS 7 rpms
     needs: centos7
@@ -66,9 +64,9 @@ jobs:
           yum install -y epel-release
           yum localinstall -y bdii-*.rpm
 
-  # XXX BDII dependencies are taken from EPEL
-  # glue-schema
-  # openldap-servers, openldap-clients
+  # XXX BDII dependencies taken from non default repositories
+  # EPEL: glue-schema
+  # msalle' COPR: openldap-servers
   centos8-install:
     name: Install CentOS 8 rpms
     needs: centos8
@@ -81,4 +79,5 @@ jobs:
       - name: Install generated rpms
         run: |
           yum install -y epel-release
+          curl -o /etc/yum.repos.d/msalle-OpenLDAP-centos-stream.repo https://copr.fedorainfracloud.org/coprs/msalle/OpenLDAP/repo/centos-stream/msalle-OpenLDAP-centos-stream.repo
           yum localinstall -y bdii-*.rpm
