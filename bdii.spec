@@ -14,7 +14,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 Requires: openldap-clients
 Requires: openldap-servers
 Requires: glue-schema >= 2.0.0
-Requires: python
+Requires: python3
 
 Requires(post):		chkconfig
 Requires(post):		expect
