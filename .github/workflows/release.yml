@@ -54,6 +54,7 @@ jobs:
           name: rpms8
           path: |
             build/RPMS/noarch/bdii-*-1.el8.noarch.rpm
+            build/SRPMS/bdii-*-1.el8.src.rpm
 
   create-release:
     name: Create release
