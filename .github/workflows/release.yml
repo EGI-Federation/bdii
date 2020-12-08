@@ -56,7 +56,6 @@ jobs:
             build/RPMS/noarch/bdii-*-1.el8.noarch.rpm
 
   create-release:
-  release7:
     name: Create release
     needs: [centos7, centos8]
     runs-on: ubuntu-latest
