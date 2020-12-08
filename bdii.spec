@@ -22,13 +22,12 @@ Requires(preun):	chkconfig
 Requires(preun):	initscripts
 Requires(postun):	initscripts
 
-%if %{?fedora}%{!?fedora:0} >= 11 || %{?rhel}%{!?rhel:0} >= 6
-Requires(post):		policycoreutils-python
-Requires(postun):	policycoreutils-python
 %if %{?fedora}%{!?fedora:0} >= 32 || %{?rhel}%{!?rhel:0} >= 8
 Requires(post):		policycoreutils-python-utils
 Requires(postun):	policycoreutils-python-utils
-%endif
+%else
+Requires(post):		policycoreutils-python
+Requires(postun):	policycoreutils-python
 %endif
 
 %description
