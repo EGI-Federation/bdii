@@ -23,9 +23,31 @@ jobs:
       - name: Upload rpms
         uses: actions/upload-artifact@v2
         with:
-          name: rpms
+          name: rpms7
           path: |
             build/RPMS/noarch/bdii-*-1.el7.noarch.rpm
+
+  centos8:
+    name: Build CentOS 8 rpms
+    runs-on: ubuntu-latest
+    container: centos:8
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install build requisites
+        run: |
+          yum install -y rpm-build rpmlint make rsync
+      - name: build rpm
+        run: |
+          make rpm
+          rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
+      - name: Upload rpms
+        uses: actions/upload-artifact@v2
+        with:
+          name: rpms8
+          path: |
+            build/RPMS/noarch/bdii-*-1.el8.noarch.rpm
 
   # XXX BDII dependencies are taken from EPEL
   # glue-schema
@@ -38,7 +60,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: rpms
+          name: rpms7
       - name: Install generated rpms
         run: |
           yum install -y epel-release
