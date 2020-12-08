@@ -135,7 +135,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.package_name_centos8.outputs.rpm_path }}
+          asset_path: ${{ steps.package_name_centos8.outputs.rpm_path }}
           asset_name: ${{ steps.package_name_centos8.outputs.rpm_name }}
           asset_content_type: application/octet-stream
       - name: Upload BDII source rpm
