@@ -68,8 +68,8 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+          draft: true
+          prerelease: true
 
   release7:
     name: Upload CentOS 7 release artefacts
