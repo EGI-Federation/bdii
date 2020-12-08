@@ -106,7 +106,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.package_name_centos7.outputs.src_path }}
+          asset_path: ${{ steps.package_name_centos7.outputs.src_path }}
           asset_name: ${{ steps.package_name_centos7.outputs.src_name }}
           asset_content_type: application/octet-stream
 
@@ -144,6 +144,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.package_name_centos8.outputs.src_path }}
+          asset_path: ${{ steps.package_name_centos8.outputs.src_path }}
           asset_name: ${{ steps.package_name_centos8.outputs.src_name }}
           asset_content_type: application/octet-stream
