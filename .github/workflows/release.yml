@@ -73,7 +73,7 @@ jobs:
 
   release7:
     name: Upload CentOS 7 release artefacts
-    needs: create_release
+    needs: create-release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
@@ -107,7 +107,7 @@ jobs:
 
   release8:
     name: Upload CentOS 8 release artefacts
-    needs: create_release
+    needs: create-release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
