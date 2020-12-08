@@ -28,26 +28,39 @@ jobs:
       - name: Upload rpms
         uses: actions/upload-artifact@v2
         with:
-          name: rpms
+          name: rpms7
           path: |
             build/RPMS/noarch/bdii-*-1.el7.noarch.rpm
             build/SRPMS/bdii-*-1.el7.src.rpm
 
-  release:
-    name: Upload release artefacts
-    needs: centos7
+  centos8:
+    name: Build CentOS 8 rpms
+    runs-on: ubuntu-latest
+    container: centos:8
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install build requisites
+        run: |
+          yum install -y rpm-build rpmlint make rsync
+      - name: build rpm
+        run: |
+          make rpm
+          rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
+      - name: Upload rpms
+        uses: actions/upload-artifact@v2
+        with:
+          name: rpms8
+          path: |
+            build/RPMS/noarch/bdii-*-1.el8.noarch.rpm
+
+  create-release:
+  release7:
+    name: Create release
+    needs: [centos7, centos8]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: rpms
-      - name: Find package name
-        id: package_name
-        run: |
-          rpm_name=$(ls bdii-*-1.el7.noarch.rpm)
-          src_name=$(ls bdii-*-1.el7.src.rpm)
-          echo ::set-output name=rpm_name::$rpm_name
-          echo ::set-output name=src_name::$src_name
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -58,14 +71,30 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
+
+  release7:
+    name: Upload CentOS 7 release artefacts
+    needs: create_release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: rpms7
+      - name: Find package name
+        id: package_name_centos7
+        run: |
+          rpm_name=$(ls bdii-*-1.el7.noarch.rpm)
+          src_name=$(ls bdii-*-1.el7.src.rpm)
+          echo ::set-output name=rpm_name::$rpm_name
+          echo ::set-output name=src_name::$src_name
       - name: Upload BDII rpm
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.package_name.outputs.rpm_name }}
-          asset_name: ${{ steps.package_name.outputs.rpm_name }}
+          asset_path: ./${{ steps.package_name_centos7.outputs.rpm_name }}
+          asset_name: ${{ steps.package_name_centos7.outputs.rpm_name }}
           asset_content_type: application/octet-stream
       - name: Upload BDII source rpm
         uses: actions/upload-release-asset@v1
@@ -73,6 +102,40 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.package_name.outputs.src_name }}
-          asset_name: ${{ steps.package_name.outputs.src_name }}
+          asset_path: ./${{ steps.package_name_centos7.outputs.src_name }}
+          asset_name: ${{ steps.package_name_centos7.outputs.src_name }}
+          asset_content_type: application/octet-stream
+
+  release8:
+    name: Upload CentOS 8 release artefacts
+    needs: create_release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: rpms8
+      - name: Find package name
+        id: package_name_centos8
+        run: |
+          rpm_name=$(ls bdii-*-1.el8.noarch.rpm)
+          src_name=$(ls bdii-*-1.el8.src.rpm)
+          echo ::set-output name=rpm_name::$rpm_name
+          echo ::set-output name=src_name::$src_name
+      - name: Upload BDII rpm
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ steps.package_name_centos8.outputs.rpm_name }}
+          asset_name: ${{ steps.package_name_centos8.outputs.rpm_name }}
+          asset_content_type: application/octet-stream
+      - name: Upload BDII source rpm
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ steps.package_name_centos8.outputs.src_name }}
+          asset_name: ${{ steps.package_name_centos8.outputs.src_name }}
           asset_content_type: application/octet-stream
