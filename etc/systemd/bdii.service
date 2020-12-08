@@ -1,0 +1,23 @@
+[Unit]
+Description=Berkeley Database Information Index
+Documentation=man:bdii-update(1)
+After=bdii-slapd.service
+Requires=bdii-slapd.service
+BindsTo=bdii-slapd.service
+
+[Service]
+Type=forking
+PIDFile=/var/run/bdii/bdii-update.pid
+EnvironmentFile=-/etc/sysconfig/bdii
+ExecStart=/bin/sh -c ' \
+  BDII_CONF=$${BDII_CONF:-/etc/bdii/bdii.conf} ; \
+  [ -r "$${BDII_CONF}" ] && . "$${BDII_CONF}" ; \
+  BDII_USER=$${BDII_USER:-ldap} ; \
+  BDII_UPDATE=$${BDII_UPDATE:-/usr/sbin/bdii-update} ; \
+  export SLAPD_CONF=$${SLAPD_CONF:-/etc/bdii/bdii-slapd.conf} ; \
+  /sbin/runuser -s /bin/sh $${BDII_USER} -c "$${BDII_UPDATE} -c $${BDII_CONF} -d ; sleep 2" \
+'
+
+[Install]
+WantedBy=multi-user.target
+

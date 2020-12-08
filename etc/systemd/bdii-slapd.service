@@ -1,0 +1,12 @@
+[Unit]
+Description=Berkeley Database Information Index - slapd
+After=network.target network-online.target
+PartOf=bdii.service
+StopWhenUnneeded=true
+
+[Service]
+Type=forking
+EnvironmentFile=-/etc/sysconfig/bdii
+PIDFile=/var/run/bdii/db/slapd.pid
+ExecStart=/usr/share/bdii/bdii-slapd-start
+ExecStopPost=/bin/sh -c "mountpoint -q /var/lib/bdii/db && umount /var/lib/bdii/db || :"
