@@ -60,6 +60,8 @@ jobs:
     name: Create release
     needs: [centos7, centos8]
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - name: Create Release
         id: create_release
@@ -96,7 +98,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ steps.package_name_centos7.outputs.rpm_path }}
           asset_name: ${{ steps.package_name_centos7.outputs.rpm_name }}
           asset_content_type: application/octet-stream
@@ -105,7 +107,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ steps.package_name_centos7.outputs.src_path }}
           asset_name: ${{ steps.package_name_centos7.outputs.src_name }}
           asset_content_type: application/octet-stream
@@ -134,7 +136,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ steps.package_name_centos8.outputs.rpm_path }}
           asset_name: ${{ steps.package_name_centos8.outputs.rpm_name }}
           asset_content_type: application/octet-stream
@@ -143,7 +145,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ steps.package_name_centos8.outputs.src_path }}
           asset_name: ${{ steps.package_name_centos8.outputs.src_name }}
           asset_content_type: application/octet-stream
