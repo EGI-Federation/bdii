@@ -12,7 +12,7 @@ default:
 install:
 	@echo installing ...
 	@mkdir -p $(prefix)/usr/sbin/
-	@mkdir -p $(prefix)/var/run/bdii/
+	@mkdir -p $(prefix)/run/bdii/
 	@mkdir -p $(prefix)/var/lib/bdii/gip/ldif/
 	@mkdir -p $(prefix)/var/lib/bdii/gip/provider/
 	@mkdir -p $(prefix)/var/lib/bdii/gip/plugin/

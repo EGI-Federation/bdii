@@ -50,9 +50,9 @@ chown -R ${BDII_USER}:${BDII_USER} ${BDII_VAR_DIR}
 chown -R ${BDII_USER}:${BDII_USER} ${SLAPD_DB_DIR}
 [ -x /sbin/restorecon ] && /sbin/restorecon -R ${BDII_VAR_DIR}
 
-mkdir -p /var/run/bdii/db
-chown -R ${BDII_USER}:${BDII_USER} /var/run/bdii
-[ -x /sbin/restorecon ] && /sbin/restorecon -R /var/run/bdii/db
+mkdir -p /run/bdii/db
+chown -R ${BDII_USER}:${BDII_USER} /run/bdii
+[ -x /sbin/restorecon ] && /sbin/restorecon -R /run/bdii/db
 
 $RUNUSER -s /bin/sh ${BDII_USER} -c "rm -f ${SLAPD_DB_DIR}/stats/* 2>/dev/null"
 $RUNUSER -s /bin/sh ${BDII_USER} -c "rm -f ${SLAPD_DB_DIR}/glue/* 2>/dev/null"
