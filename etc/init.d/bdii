@@ -107,13 +107,13 @@ function check_slapd(){
         [ ! -f "${SLAPD_LOCK_FILE}" ] || return 2
         return 1
     fi
-    ps $(cat ${SLAPD_PID_FILE}) >/dev/null 2>&1
+    ps $(cat "${SLAPD_PID_FILE}") >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         return 0
     fi
     if [ -n "${1}" -a "${1}" == "reset" ]; then
-        rm -f ${SLAPD_PID_FILE}
-        rm -f ${SLAPD_LOCK_FILE}
+        rm -f "${SLAPD_PID_FILE}"
+        rm -f "${SLAPD_LOCK_FILE}"
     fi
     return 2
 }
@@ -123,27 +123,27 @@ function check_updater(){
         [ ! -f "${UPDATE_LOCK_FILE}" ] || return 2
         return 1
     fi
-    ps $(cat ${UPDATE_PID_FILE}) >/dev/null 2>&1
+    ps $(cat "${UPDATE_PID_FILE}") >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         return 0
     fi
     if [ -n "${1}" -a "${1}" == "reset" ]; then
-        rm -f ${UPDATE_PID_FILE}
-        rm -f ${UPDATE_LOCK_FILE}
+        rm -f "${UPDATE_PID_FILE}"
+        rm -f "${UPDATE_LOCK_FILE}"
     fi
     return 2
 }
 
 function check_updater_hanging(){
     # Check for hanging process
-    response=$(ldapsearch -LLL -x -h ${SLAPD_HOST} -p ${SLAPD_PORT} -b o=infosys objectClass=UpdateStats modifyTimestamp 2>/dev/null | grep modifyTimestamp )
+    response=$(ldapsearch -LLL -x -h "${SLAPD_HOST}" -p "${SLAPD_PORT}" -b o=infosys objectClass=UpdateStats modifyTimestamp 2>/dev/null | grep modifyTimestamp )
     if [ $? -eq 0 ]; then
-	    time_stamp=$(echo ${response} | cut -d" " -f2)
-	    time_string=$(echo ${time_stamp} | sed 's/^\([0-9][0-9][0-9][0-9]\)\([0-9][0-9]\)\([0-9][0-9]\)\([0-9][0-9]\)\([0-9][0-9]\).*/\1-\2-\3 \4:\5/')
+	    time_stamp=$(echo "${response}" | cut -d" " -f2)
+	    time_string=$(echo "${time_stamp}" | sed 's/^\([0-9][0-9][0-9][0-9]\)\([0-9][0-9]\)\([0-9][0-9]\)\([0-9][0-9]\)\([0-9][0-9]\).*/\1-\2-\3 \4:\5/')
 	    time_int=$(date --utc --date "${time_string}" +%s)
 	    let time_threshold=${time_int}+1200
 	    time_now=$(date --utc +%s)
-	    if [ ${time_now} -gt ${time_threshold} ]; then
+	    if [ "${time_now}" -gt "${time_threshold}" ]; then
 	        return 1
 	    fi
     fi
@@ -166,20 +166,20 @@ function start(){
 
     # Create RAM Disk
     if [ "${BDII_RAM_DISK}" = "yes" ]; then
-	mkdir -p ${SLAPD_DB_DIR}
+	mkdir -p "${SLAPD_DB_DIR}"
 	mount -t tmpfs -o size=${BDII_RAM_SIZE},mode=0744 tmpfs ${SLAPD_DB_DIR}
     fi
 
     # Remove delayed_delete.pkl if it exists
     if [ -f "${DELAYED_DELETE}" ] ; then
-	rm -f ${DELAYED_DELETE}
+	rm -f "${DELAYED_DELETE}"
     fi
 
     #Initialize the database directory.
-    mkdir -p ${SLAPD_DB_DIR}/stats
-    mkdir -p ${SLAPD_DB_DIR}/glue
-    mkdir -p ${SLAPD_DB_DIR}/grid
-    mkdir -p ${BDII_VAR_DIR}/archive
+    mkdir -p "${SLAPD_DB_DIR}/stats"
+    mkdir -p "${SLAPD_DB_DIR}/glue"
+    mkdir -p "${SLAPD_DB_DIR}/grid"
+    mkdir -p "${BDII_VAR_DIR}/archive"
 
     chown -R ${BDII_USER}:${BDII_USER} ${BDII_VAR_DIR}
     chown -R ${BDII_USER}:${BDII_USER} ${SLAPD_DB_DIR}
