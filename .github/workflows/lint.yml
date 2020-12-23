@@ -24,4 +24,4 @@ jobs:
           # Fail on errors
           DISABLE_ERRORS: false
           # shellcheck conf
-          SHELLCHECK_OPTS: -e SC1090
+          SHELLCHECK_OPTS: -e SC1090 -e SC2046 -e SC2164 e SC2166
