@@ -76,5 +76,5 @@ else
 fi
 
 COMMAND="${SLAPD} -f ${SLAPD_CONF} -h ${SLAPD_HOST_STRING} -u ${BDII_USER}"
-exec ${COMMAND}
+exec "${COMMAND}"
 
