@@ -23,3 +23,5 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           # Fail on errors
           DISABLE_ERRORS: false
+          # shellcheck conf
+          SHELLCHECK_OPTS: -e SC1090
