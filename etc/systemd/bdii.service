@@ -7,7 +7,7 @@ BindsTo=bdii-slapd.service
 
 [Service]
 Type=forking
-PIDFile=/var/run/bdii/bdii-update.pid
+PIDFile=/run/bdii/bdii-update.pid
 EnvironmentFile=-/etc/sysconfig/bdii
 ExecStart=/bin/sh -c ' \
   BDII_CONF=$${BDII_CONF:-/etc/bdii/bdii.conf} ; \

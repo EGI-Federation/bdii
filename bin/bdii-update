@@ -75,7 +75,7 @@ def get_config(config):
         config['BDII_DAEMON'] = False
 
     if 'BDII_RUN_DIR' not in config:
-        config['BDII_RUN_DIR'] = '/var/run/bdii'
+        config['BDII_RUN_DIR'] = '/run/bdii'
 
     if 'BDII_PID_FILE' not in config:
         config['BDII_PID_FILE'] = "%s/bdii-update.pid" % config['BDII_RUN_DIR']
