@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 ##############################################################################
 # Copyright (c) Members of the EGEE Collaboration. 2004.
 # See http://www.eu-egee.org/partners/ for details on the copyright
@@ -75,10 +75,13 @@ def get_config(config):
         config['BDII_DAEMON'] = False
 
     if 'BDII_RUN_DIR' not in config:
-        config['BDII_RUN_DIR'] = '/var/run/bdii'
+        config['BDII_RUN_DIR'] = '/run/bdii'
 
     if 'BDII_PID_FILE' not in config:
         config['BDII_PID_FILE'] = "%s/bdii-update.pid" % config['BDII_RUN_DIR']
+
+    if 'BDII_HOSTNAME' not in config:
+        config['BDII_HOSTNAME'] = 'localhost'
 
     for parameter in ['BDII_LOG_FILE', 'BDII_LOG_LEVEL', 'BDII_LDIF_DIR',
                       'BDII_PROVIDER_DIR', 'BDII_PLUGIN_DIR',
@@ -150,14 +153,13 @@ def get_config(config):
                         pf = os.open(config['BDII_PASSWD_FILE'][rootdn],
                                      os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
                                      0o600)
-                        os.write(pf, rootpw)
+                        os.write(pf, rootpw.encode())
                         os.close(pf)
                         rootdn = False
                         rootpw = False
         config['BDII_BREATHE_TIME'] = float(config['BDII_BREATHE_TIME'])
         config['BDII_ARCHIVE_SIZE'] = int(config['BDII_ARCHIVE_SIZE'])
         config['BDII_DELETE_DELAY'] = int(config['BDII_DELETE_DELAY'])
-        config['BDII_HOSTNAME'] = 'localhost'
 
     return config
 
@@ -207,7 +209,7 @@ def create_daemon(log_file):
     e = os.open(log_file, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o644)
     os.dup2(e, 2)
     os.close(e)
-    sys.stderr = os.fdopen(2, 'a', 0)
+    sys.stderr = os.fdopen(2, 'a')
 
     # Write PID
     pid_file = open(config['BDII_PID_FILE'], 'w')
@@ -353,7 +355,7 @@ def convert_entry(entry_string):
             attribute = line[:index].lower()
             value = line[index + 1:].strip()
             if value and line[index + 1] == ":":
-                value = base64.b64decode(line[index + 2:].strip())
+                value = base64.b64decode(line[index + 2:].strip()).decode()
             if attribute in entry:
                 if value not in entry[attribute]:
                     entry[attribute].append(value)
@@ -390,7 +392,7 @@ def convert_back(entry):
         for value in entry[attribute]:
             if needs_encoding(value):
                 entry_string += "%s:: %s\n" % (attribute,
-                                               base64.b64encode(value))
+                                               base64.b64encode(value.encode()).decode())
             else:
                 entry_string += "%s: %s\n" % (attribute, value)
 
@@ -515,9 +517,8 @@ def fix(dns, ldif):
         entry = convert_entry(ldif[dns[dn][0]:dns[dn][1]])
         if dn[:11].lower() == "mds-vo-name":
             if 'objectclass' in entry:
-                if 'mds' in map(lambda x: x.lower(), entry['objectclass']):
-                    if 'gluetop' in map(lambda x: x.lower(),
-                                        entry['objectclass']):
+                if 'mds' in [x.lower() for x in entry['objectclass']]:
+                    if 'gluetop' in [x.lower() for x in entry['objectclass']]:
                         value = dn[12:dn.index(",")]
                         entry = {'dn': [dn],
                                  'objectclass': ['MDS'],
@@ -667,7 +668,7 @@ def main(config, log):
         log.debug("Finished Diff")
 
         log.debug("Sorting Add Keys")
-        ldif_add.sort(lambda x, y: cmp(len(x), len(y)))
+        ldif_add.sort(key=lambda x: len(x))
 
         log.debug("Writing ldif_add to disk")
         if config['BDII_LOG_LEVEL'] == 'DEBUG':
@@ -686,7 +687,7 @@ def main(config, log):
             error_file = tempfile.mktemp()
 
         roots = group_dns(ldif_add)
-        suffixes = roots.keys()
+        suffixes = list(roots.keys())
         if "o=shadow" in suffixes:
             index = suffixes.index("o=shadow")
             if index > 0:
@@ -757,13 +758,13 @@ def main(config, log):
                 log.error("Could not modify entries in the database.")
 
             modify_error_counter += log_errors(error_file,
-                                               ldif_modify_dns.keys())
+                                               list(ldif_modify_dns.keys()))
 
             if config['BDII_LOG_LEVEL'] != 'DEBUG':
                 os.remove(error_file)
 
         log.debug("Sorting Delete Keys")
-        ldif_delete.sort(lambda x, y: cmp(len(y), len(x)))
+        ldif_delete.sort(key=lambda x: len(x))
 
         log.debug("Writing ldif_delete to disk")
         if config['BDII_LOG_LEVEL'] == 'DEBUG':
@@ -1024,7 +1025,7 @@ if __name__ == '__main__':
                     os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o644)
         os.dup2(e, 2)
         os.close(e)
-        sys.stderr = os.fdopen(2, 'a', 0)
+        sys.stderr = os.fdopen(2, 'a')
 
     log = get_logger(config['BDII_LOG_FILE'], config['BDII_LOG_LEVEL'])
     main(config, log)
