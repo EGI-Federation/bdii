@@ -800,7 +800,7 @@ def main(config, log):
                 delay_delete = {}
 
             # Add remove cache timestamps that have been readded
-            for dn in delay_delete.keys():
+            for dn in list(delay_delete.keys()):
                 if dn not in ldif_delete:
                     log.debug("Removing %s from cache (readded)" % dn)
                     delay_delete.pop(dn)
@@ -813,7 +813,7 @@ def main(config, log):
             nfh.close()
 
             # Remove delayed deletes from LDIF or remove from cache
-            for dn in delay_delete.keys():
+            for dn in list(delay_delete.keys()):
                 if delay_delete[dn] + config[
                         'BDII_DELETE_DELAY'] >= delete_timestamp:
                     ldif_delete.remove(dn)
