@@ -73,7 +73,7 @@ The required build dependencies are:
 
 ```sh
 # Checkout tag to be packaged
-git clone https://github.com/EGI-Foundation/bdii.git
+git clone https://github.com/EGI-Federation/bdii.git
 cd bdii
 git checkout X.X.X
 # Building in a container
@@ -88,7 +88,7 @@ The RPM will be available into the `build/RPMS` directory.
 
 ```sh
 # Checkout tag to be packaged
-git clone https://github.com/EGI-Foundation/bdii.git
+git clone https://github.com/EGI-Federation/bdii.git
 cd bdii
 git checkout X.X.X
 # Building in a container using the source files

@@ -12,7 +12,7 @@ Summary:	The Berkeley Database Information Index (BDII)
 
 Group:		System Environment/Daemons
 License:	ASL 2.0
-URL:		https://github.com/EGI-Foundation/bdii
+URL:		https://github.com/EGI-Federation/bdii
 
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
