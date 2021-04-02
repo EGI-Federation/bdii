@@ -31,11 +31,11 @@
     "centos 6",
     "centos 7"
   ],
-  "installUrl": "https://github.com/EGI-Foundation/glite-info-update-endpoints/releases",
+  "installUrl": "https://github.com/EGI-Federation/glite-info-update-endpoints/releases",
   "buildInstructions": "http://gridinfo-documentation.readthedocs.io/",
   "releaseNotes": "",
-  "codeRepository": "https://github.com/EGI-Foundation/bdii",
-  "contIntegration": "https://travis-ci.org/EGI-Foundation/bdii",
+  "codeRepository": "https://github.com/EGI-Federation/bdii",
+  "contIntegration": "https://travis-ci.org/EGI-Federation/bdii",
   "networkStack": "",
   "supportUnit": {
     "@type": "contactPoint",
