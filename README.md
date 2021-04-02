@@ -39,7 +39,7 @@ in the previous paragraph is executed.
 The CCEM function is enabled by default in version `>= 3.9.1`. To disable,
 add the following to your bdii.conf:
 
-```
+```sh
 BDII_CCEM=no
 ```
 
