@@ -156,7 +156,7 @@ fi
 %endif
 %{_sbindir}/bdii-update
 %{_mandir}/man1/bdii-update.1*
-%doc AUTHORS README.md
+%doc AUTHORS.md README.md
 %license COPYRIGHT LICENSE.txt
 
 %changelog
