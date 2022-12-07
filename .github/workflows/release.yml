@@ -13,7 +13,7 @@ on:
 
 jobs:
   centos7:
-    name: Build centOS 7 rpms
+    name: Build centOS 7 RPMs
     runs-on: ubuntu-latest
     container: quay.io/centos/centos:7
     steps:
@@ -27,7 +27,7 @@ jobs:
         run: |
           make rpm
           rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
-      - name: Upload rpms
+      - name: Upload RPMs
         uses: actions/upload-artifact@v3
         with:
           name: rpms7
@@ -36,7 +36,7 @@ jobs:
             build/SRPMS/bdii-*-1.el7.src.rpm
 
   centos8:
-    name: Build CentOS Stream 8 rpms
+    name: Build CentOS Stream 8 RPMs
     runs-on: ubuntu-latest
     container: quay.io/centos/centos:stream8
     steps:
@@ -50,7 +50,7 @@ jobs:
         run: |
           make rpm
           rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
-      - name: Upload rpms
+      - name: Upload RPMs
         uses: actions/upload-artifact@v3
         with:
           name: rpms8
