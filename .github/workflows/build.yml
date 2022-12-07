@@ -67,7 +67,7 @@ jobs:
       - name: Upload RPMs
         uses: actions/upload-artifact@v3
         with:
-          name: rpms8
+          name: rpms9
           path: |
             build/RPMS/noarch/bdii-*-1.el9.noarch.rpm
 
