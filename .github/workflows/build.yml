@@ -66,7 +66,6 @@ jobs:
 
   # XXX BDII dependencies taken from non default repositories
   # EPEL: glue-schema
-  # msalle' COPR: openldap-servers
   centos8-install:
     name: Install CentOS Stream 8 RPMs
     needs: centos8
@@ -79,5 +78,5 @@ jobs:
       - name: Install generated RPMs
         run: |
           yum install -y epel-release
-          curl -o /etc/yum.repos.d/msalle-OpenLDAP-centos-stream.repo https://copr.fedorainfracloud.org/coprs/msalle/OpenLDAP/repo/centos-stream/msalle-OpenLDAP-centos-stream.repo
+          sed -i 's/^enabled=0/enabled=1/' /etc/yum.repos.d/CentOS-Stream-PowerTools.repo
           yum localinstall -y bdii-*.rpm
