@@ -58,6 +58,29 @@ jobs:
             build/RPMS/noarch/bdii-*-1.el8.noarch.rpm
             build/SRPMS/bdii-*-1.el8.src.rpm
 
+  centos9:
+    name: Build CentOS Stream 9 RPMs
+    runs-on: ubuntu-latest
+    container: quay.io/centos/centos:stream9
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install build requisites
+        run: |
+          yum install -y rpm-build rpmlint make rsync
+      - name: build rpm
+        run: |
+          make rpm
+          rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
+      - name: Upload RPMs
+        uses: actions/upload-artifact@v3
+        with:
+          name: rpms9
+          path: |
+            build/RPMS/noarch/bdii-*-1.el9.noarch.rpm
+            build/SRPMS/bdii-*-1.el9.src.rpm
+
   release7:
     name: Upload CentOS 7 release artefacts
     needs: centos7
@@ -107,3 +130,28 @@ jobs:
           files: |
             ${{ steps.package_name_centos8.outputs.rpm_path }}
             ${{ steps.package_name_centos8.outputs.src_path }}
+
+  release9:
+    name: Upload CentOS Stream 9 release artefacts
+    needs: centos8
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: rpms9
+      - name: Find package name
+        id: package_name_centos9
+        run: |
+          rpm_path=$(find . -name 'bdii-*-1.el9.noarch.rpm')
+          src_path=$(find . -name 'bdii-*-1.el9.src.rpm')
+          echo "rpm_path=${rpm_path}" >> "$GITHUB_OUTPUT"
+          echo "src_path=${src_path}" >> "$GITHUB_OUTPUT"
+      - name: Attach CentOS Stream 9 RPMs to the release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          fail_on_unmatched_files: true
+          files: |
+            ${{ steps.package_name_centos9.outputs.rpm_path }}
+            ${{ steps.package_name_centos9.outputs.src_path }}
