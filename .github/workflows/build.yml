@@ -84,7 +84,7 @@ jobs:
       - name: Install generated RPMs
         run: |
           yum install -y epel-release
-          yum localinstall -y bdii-*.rpm
+          yum localinstall -y bdii-*.el7.noarch.rpm
 
   # XXX BDII dependencies taken from EPEL: glue-schema
   centos8-install:
@@ -100,7 +100,7 @@ jobs:
         run: |
           yum install -y epel-release
           sed -i 's/^enabled=0/enabled=1/' /etc/yum.repos.d/CentOS-Stream-PowerTools.repo
-          yum localinstall -y bdii-*.rpm
+          yum localinstall -y bdii-*.el8.noarch.rpm
 
   # XXX BDII dependencies taken from EPEL: glue-schema
   centos9-install:
@@ -115,4 +115,4 @@ jobs:
       - name: Install generated RPMs
         run: |
           yum install -y epel-release
-          yum localinstall -y bdii-*.rpm
+          yum localinstall -y bdii-*.el9.noarch.rpm
