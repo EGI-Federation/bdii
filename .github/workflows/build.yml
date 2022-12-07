@@ -6,11 +6,11 @@ on:
 
 jobs:
   centos7:
-    name: Build CentOS 7 rpms
+    name: Build CentOS 7 RPMs
     runs-on: ubuntu-latest
-    container: centos:7
+    container: quay.io/centos/centos:7
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Install build requisites
@@ -21,7 +21,7 @@ jobs:
           make rpm
           rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
       - name: Upload rpms
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: rpms7
           path: |
@@ -30,9 +30,9 @@ jobs:
   centos8:
     name: Build CentOS 8 rpms
     runs-on: ubuntu-latest
-    container: centos:8
+    container: quay.io/centos/centos:8
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Install build requisites
@@ -43,7 +43,7 @@ jobs:
           make rpm
           rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
       - name: Upload rpms
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: rpms8
           path: |
@@ -51,15 +51,15 @@ jobs:
 
   # XXX BDII dependency taken from EPEL: glue-schema
   centos7-install:
-    name: Install CentOS 7 rpms
+    name: Install CentOS 7 RPMs
     needs: centos7
     runs-on: ubuntu-latest
-    container: centos:7
+    container: quay.io/centos/centos:7
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: rpms7
-      - name: Install generated rpms
+      - name: Install generated RPMs
         run: |
           yum install -y epel-release
           yum localinstall -y bdii-*.rpm
@@ -68,15 +68,15 @@ jobs:
   # EPEL: glue-schema
   # msalle' COPR: openldap-servers
   centos8-install:
-    name: Install CentOS 8 rpms
+    name: Install CentOS Stream 8 RPMs
     needs: centos8
     runs-on: ubuntu-latest
-    container: centos:8
+    container: quay.io/centos/centos:8
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: rpms8
-      - name: Install generated rpms
+      - name: Install generated RPMs
         run: |
           yum install -y epel-release
           curl -o /etc/yum.repos.d/msalle-OpenLDAP-centos-stream.repo https://copr.fedorainfracloud.org/coprs/msalle/OpenLDAP/repo/centos-stream/msalle-OpenLDAP-centos-stream.repo
