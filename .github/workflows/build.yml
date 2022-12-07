@@ -105,13 +105,13 @@ jobs:
   # XXX BDII dependencies taken from EPEL: glue-schema
   centos9-install:
     name: Install CentOS Stream 9 RPMs
-    needs: centos8
+    needs: centos9
     runs-on: ubuntu-latest
     container: quay.io/centos/centos:stream9
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: rpms8
+          name: rpms9
       - name: Install generated RPMs
         run: |
           yum install -y epel-release
