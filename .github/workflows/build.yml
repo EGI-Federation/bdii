@@ -59,7 +59,7 @@ jobs:
           fetch-depth: 0
       - name: Install build requisites
         run: |
-          yum install -y rpm-build rpmlint make rsync
+          yum install -y rpm-build rpmlint make rsync systemd-rpm-macros
       - name: build rpm
         run: |
           make rpm
