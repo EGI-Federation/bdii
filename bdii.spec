@@ -22,6 +22,7 @@ Requires: openldap-clients
 Requires: openldap-servers
 Requires: glue-schema >= 2.0.0
 Requires: python3
+Requires: logrotate
 
 Requires(post):		/usr/bin/mkpasswd
 %if %{use_systemd}
