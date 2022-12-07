@@ -49,6 +49,28 @@ jobs:
           path: |
             build/RPMS/noarch/bdii-*-1.el8.noarch.rpm
 
+  centos9:
+    name: Build CentOS Stream 9 RPMs
+    runs-on: ubuntu-latest
+    container: quay.io/centos/centos:stream9
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install build requisites
+        run: |
+          yum install -y rpm-build rpmlint make rsync
+      - name: build rpm
+        run: |
+          make rpm
+          rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
+      - name: Upload RPMs
+        uses: actions/upload-artifact@v3
+        with:
+          name: rpms8
+          path: |
+            build/RPMS/noarch/bdii-*-1.el9.noarch.rpm
+
   # XXX BDII dependency taken from EPEL: glue-schema
   centos7-install:
     name: Install CentOS 7 RPMs
@@ -64,8 +86,7 @@ jobs:
           yum install -y epel-release
           yum localinstall -y bdii-*.rpm
 
-  # XXX BDII dependencies taken from non default repositories
-  # EPEL: glue-schema
+  # XXX BDII dependencies taken from EPEL: glue-schema
   centos8-install:
     name: Install CentOS Stream 8 RPMs
     needs: centos8
@@ -79,4 +100,19 @@ jobs:
         run: |
           yum install -y epel-release
           sed -i 's/^enabled=0/enabled=1/' /etc/yum.repos.d/CentOS-Stream-PowerTools.repo
+          yum localinstall -y bdii-*.rpm
+
+  # XXX BDII dependencies taken from EPEL: glue-schema
+  centos9-install:
+    name: Install CentOS Stream 9 RPMs
+    needs: centos8
+    runs-on: ubuntu-latest
+    container: quay.io/centos/centos:stream9
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: rpms8
+      - name: Install generated RPMs
+        run: |
+          yum install -y epel-release
           yum localinstall -y bdii-*.rpm
