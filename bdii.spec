@@ -5,6 +5,12 @@
 %global use_systemd 0
 %endif
 
+%if %{?fedora}%{!?fedora:0} >= 36 || %{?rhel}%{!?rhel:0} >= 9
+%global use_mdb 1
+%else
+%global use_mdb 0
+%endif
+
 Name:		bdii
 Version:	5.2.26
 Release:	1%{?dist}
@@ -42,6 +48,9 @@ Requires(post):		policycoreutils-python
 Requires(postun):	policycoreutils-python
 %endif
 
+# Use mdb on recent systems
+Patch1: 0001-Use-mdb-slapd-backend.patch
+
 %description
 The Berkeley Database Information Index (BDII) consists of a standard
 LDAP database which is updated by an external process. The update process
@@ -51,6 +60,9 @@ differences. This is then used to update the database.
 
 %prep
 %setup -q
+%if %{use_mdb}
+%patch1 -p1
+%endif
 
 %build
 
