@@ -1,4 +1,4 @@
-# README for bdii package
+# BDII
 
 Documentation: [bdii.readthedocs.io](http://bdii.readthedocs.io)
 
@@ -10,7 +10,7 @@ to enable one or more databases to serve data while one database is being
 refreshed. The databases are refreshed cyclically. Any incoming connection is
 forwarded to the most recently updated database, while old connections are
 allowed to linger until it is the turn of their database to be refreshed and
-restarted. The update process obtains LDIF from either doing an ldapsearch on
+restarted. The update process obtains LDIF from either doing an `ldapsearch` on
 LDAP URLs or by running a local script (given by a URL with "file" protocol)
 that generates LDIF. The LDIF is then inserted into the LDAP database. Options
 exist to update the list of LDAP URLs from a web page and to use an LDIF file
@@ -18,7 +18,7 @@ from a web page to modify the data before it is inserted into the database.
 
 ## Cache use
 
-Whenever a remote server is contacted and the ldapsearch command times out the
+Whenever a remote server is contacted and the `ldapsearch` command times out the
 update process tries to find an (old) cached entry in the `/var/cache/`
 directory. If no entry is found a message is printed to the logfile.
 
@@ -28,12 +28,12 @@ no cached entry is taken. No message is printed to the logfile.
 ## Compressed Content Exchange Mechanism (CCEM)
 
 The Compressed Content Exchange Mechanism is intended to speed up the gathering
-of information in case of a ldapsearch to another BDII instance. The update
+of information in case of a `ldapsearch` to another BDII instance. The update
 process first tries to find the entry containing the compressed content of the
 queried instance and subsequently adds the information to its upcoming database.
 If the CCEM fails the normal procedure as described in the previous paragraph is
 executed. The CCEM function is enabled by default in version `>= 3.9.1`. To
-disable, add the following to your bdii.conf:
+disable, add the following to your `bdii.conf`:
 
 ```sh
 BDII_CCEM=no
@@ -43,9 +43,9 @@ BDII_CCEM=no
 
 The BDII Status Information Mechanism is intended to allow better monitoring
 possibilities, spotting of upraising problems and resulting failure prevention.
-It adds status information about the BDII instance into the 'o=infosys' root
+It adds status information about the BDII instance into the `o=infosys` root
 containing metrics like the number of entries added in the last cycle, the time
-to do so, etc. The description of thoese metrics can be found in the
+to do so, etc. The description of those metrics can be found in the
 etc/BDII.schema file.
 
 ## Installing from source
