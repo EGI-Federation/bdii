@@ -74,7 +74,7 @@ git clone https://github.com/EGI-Federation/bdii.git
 cd bdii
 git checkout X.X.X
 # Building in a container
-docker run --rm -v $(pwd):/source -it centos:7
+docker run --rm -v $(pwd):/source -it quay.io/centos/centos:7
 yum install -y rpm-build make rsync
 cd /source && make rpm
 ```
