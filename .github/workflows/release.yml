@@ -9,7 +9,7 @@ on:
     tags:
       - "v*"
     branches:
-      - "main"
+      - "master"
 
 jobs:
   centos7:
