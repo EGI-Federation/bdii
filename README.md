@@ -1,6 +1,6 @@
 # BDII
 
-Documentation: [bdii.readthedocs.io](http://bdii.readthedocs.io)
+Documentation: [bdii.readthedocs.io](http://bdii.readthedocs.io).
 
 ## Function
 
@@ -35,23 +35,23 @@ If the CCEM fails the normal procedure as described in the previous paragraph is
 executed. The CCEM function is enabled by default in version `>= 3.9.1`. To
 disable, add the following to your `bdii.conf`:
 
-```sh
+```shell
 BDII_CCEM=no
 ```
 
 ## BDII Status Information Mechanism (BSIM)
 
 The BDII Status Information Mechanism is intended to allow better monitoring
-possibilities, spotting of upraising problems and resulting failure prevention.
+possibilities, spotting of upraising problems and resulting error prevention.
 It adds status information about the BDII instance into the `o=infosys` root
 containing metrics like the number of entries added in the last cycle, the time
 to do so, etc. The description of those metrics can be found in the
-etc/BDII.schema file.
+`etc/BDII.schema` file.
 
 ## Installing from source
 
-```sh
-make install
+```shell
+$ make install
 ```
 
 - Build dependencies: None
