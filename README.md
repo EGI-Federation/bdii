@@ -55,7 +55,7 @@ $ make install
 ```
 
 - Build dependencies: None
-- Runtime dependencies: openldap
+- Runtime dependencies: openldap, python3
 
 ## Building packages
 
@@ -89,7 +89,7 @@ git clone https://github.com/EGI-Federation/bdii.git
 cd bdii
 git checkout X.X.X
 # Building in a container using the source files
-docker run --rm -v $(pwd):/source -it ubuntu:xenial
+docker run --rm -v $(pwd):/source -it debian:stable
 apt update
 apt install -y devscripts debhelper make rsync python-all-dev
 cd /source && make deb
