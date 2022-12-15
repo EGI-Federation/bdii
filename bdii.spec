@@ -174,6 +174,12 @@ fi
 
 %changelog
 
+* Thu Dec 14 2022 Baptiste Grenier <baptiste.grenier@egi.eu> - 6.0.0-1
+- Migrate to MDB backend for OpenLDAP 2.5 on recent OS (#42) (Mattias Ellert)
+- Fix runtime errore while iterating dictionary in python 3 (#39) (Andrea Manzi)
+- Migrate to Python 3 (#25) (Laurence Field, Mattias Ellert)
+- Quality control using GitHub actions, update community files (#26) (Baptiste Grenier)
+
 * Wed Sep 23 2020 Baptiste Grenier <baptiste.grenier@egi.eu> - 5.2.26-1
 - Truncate LDIF password file before updating (Petr Vokac)
 - Preserve base64 entries (Enol Fernández, Andrea Manzi)
