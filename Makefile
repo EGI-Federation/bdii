@@ -50,7 +50,7 @@ sources: dist
 	cp $(build)/$(NAME)-$(VERSION).tar.gz .
 
 deb: dist
-	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; @cd -
+	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; cd -
 
 prepare: dist
 	@mkdir -p $(build)/RPMS/noarch
