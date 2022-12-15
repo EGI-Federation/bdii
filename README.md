@@ -57,6 +57,23 @@ $ make install
 - Build dependencies: None
 - Runtime dependencies: openldap, python3
 
+## Installing from packages
+
+### On RHEL-based systems
+
+For RHEL-based systems, it's possible to install packages from two sources:
+
+- [EGI UMD packages](https://go.egi.eu/umd) build from this repository, and
+  tested to work with other components part of the Unified Middleware
+  Distritbution.
+- [Fedora and EPEL packages]](https://packages.fedoraproject.org/search?query=bdii)
+  maintained by Mattias Ellert.
+
+### On debian
+
+[Official debian packages](https://packages.debian.org/search?keywords=bdii)
+are maintained by Mattias Ellert.
+
 ## Building packages
 
 ### Building a RPM
@@ -70,39 +87,27 @@ The required build dependencies are:
 
 ```sh
 # Checkout tag to be packaged
-git clone https://github.com/EGI-Federation/bdii.git
-cd bdii
+$ git clone https://github.com/EGI-Federation/bdii.git
+$ cd bdii
 git checkout X.X.X
 # Building in a container
-docker run --rm -v $(pwd):/source -it quay.io/centos/centos:7
-yum install -y rpm-build make rsync
-cd /source && make rpm
+$ docker run --rm -v $(pwd):/source -it quay.io/centos/centos:7
+[root@2fd110169c55 /]# yum install -y rpm-build make rsync
+[root@2fd110169c55 /]# cd /source && make rpm
 ```
 
 The RPM will be available into the `build/RPMS` directory.
 
 ### Building a deb
 
-```sh
-# Checkout tag to be packaged
-git clone https://github.com/EGI-Federation/bdii.git
-cd bdii
-git checkout X.X.X
-# Building in a container using the source files
-docker run --rm -v $(pwd):/source -it debian:stable
-apt update
-apt install -y devscripts debhelper make rsync python-all-dev
-cd /source && make deb
-```
-
-The DEB will be available into the `build/` directory.
+Debian build files maintained by Mattias Ellert are availabe in the
+[Debian Salsa GitLab](https://salsa.debian.org/ellert/bdii/).
 
 ## Preparing a release
 
 - Prepare a changelog from the last version, including contributors' names
 - Prepare a PR with
   - Updating version and changelog in `bdii.spec`
-  - Updating version and changelog in `debian/changelog`
   - Updating authors in `AUTHORS`
   - Updating `codemeta.json` if needed
 - Once the PR has been merged tag and release a new version in GitHub
