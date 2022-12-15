@@ -3,8 +3,9 @@
 ## Maintainers
 
 - Andrea Manzi <andrea.manzi@egi.eu>
-- Enol Fernandez <enol.fernandez@egi.eu>
 - Baptiste Grenier <baptiste.grenier@egi.eu>
+- Enol Fernandez <enol.fernandez@egi.eu>
+- Mattias Ellert <mattias.ellert@fysast.uu.se>
 
 ## Original Authors
 
