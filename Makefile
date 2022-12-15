@@ -53,11 +53,11 @@ deb: dist
 	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; cd -
 
 prepare: dist
-	@mkdir -p  $(build)/RPMS/noarch
-	@mkdir -p  $(build)/SRPMS/
-	@mkdir -p  $(build)/SPECS/
-	@mkdir -p  $(build)/SOURCES/
-	@mkdir -p  $(build)/BUILD/
+	@mkdir -p $(build)/RPMS/noarch
+	@mkdir -p $(build)/SRPMS/
+	@mkdir -p $(build)/SPECS/
+	@mkdir -p $(build)/SOURCES/
+	@mkdir -p $(build)/BUILD/
 	cp $(build)/$(NAME)-$(VERSION).tar.gz $(build)/SOURCES
 	cp *.patch $(build)/SOURCES
 	cp $(NAME).spec $(build)/SPECS
