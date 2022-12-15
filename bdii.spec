@@ -12,7 +12,7 @@
 %endif
 
 Name:		bdii
-Version:	5.2.26
+Version:	6.0.0
 Release:	1%{?dist}
 Summary:	The Berkeley Database Information Index (BDII)
 
