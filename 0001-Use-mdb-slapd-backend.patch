@@ -1,0 +1,85 @@
+From a3312f93c372f9a8dd420fb991d04383531faae6 Mon Sep 17 00:00:00 2001
+From: Mattias Ellert <mattias.ellert@physics.uu.se>
+Date: Sun, 4 Dec 2022 08:52:00 +0100
+Subject: [PATCH] Use mdb slapd backend
+
+The bdb and hdb backends were removed from slapd in openldap 2.5
+---
+ etc/bdii-slapd.conf     | 9 +++------
+ etc/bdii-top-slapd.conf | 9 +++------
+ 2 files changed, 6 insertions(+), 12 deletions(-)
+
+diff --git a/etc/bdii-slapd.conf b/etc/bdii-slapd.conf
+index 841dbf3..984a111 100644
+--- a/etc/bdii-slapd.conf
++++ b/etc/bdii-slapd.conf
+@@ -25,9 +25,8 @@ moduleload back_relay
+ # GLUE 1.3 database definitions
+ #######################################################################
+ 
+-database        hdb
++database        mdb
+ suffix          "o=grid"
+-cachesize       30000
+ checkpoint      1024 0
+ dbnosync
+ rootdn          "o=grid"
+@@ -78,9 +77,8 @@ suffixmassage   "GLUE2GroupID=resource,GLUE2DomainID=*,GLUE2GroupID=grid,o=glue"
+ # GLUE 2.0 database definitions
+ #######################################################################
+ 
+-database        hdb
++database        mdb
+ suffix          "o=glue"
+-cachesize       30000
+ checkpoint      1024 0
+ dbnosync
+ rootdn          "o=glue"
+@@ -114,9 +112,8 @@ index objectClass eq,pres
+ #######################################################################
+ # Stats database definitions
+ #######################################################################
+-database        hdb
++database        mdb
+ suffix          "o=infosys"
+-cachesize       10
+ checkpoint      1024 0
+ dbnosync
+ rootdn          "o=infosys"
+diff --git a/etc/bdii-top-slapd.conf b/etc/bdii-top-slapd.conf
+index c4113bb..df295bd 100644
+--- a/etc/bdii-top-slapd.conf
++++ b/etc/bdii-top-slapd.conf
+@@ -26,8 +26,7 @@ moduleload back_relay
+ # GLUE 1.3 database definitions
+ #######################################################################
+ 
+-database        hdb
+-cachesize       300000
++database        mdb
+ dbnosync
+ suffix          "o=shadow"
+ checkpoint      1024 0
+@@ -87,8 +86,7 @@ suffixmassage   "GLUE2GroupID=resource,GLUE2DomainID=*,GLUE2GroupID=grid,o=glue"
+ # GLUE 2.0 database definitions
+ #######################################################################
+ 
+-database        hdb
+-cachesize       300000
++database        mdb
+ dbnosync
+ suffix          "o=glue"
+ checkpoint      1024 0
+@@ -123,8 +121,7 @@ index objectClass eq,pres
+ #######################################################################
+ # Stats database definitions
+ #######################################################################
+-database        hdb
+-cachesize       10
++database        mdb
+ dbnosync
+ suffix          "o=infosys"
+ checkpoint      1024 0
+-- 
+2.38.1
+
