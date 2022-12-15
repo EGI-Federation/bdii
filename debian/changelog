@@ -5,7 +5,7 @@ bdii (6.0.0-1) UNRELEASED; urgency=low
   * Migrate to Python 3 (#25) (Laurence Field, Mattias Ellert)
   * Quality control using GitHub actions, update community files (#26) (Baptiste Grenier)
 
- -- Baptiste Grenier <baptiste.grenier@egi.eu> Thu, 14 Dec 2022 10:39:00 +0100
+ -- Baptiste Grenier <baptiste.grenier@egi.eu> Thu, 15 Dec 2022 10:39:00 +0100
 
 bdii (5.2.26-1) UNRELEASED; urgency=low
 
