@@ -49,9 +49,6 @@ dist:
 sources: dist
 	cp $(build)/$(NAME)-$(VERSION).tar.gz .
 
-deb: dist
-	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; cd -
-
 prepare: dist
 	@mkdir -p $(build)/RPMS/noarch
 	@mkdir -p $(build)/SRPMS/
@@ -72,4 +69,4 @@ clean:
 	rm -f *~ $(NAME)-$(VERSION).tar.gz
 	rm -rf $(build)
 
-.PHONY: dist deb srpm rpm sources clean
+.PHONY: dist srpm rpm sources clean
