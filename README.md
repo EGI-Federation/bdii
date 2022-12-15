@@ -66,7 +66,7 @@ For RHEL-based systems, it's possible to install packages from two sources:
 - [EGI UMD packages](https://go.egi.eu/umd) build from this repository, and
   tested to work with other components part of the Unified Middleware
   Distritbution.
-- [Fedora and EPEL packages]](https://packages.fedoraproject.org/search?query=bdii)
+- [Fedora and EPEL packages](https://packages.fedoraproject.org/search?query=bdii)
   maintained by Mattias Ellert.
 
 ### On debian
