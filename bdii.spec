@@ -1,4 +1,3 @@
-	
 %if %{?fedora}%{!?fedora:0} >= 25 || %{?rhel}%{!?rhel:0} >= 8
 %global use_systemd 1
 %else
@@ -11,18 +10,18 @@
 %global use_mdb 0
 %endif
 
-Name:		bdii
-Version:	6.0.0
-Release:	1%{?dist}
-Summary:	The Berkeley Database Information Index (BDII)
+Name: bdii
+Version: 6.0.0
+Release: 1%{?dist}
+Summary: The Berkeley Database Information Index (BDII)
 
-Group:		System Environment/Daemons
-License:	ASL 2.0
-URL:		https://github.com/EGI-Federation/bdii
+Group: System Environment/Daemons
+License: ASL 2.0
+URL: https://github.com/EGI-Federation/bdii
 
-Source:		%{name}-%{version}.tar.gz
-BuildArch:	noarch
-BuildRoot:	%{_tmppath}/%{name}-%{version}-build
+Source: %{name}-%{version}.tar.gz
+BuildArch: noarch
+BuildRoot: %{_tmppath}/%{name}-%{version}-build
 
 Requires: openldap-clients
 Requires: openldap-servers
@@ -30,22 +29,22 @@ Requires: glue-schema >= 2.0.0
 Requires: python3
 Requires: logrotate
 
-Requires(post):		/usr/bin/mkpasswd
+Requires(post): /usr/bin/mkpasswd
 %if %{use_systemd}
 %{?systemd_requires}
 %else
-Requires(post):		chkconfig
-Requires(preun):	chkconfig
-Requires(preun):	initscripts
-Requires(postun):	initscripts
+Requires(post): chkconfig
+Requires(preun): chkconfig
+Requires(preun): initscripts
+Requires(postun): initscripts
 %endif
 
 %if %{?fedora}%{!?fedora:0} >= 32 || %{?rhel}%{!?rhel:0} >= 8
-Requires(post):		policycoreutils-python-utils
-Requires(postun):	policycoreutils-python-utils
+Requires(post): policycoreutils-python-utils
+Requires(postun): policycoreutils-python-utils
 %else
-Requires(post):		policycoreutils-python
-Requires(postun):	policycoreutils-python
+Requires(post): policycoreutils-python
+Requires(postun): policycoreutils-python
 %endif
 
 # Use mdb on recent systems
@@ -194,7 +193,7 @@ fi
 - Update build, documetation and link to new GitHub repository (Baptiste Grenier)
 
 * Wed Aug 27 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.23-1
-- #GRIDINFO-55: Increase the number of simultaneous threads 
+- #GRIDINFO-55: Increase the number of simultaneous threads
 
 * Mon Sep 9 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.22-1
 - BUG #102503: Make /var/run/bdii configurable
@@ -218,7 +217,7 @@ fi
 - BUG #101090: added missing symlink to DB_CONFIG_top for GLUE2 DB backend
 
 * Fri May 03 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.18-1
-- BUG #101237: bdii-update: GLUE2 entries marked for deletion keep the correct case and can be deleted 
+- BUG #101237: bdii-update: GLUE2 entries marked for deletion keep the correct case and can be deleted
 
 * Tue Jan 15 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.17-1
 - BUG #99622: Add dependency on openldap2.4-clients in SL5
@@ -229,11 +228,11 @@ fi
 * Wed Nov 28 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.15-1
 - Fixes after testing: Load rwm and back_relay modules in the slapd configuration for site and resource BDII
 
-* Tue Nov 20 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.14-1 
+* Tue Nov 20 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.14-1
 - BUG #98931: /sbin/runuser instead of runuser
 - BUG #98711: Optimise LDAP queries in GLUE 2.0
 - BUG #98682: Delete delayed_delete.pkl when BDII is restarted
-- BUG #97717: Relay database created to be able to define the GLUE2GroupName and services alias 
+- BUG #97717: Relay database created to be able to define the GLUE2GroupName and services alias
 
 * Wed Aug 15 2012 Laurence Field <Laurence.Field@cern.ch> - 5.2.13-1
 - Included Fedora patches upstream:
