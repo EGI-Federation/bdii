@@ -20,11 +20,10 @@ jobs:
           fetch-depth: 0
       - name: install build requisites
         run: |
-          yum install -y rpm-build rpmlint make rsync
+          yum install -y rpm-build make rsync
       - name: build rpm
         run: |
-          make rpm
-          rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
+          make clean rpm
       - name: Upload RPMs
         uses: actions/upload-artifact@v3
         with:
@@ -43,11 +42,10 @@ jobs:
           fetch-depth: 0
       - name: Install build requisites
         run: |
-          yum install -y rpm-build rpmlint make rsync
+          yum install -y rpm-build make rsync
       - name: build rpm
         run: |
-          make rpm
-          rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
+          make clean rpm
       - name: Upload RPMs
         uses: actions/upload-artifact@v3
         with:
@@ -66,11 +64,10 @@ jobs:
           fetch-depth: 0
       - name: Install build requisites
         run: |
-          yum install -y rpm-build rpmlint make rsync systemd-rpm-macros
+          yum install -y rpm-build make rsync systemd-rpm-macros
       - name: build rpm
         run: |
-          make rpm
-          rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
+          make clean rpm
       - name: Upload RPMs
         uses: actions/upload-artifact@v3
         with:
