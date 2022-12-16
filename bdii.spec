@@ -22,7 +22,7 @@ Source: %{name}-%{version}.tar.gz
 BuildArch: noarch
 BuildRequires: make
 %if %{use_systemd}
-BuildRequires: systemd
+BuildRequires: systemd-rpm-macros
 %endif
 
 Requires: openldap-clients
