@@ -111,7 +111,7 @@ Debian build files maintained by Mattias Ellert are available in the
   - Updating authors in `AUTHORS`
   - Updating `codemeta.json` if needed
 - Once the PR has been merged tag and release a new version in GitHub
-  - Packages will be built using Travis and attached to the release page
+  - Packages will be built using GitHub Actions and attached to the release page
 
 ## History
 
