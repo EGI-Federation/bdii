@@ -1,4 +1,3 @@
-	
 %if %{?fedora}%{!?fedora:0} >= 25 || %{?rhel}%{!?rhel:0} >= 8
 %global use_systemd 1
 %else
@@ -11,18 +10,20 @@
 %global use_mdb 0
 %endif
 
-Name:		bdii
-Version:	5.2.26
-Release:	1%{?dist}
-Summary:	The Berkeley Database Information Index (BDII)
+Name: bdii
+Version: 6.0.0
+Release: 1%{?dist}
+Summary: The Berkeley Database Information Index (BDII)
 
-Group:		System Environment/Daemons
-License:	ASL 2.0
-URL:		https://github.com/EGI-Federation/bdii
+License: ASL 2.0
+URL: https://github.com/EGI-Federation/bdii
 
-Source:		%{name}-%{version}.tar.gz
-BuildArch:	noarch
-BuildRoot:	%{_tmppath}/%{name}-%{version}-build
+Source: %{name}-%{version}.tar.gz
+BuildArch: noarch
+BuildRequires: make
+%if %{use_systemd}
+BuildRequires: systemd-rpm-macros
+%endif
 
 Requires: openldap-clients
 Requires: openldap-servers
@@ -30,26 +31,23 @@ Requires: glue-schema >= 2.0.0
 Requires: python3
 Requires: logrotate
 
-Requires(post):		/usr/bin/mkpasswd
+Requires(post): /usr/bin/mkpasswd
 %if %{use_systemd}
 %{?systemd_requires}
 %else
-Requires(post):		chkconfig
-Requires(preun):	chkconfig
-Requires(preun):	initscripts
-Requires(postun):	initscripts
+Requires(post): chkconfig
+Requires(preun): chkconfig
+Requires(preun): initscripts
+Requires(postun): initscripts
 %endif
 
-%if %{?fedora}%{!?fedora:0} >= 32 || %{?rhel}%{!?rhel:0} >= 8
-Requires(post):		policycoreutils-python-utils
-Requires(postun):	policycoreutils-python-utils
+%if %{?fedora}%{!?fedora:0} >= 23 || %{?rhel}%{!?rhel:0} >= 8
+Requires(post): policycoreutils-python-utils
+Requires(postun): policycoreutils-python-utils
 %else
-Requires(post):		policycoreutils-python
-Requires(postun):	policycoreutils-python
+Requires(post): policycoreutils-python
+Requires(postun): policycoreutils-python
 %endif
-
-# Use mdb on recent systems
-Patch1: 0001-Use-mdb-slapd-backend.patch
 
 %description
 The Berkeley Database Information Index (BDII) consists of a standard
@@ -61,13 +59,13 @@ differences. This is then used to update the database.
 %prep
 %setup -q
 %if %{use_mdb}
-%patch1 -p1
+# Use mdb on recent systems
+patch -p1 -f < 0001-Use-mdb-slapd-backend.patch
 %endif
 
 %build
 
 %install
-rm -rf %{buildroot}
 make install prefix=%{buildroot}
 
 %if %{use_systemd}
@@ -80,34 +78,16 @@ install -p etc/systemd/bdii-slapd-start %{buildroot}%{_datadir}/%{name}
 
 rm -rf %{buildroot}%{_docdir}/%{name}
 
-chmod 644 %{buildroot}%{_sysconfdir}/sysconfig/%{name}
-
-%clean
-rm -rf %{buildroot}
-
-%pre
 %if %{use_systemd}
+%pre
 # Remove old init config when systemd is used
 /sbin/chkconfig --del %{name} >/dev/null 2>&1 || :
 %endif
-
-# Temp fix for upgrade from 5.2.5 to 5.2.7
-service %{name} status > /dev/null 2>&1
-if [ $? -eq 0 ]; then
-  touch %{_localstatedir}/run/%{name}/bdii.upgrade
-  service %{name} stop > /dev/null 2>&1
-fi
 
 %post
 sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
     -i %{_sysconfdir}/%{name}/bdii-slapd.conf \
        %{_sysconfdir}/%{name}/bdii-top-slapd.conf
-
-# Temp fix for upgrade from 5.2.5 to 5.2.7
-if [ -f %{_localstatedir}/run/%{name}/bdii.upgrade ]; then
-  rm -f %{_localstatedir}/run/%{name}/bdii.upgrade
-  service %{name} start > /dev/null 2>&1
-fi
 
 %if %{use_systemd}
 %systemd_post %{name}.service
@@ -147,7 +127,6 @@ if [ $1 -eq 0 ]; then
 fi
 
 %files
-%defattr(-,root,root,-)
 %attr(-,ldap,ldap) %{_localstatedir}/lib/%{name}
 %attr(-,ldap,ldap) %{_localstatedir}/log/%{name}
 %dir %{_sysconfdir}/%{name}
@@ -174,6 +153,12 @@ fi
 
 %changelog
 
+* Thu Dec 15 2022 Baptiste Grenier <baptiste.grenier@egi.eu> - 6.0.0-1
+- Migrate to MDB backend for OpenLDAP 2.5 on recent OS (#42) (Mattias Ellert)
+- Fix runtime errors while iterating dictionary in python 3 (#39) (Andrea Manzi)
+- Migrate to Python 3 (#25) (Laurence Field, Mattias Ellert)
+- Quality control using GitHub actions, update community files (#26) (Baptiste Grenier)
+
 * Wed Sep 23 2020 Baptiste Grenier <baptiste.grenier@egi.eu> - 5.2.26-1
 - Truncate LDIF password file before updating (Petr Vokac)
 - Preserve base64 entries (Enol Fernández, Andrea Manzi)
@@ -188,7 +173,7 @@ fi
 - Update build, documetation and link to new GitHub repository (Baptiste Grenier)
 
 * Wed Aug 27 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.23-1
-- #GRIDINFO-55: Increase the number of simultaneous threads 
+- #GRIDINFO-55: Increase the number of simultaneous threads
 
 * Mon Sep 9 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.22-1
 - BUG #102503: Make /var/run/bdii configurable
@@ -212,7 +197,7 @@ fi
 - BUG #101090: added missing symlink to DB_CONFIG_top for GLUE2 DB backend
 
 * Fri May 03 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.18-1
-- BUG #101237: bdii-update: GLUE2 entries marked for deletion keep the correct case and can be deleted 
+- BUG #101237: bdii-update: GLUE2 entries marked for deletion keep the correct case and can be deleted
 
 * Tue Jan 15 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.17-1
 - BUG #99622: Add dependency on openldap2.4-clients in SL5
@@ -223,11 +208,11 @@ fi
 * Wed Nov 28 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.15-1
 - Fixes after testing: Load rwm and back_relay modules in the slapd configuration for site and resource BDII
 
-* Tue Nov 20 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.14-1 
+* Tue Nov 20 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 5.2.14-1
 - BUG #98931: /sbin/runuser instead of runuser
 - BUG #98711: Optimise LDAP queries in GLUE 2.0
 - BUG #98682: Delete delayed_delete.pkl when BDII is restarted
-- BUG #97717: Relay database created to be able to define the GLUE2GroupName and services alias 
+- BUG #97717: Relay database created to be able to define the GLUE2GroupName and services alias
 
 * Wed Aug 15 2012 Laurence Field <Laurence.Field@cern.ch> - 5.2.13-1
 - Included Fedora patches upstream:

@@ -1,6 +1,6 @@
 # BDII
 
-Documentation: [bdii.readthedocs.io](http://bdii.readthedocs.io)
+Documentation: [bdii.readthedocs.io](http://bdii.readthedocs.io).
 
 ## Function
 
@@ -35,27 +35,44 @@ If the CCEM fails the normal procedure as described in the previous paragraph is
 executed. The CCEM function is enabled by default in version `>= 3.9.1`. To
 disable, add the following to your `bdii.conf`:
 
-```sh
+```shell
 BDII_CCEM=no
 ```
 
 ## BDII Status Information Mechanism (BSIM)
 
 The BDII Status Information Mechanism is intended to allow better monitoring
-possibilities, spotting of upraising problems and resulting failure prevention.
+possibilities, spotting of upraising problems and resulting error prevention.
 It adds status information about the BDII instance into the `o=infosys` root
 containing metrics like the number of entries added in the last cycle, the time
 to do so, etc. The description of those metrics can be found in the
-etc/BDII.schema file.
+`etc/BDII.schema` file.
 
 ## Installing from source
 
-```sh
-make install
+```shell
+$ make install
 ```
 
 - Build dependencies: None
-- Runtime dependencies: openldap
+- Runtime dependencies: openldap, python3
+
+## Installing from packages
+
+### On RHEL-based systems
+
+For RHEL-based systems, it's possible to install packages from two sources:
+
+- [EGI UMD packages](https://go.egi.eu/umd) build from this repository, and
+  tested to work with other components part of the Unified Middleware
+  Distribution.
+- [Fedora and EPEL packages](https://packages.fedoraproject.org/search?query=bdii)
+  maintained by Mattias Ellert.
+
+### On debian
+
+[Official debian packages](https://packages.debian.org/search?keywords=bdii)
+are maintained by Mattias Ellert.
 
 ## Building packages
 
@@ -68,45 +85,32 @@ The required build dependencies are:
 - rsync
 - systemd-rpm-macros, for RHEL >= 8
 
-```sh
+```shell
 # Checkout tag to be packaged
-git clone https://github.com/EGI-Federation/bdii.git
-cd bdii
-git checkout X.X.X
+$ git clone https://github.com/EGI-Federation/bdii.git
+$ cd bdii
+$ git checkout X.X.X
 # Building in a container
-docker run --rm -v $(pwd):/source -it quay.io/centos/centos:7
-yum install -y rpm-build make rsync
-cd /source && make rpm
+$ docker run --rm -v $(pwd):/source -it quay.io/centos/centos:7
+[root@2fd110169c55 /]# yum install -y rpm-build make rsync
+[root@2fd110169c55 /]# cd /source && make rpm
 ```
 
 The RPM will be available into the `build/RPMS` directory.
 
 ### Building a deb
 
-```sh
-# Checkout tag to be packaged
-git clone https://github.com/EGI-Federation/bdii.git
-cd bdii
-git checkout X.X.X
-# Building in a container using the source files
-docker run --rm -v $(pwd):/source -it ubuntu:xenial
-apt update
-apt install -y devscripts debhelper make rsync python-all-dev
-cd /source && make deb
-```
-
-The DEB will be available into the `build/` directory.
+Debian build files maintained by Mattias Ellert are available in the
+[Debian Salsa GitLab](https://salsa.debian.org/ellert/bdii/).
 
 ## Preparing a release
 
 - Prepare a changelog from the last version, including contributors' names
 - Prepare a PR with
-  - Updating version and changelog in `bdii.spec`
-  - Updating version and changelog in `debian/changelog`
-  - Updating authors in `AUTHORS`
-  - Updating `codemeta.json` if needed
+  - Updating version and changelog in `CHANGELOG` and `bdii.spec`
+  - Updating `codemeta.json`, if needed
 - Once the PR has been merged tag and release a new version in GitHub
-  - Packages will be built using Travis and attached to the release page
+  - Packages will be built using GitHub Actions and attached to the release page
 
 ## History
 

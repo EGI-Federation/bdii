@@ -8,8 +8,6 @@ on:
   push:
     tags:
       - "v*"
-    branches:
-      - "master"
 
 jobs:
   centos7:
@@ -22,11 +20,10 @@ jobs:
           fetch-depth: 0
       - name: install build requisites
         run: |
-          yum install -y rpm-build rpmlint make rsync
+          yum install -y rpm-build make rsync
       - name: build rpm
         run: |
-          make rpm
-          rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
+          make clean rpm
       - name: Upload RPMs
         uses: actions/upload-artifact@v3
         with:
@@ -45,11 +42,10 @@ jobs:
           fetch-depth: 0
       - name: Install build requisites
         run: |
-          yum install -y rpm-build rpmlint make rsync
+          yum install -y rpm-build make rsync
       - name: build rpm
         run: |
-          make rpm
-          rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
+          make clean rpm
       - name: Upload RPMs
         uses: actions/upload-artifact@v3
         with:
@@ -68,11 +64,10 @@ jobs:
           fetch-depth: 0
       - name: Install build requisites
         run: |
-          yum install -y rpm-build rpmlint make rsync systemd-rpm-macros
+          yum install -y rpm-build make rsync systemd-rpm-macros
       - name: build rpm
         run: |
-          make rpm
-          rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
+          make clean rpm
       - name: Upload RPMs
         uses: actions/upload-artifact@v3
         with:
@@ -133,7 +128,7 @@ jobs:
 
   release9:
     name: Upload CentOS Stream 9 release artefacts
-    needs: centos8
+    needs: centos9
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3

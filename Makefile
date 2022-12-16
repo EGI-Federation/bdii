@@ -1,6 +1,6 @@
-NAME= $(shell grep Name: *.spec | sed 's/^[^:]*:[^a-zA-Z]*//' )
-VERSION= $(shell grep Version: *.spec | sed 's/^[^:]*:[^0-9]*//' )
-RELEASE= $(shell grep Release: *.spec |cut -d"%" -f1 |sed 's/^[^:]*:[^0-9]*//')
+NAME=$(shell grep Name: *.spec | sed 's/^[^:]*:[^a-zA-Z]*//')
+VERSION=$(shell grep Version: *.spec | sed 's/^[^:]*:[^0-9]*//')
+RELEASE=$(shell grep Release: *.spec | cut -d"%" -f1 | sed 's/^[^:]*:[^0-9]*//')
 build=$(shell pwd)/build
 DATE=$(shell date "+%a, %d %b %Y %T %z")
 dist=$(shell rpm --eval '%dist' | sed 's/%dist/.el5/')
@@ -24,18 +24,18 @@ install:
 	@mkdir -p $(prefix)/usr/share/doc/bdii/
 	@mkdir -p $(prefix)/usr/share/man/man1
 
-	@install -m 0755 etc/init.d/bdii      $(prefix)/${init_dir}/
-	@install -m 0644 etc/sysconfig/bdii   $(prefix)/etc/sysconfig/
-	@install -m 0755 bin/bdii-update      $(prefix)/usr/sbin/
-	@install -m 0644 etc/bdii.conf	      $(prefix)/etc/bdii/
-	@install -m 0644 etc/BDII.schema     $(prefix)/etc/bdii/
-	@install -m 0640 etc/bdii-slapd.conf  $(prefix)/etc/bdii/
-	@install -m 0640 etc/bdii-top-slapd.conf  $(prefix)/etc/bdii/
-	@install -m 0644 etc/DB_CONFIG        $(prefix)/etc/bdii/
-	@install -m 0644 etc/DB_CONFIG_top    $(prefix)/etc/bdii/
-	@install -m 0644 etc/default.ldif     $(prefix)/var/lib/bdii/gip/ldif/
+	@install -m 0755 etc/init.d/bdii $(prefix)/$(init_dir)/
+	@install -m 0644 etc/sysconfig/bdii $(prefix)/etc/sysconfig/
+	@install -m 0755 bin/bdii-update $(prefix)/usr/sbin/
+	@install -m 0644 etc/bdii.conf $(prefix)/etc/bdii/
+	@install -m 0644 etc/BDII.schema $(prefix)/etc/bdii/
+	@install -m 0640 etc/bdii-slapd.conf $(prefix)/etc/bdii/
+	@install -m 0640 etc/bdii-top-slapd.conf $(prefix)/etc/bdii/
+	@install -m 0644 etc/DB_CONFIG $(prefix)/etc/bdii/
+	@install -m 0644 etc/DB_CONFIG_top $(prefix)/etc/bdii/
+	@install -m 0644 etc/default.ldif $(prefix)/var/lib/bdii/gip/ldif/
 	@install -m 0644 etc/logrotate.d/bdii $(prefix)/etc/logrotate.d
-	@install -m 0644 man/bdii-update.1        $(prefix)/usr/share/man/man1/
+	@install -m 0644 man/bdii-update.1 $(prefix)/usr/share/man/man1/
 	@install -m 0644 README.md $(prefix)/usr/share/doc/bdii/
 	@install -m 0644 AUTHORS.md $(prefix)/usr/share/doc/bdii/
 	@install -m 0644 COPYRIGHT $(prefix)/usr/share/doc/bdii/
@@ -49,24 +49,20 @@ dist:
 sources: dist
 	cp $(build)/$(NAME)-$(VERSION).tar.gz .
 
-deb: dist
-	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; cd -
-
 prepare: dist
-	@mkdir -p  $(build)/RPMS/noarch
-	@mkdir -p  $(build)/SRPMS/
-	@mkdir -p  $(build)/SPECS/
-	@mkdir -p  $(build)/SOURCES/
-	@mkdir -p  $(build)/BUILD/
+	@mkdir -p $(build)/RPMS/noarch
+	@mkdir -p $(build)/SRPMS/
+	@mkdir -p $(build)/SPECS/
+	@mkdir -p $(build)/SOURCES/
+	@mkdir -p $(build)/BUILD/
 	cp $(build)/$(NAME)-$(VERSION).tar.gz $(build)/SOURCES
-	cp *.patch $(build)/SOURCES
 	cp $(NAME).spec $(build)/SPECS
 
 srpm: prepare
 	rpmbuild -bs --define="dist ${dist}" --define='_topdir ${build}' $(build)/SPECS/$(NAME).spec
 
 rpm: srpm
-	rpmbuild --rebuild  --define='_topdir ${build}' --define="dist ${dist}" $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE)${dist}.src.rpm
+	rpmbuild --rebuild  --define='_topdir ${build}' --define="dist ${dist}" $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE)$(dist).src.rpm
 
 clean:
 	rm -f *~ $(NAME)-$(VERSION).tar.gz

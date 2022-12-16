@@ -7,8 +7,11 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [6.0.0]
+- Drop debian-specific files and reference official packages (#44) (Baptiste Grenier)
 - Migrate to MDB backend for OpenLDAP 2.5 on recent OS (#42) (Mattias Ellert)
-- Fix runtime errore while iterating dictionary in python 3 (#39) (Andrea Manzi)
+- Fix runtime errors while iterating dictionary in python 3 (#39) (Andrea Manzi)
 - Migrate to Python 3 (#25) (Laurence Field, Mattias Ellert)
 - Quality control using GitHub actions, update community files (#26) (Baptiste Grenier)
 

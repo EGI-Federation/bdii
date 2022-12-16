@@ -12,12 +12,45 @@
     {
       "@type": "Person",
       "@id": "https://orcid.org/0000-0002-5686-3193",
-      "name": " Baptiste",
+      "name": "Baptiste",
       "familyName": "Grenier",
       "affiliation": {
         "@type": "Organization",
         "name": "EGI Foundation",
-        "url": "http://www.egi.eu"
+        "url": "https://www.egi.eu"
+      }
+    },
+    {
+      "@type": "Person",
+      "@id": "https://orcid.org/0000-0002-5152-5902",
+      "name": "Enol",
+      "familyName": "Fernández",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "EGI Foundation",
+        "url": "https://www.egi.eu"
+      }
+    },
+    {
+      "@type": "Person",
+      "@id": "https://orcid.org/0000-0001-7949-2199",
+      "name": "Andrea",
+      "familyName": "Manzi",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "EGI Foundation",
+        "url": "https://www.egi.eu"
+      }
+    },
+    {
+      "@type": "Person",
+      "@id": "https://orcid.org/0000-0001-5265-3175",
+      "name": "Mattias",
+      "familyName": "Ellert",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "Uppsala Universitet",
+        "url": "https://www.physics.uu.se"
       }
     },
     {
@@ -27,9 +60,9 @@
     }
   ],
   "operatingSystem": [
-    "LINUX-2.4",
-    "centos 6",
-    "centos 7"
+    "centos 7",
+    "centos 8",
+    "centos 9"
   ],
   "installUrl": "https://github.com/EGI-Federation/glite-info-update-endpoints/releases",
   "buildInstructions": "http://gridinfo-documentation.readthedocs.io/",
