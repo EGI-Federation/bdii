@@ -128,7 +128,7 @@ jobs:
 
   release9:
     name: Upload CentOS Stream 9 release artefacts
-    needs: centos8
+    needs: centos9
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
