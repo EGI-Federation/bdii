@@ -18,7 +18,7 @@ jobs:
           yum install -y rpm-build rpmlint make rsync
       - name: build rpm
         run: |
-          make rpm
+          make clean rpm
           rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
       - name: Upload RPMs
         uses: actions/upload-artifact@v3
@@ -40,7 +40,7 @@ jobs:
           yum install -y rpm-build rpmlint make rsync
       - name: build rpm
         run: |
-          make rpm
+          make clean rpm
           rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
       - name: Upload RPMs
         uses: actions/upload-artifact@v3
@@ -62,7 +62,7 @@ jobs:
           yum install -y rpm-build rpmlint make rsync systemd-rpm-macros
       - name: build rpm
         run: |
-          make rpm
+          make clean rpm
           rpmlint --file .rpmlint.ini build/RPMS/noarch/*.rpm
       - name: Upload RPMs
         uses: actions/upload-artifact@v3
@@ -71,7 +71,7 @@ jobs:
           path: |
             build/RPMS/noarch/bdii-*-1.el9.noarch.rpm
 
-  # XXX BDII dependency taken from EPEL: glue-schema
+  # XXX Dependency from EPEL: glue-schema
   centos7-install:
     name: Install CentOS 7 RPMs
     needs: centos7
@@ -86,7 +86,8 @@ jobs:
           yum install -y epel-release
           yum localinstall -y bdii-*.el7.noarch.rpm
 
-  # XXX BDII dependencies taken from EPEL: glue-schema
+  # XXX Dependency from EPEL: glue-schema
+  # Dependency from PowerTools: openldap-servers
   centos8-install:
     name: Install CentOS Stream 8 RPMs
     needs: centos8
@@ -102,7 +103,7 @@ jobs:
           sed -i 's/^enabled=0/enabled=1/' /etc/yum.repos.d/CentOS-Stream-PowerTools.repo
           yum localinstall -y bdii-*.el8.noarch.rpm
 
-  # XXX BDII dependencies taken from EPEL: glue-schema
+  # XXX Dependencies from EPEL: glue-schema, openldap-servers
   centos9-install:
     name: Install CentOS Stream 9 RPMs
     needs: centos9
