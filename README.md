@@ -100,7 +100,7 @@ The RPM will be available into the `build/RPMS` directory.
 
 ### Building a deb
 
-Debian build files maintained by Mattias Ellert are availabe in the
+Debian build files maintained by Mattias Ellert are available in the
 [Debian Salsa GitLab](https://salsa.debian.org/ellert/bdii/).
 
 ## Preparing a release
