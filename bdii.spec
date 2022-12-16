@@ -15,13 +15,15 @@ Version: 6.0.0
 Release: 1%{?dist}
 Summary: The Berkeley Database Information Index (BDII)
 
-Group: System Environment/Daemons
 License: ASL 2.0
 URL: https://github.com/EGI-Federation/bdii
 
 Source: %{name}-%{version}.tar.gz
 BuildArch: noarch
-BuildRoot: %{_tmppath}/%{name}-%{version}-build
+BuildRequires: make
+%if %{use_systemd}
+BuildRequires: systemd
+%endif
 
 Requires: openldap-clients
 Requires: openldap-servers
@@ -39,16 +41,13 @@ Requires(preun): initscripts
 Requires(postun): initscripts
 %endif
 
-%if %{?fedora}%{!?fedora:0} >= 32 || %{?rhel}%{!?rhel:0} >= 8
+%if %{?fedora}%{!?fedora:0} >= 23 || %{?rhel}%{!?rhel:0} >= 8
 Requires(post): policycoreutils-python-utils
 Requires(postun): policycoreutils-python-utils
 %else
 Requires(post): policycoreutils-python
 Requires(postun): policycoreutils-python
 %endif
-
-# Use mdb on recent systems
-Patch1: 0001-Use-mdb-slapd-backend.patch
 
 %description
 The Berkeley Database Information Index (BDII) consists of a standard
@@ -60,13 +59,13 @@ differences. This is then used to update the database.
 %prep
 %setup -q
 %if %{use_mdb}
-%patch1 -p1
+# Use mdb on recent systems
+patch -p1 -f < 0001-Use-mdb-slapd-backend.patch
 %endif
 
 %build
 
 %install
-rm -rf %{buildroot}
 make install prefix=%{buildroot}
 
 %if %{use_systemd}
@@ -79,34 +78,16 @@ install -p etc/systemd/bdii-slapd-start %{buildroot}%{_datadir}/%{name}
 
 rm -rf %{buildroot}%{_docdir}/%{name}
 
-chmod 644 %{buildroot}%{_sysconfdir}/sysconfig/%{name}
-
-%clean
-rm -rf %{buildroot}
-
-%pre
 %if %{use_systemd}
+%pre
 # Remove old init config when systemd is used
 /sbin/chkconfig --del %{name} >/dev/null 2>&1 || :
 %endif
-
-# Temp fix for upgrade from 5.2.5 to 5.2.7
-service %{name} status > /dev/null 2>&1
-if [ $? -eq 0 ]; then
-  touch %{_localstatedir}/run/%{name}/bdii.upgrade
-  service %{name} stop > /dev/null 2>&1
-fi
 
 %post
 sed "s/\(rootpw *\)secret/\1$(mkpasswd -s 0 | tr '/' 'x')/" \
     -i %{_sysconfdir}/%{name}/bdii-slapd.conf \
        %{_sysconfdir}/%{name}/bdii-top-slapd.conf
-
-# Temp fix for upgrade from 5.2.5 to 5.2.7
-if [ -f %{_localstatedir}/run/%{name}/bdii.upgrade ]; then
-  rm -f %{_localstatedir}/run/%{name}/bdii.upgrade
-  service %{name} start > /dev/null 2>&1
-fi
 
 %if %{use_systemd}
 %systemd_post %{name}.service
@@ -146,7 +127,6 @@ if [ $1 -eq 0 ]; then
 fi
 
 %files
-%defattr(-,root,root,-)
 %attr(-,ldap,ldap) %{_localstatedir}/lib/%{name}
 %attr(-,ldap,ldap) %{_localstatedir}/log/%{name}
 %dir %{_sysconfdir}/%{name}
@@ -175,7 +155,7 @@ fi
 
 * Thu Dec 15 2022 Baptiste Grenier <baptiste.grenier@egi.eu> - 6.0.0-1
 - Migrate to MDB backend for OpenLDAP 2.5 on recent OS (#42) (Mattias Ellert)
-- Fix runtime errore while iterating dictionary in python 3 (#39) (Andrea Manzi)
+- Fix runtime errors while iterating dictionary in python 3 (#39) (Andrea Manzi)
 - Migrate to Python 3 (#25) (Laurence Field, Mattias Ellert)
 - Quality control using GitHub actions, update community files (#26) (Baptiste Grenier)
 

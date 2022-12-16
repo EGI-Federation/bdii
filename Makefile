@@ -56,7 +56,6 @@ prepare: dist
 	@mkdir -p $(build)/SOURCES/
 	@mkdir -p $(build)/BUILD/
 	cp $(build)/$(NAME)-$(VERSION).tar.gz $(build)/SOURCES
-	cp *.patch $(build)/SOURCES
 	cp $(NAME).spec $(build)/SPECS
 
 srpm: prepare
