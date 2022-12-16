@@ -65,7 +65,7 @@ For RHEL-based systems, it's possible to install packages from two sources:
 
 - [EGI UMD packages](https://go.egi.eu/umd) build from this repository, and
   tested to work with other components part of the Unified Middleware
-  Distritbution.
+  Distribution.
 - [Fedora and EPEL packages](https://packages.fedoraproject.org/search?query=bdii)
   maintained by Mattias Ellert.
 
@@ -107,9 +107,8 @@ Debian build files maintained by Mattias Ellert are available in the
 
 - Prepare a changelog from the last version, including contributors' names
 - Prepare a PR with
-  - Updating version and changelog in `bdii.spec`
-  - Updating authors in `AUTHORS`
-  - Updating `codemeta.json` if needed
+  - Updating version and changelog in `CHANGELOG` and `bdii.spec`
+  - Updating `codemeta.json`, if needed
 - Once the PR has been merged tag and release a new version in GitHub
   - Packages will be built using GitHub Actions and attached to the release page
 
