@@ -10,7 +10,7 @@ on:
       - "v*"
 
 jobs:
-  centos7:
+  build-centos7:
     name: Build centOS 7 RPMs
     runs-on: ubuntu-latest
     container: quay.io/centos/centos:7
@@ -29,13 +29,13 @@ jobs:
         with:
           name: rpms7
           path: |
-            build/RPMS/noarch/bdii-*-1.el7.noarch.rpm
-            build/SRPMS/bdii-*-1.el7.src.rpm
+            build/RPMS/noarch/bdii-*.el7.noarch.rpm
+            build/SRPMS/bdii-*.el7.src.rpm
 
-  centos8:
-    name: Build CentOS Stream 8 RPMs
+  build-almalinux8:
+    name: Build AlmaLinux 8 RPMs
     runs-on: ubuntu-latest
-    container: quay.io/centos/centos:stream8
+    container: almalinux:8
     steps:
       - uses: actions/checkout@v3
         with:
@@ -51,13 +51,13 @@ jobs:
         with:
           name: rpms8
           path: |
-            build/RPMS/noarch/bdii-*-1.el8.noarch.rpm
-            build/SRPMS/bdii-*-1.el8.src.rpm
+            build/RPMS/noarch/bdii-*.el8.noarch.rpm
+            build/SRPMS/bdii-*.el8.src.rpm
 
-  centos9:
-    name: Build CentOS Stream 9 RPMs
+  build-almalinux9:
+    name: Build AlmaLinux 9 RPMs
     runs-on: ubuntu-latest
-    container: quay.io/centos/centos:stream9
+    container: almalinux:9
     steps:
       - uses: actions/checkout@v3
         with:
@@ -73,12 +73,14 @@ jobs:
         with:
           name: rpms9
           path: |
-            build/RPMS/noarch/bdii-*-1.el9.noarch.rpm
-            build/SRPMS/bdii-*-1.el9.src.rpm
+            build/RPMS/noarch/bdii-*.el9.noarch.rpm
+            build/SRPMS/bdii-*.el9.src.rpm
 
   release7:
     name: Upload CentOS 7 release artefacts
-    needs: centos7
+    permissions:
+      contents: write # to upload release asset (softprops/action-gh-release)
+    needs: build-centos7
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
@@ -87,8 +89,8 @@ jobs:
       - name: Find package name
         id: package_name_centos7
         run: |
-          rpm_path=$(find . -name 'bdii-*-1.el7.noarch.rpm')
-          src_path=$(find . -name 'bdii-*-1.el7.src.rpm')
+          rpm_path=$(find . -name 'bdii-*.el7.noarch.rpm')
+          src_path=$(find . -name 'bdii-*.el7.src.rpm')
           echo "rpm_path=${rpm_path}" >> "$GITHUB_OUTPUT"
           echo "src_path=${src_path}" >> "$GITHUB_OUTPUT"
       - name: Attach CentOS 7 RPMs to the release
@@ -102,51 +104,55 @@ jobs:
             ${{ steps.package_name_centos7.outputs.src_path }}
 
   release8:
-    name: Upload CentOS Stream 8 release artefacts
-    needs: centos8
+    name: Upload AlmaLinux 8 release artefacts
+    permissions:
+      contents: write # to upload release asset (softprops/action-gh-release)
+    needs: build-almalinux8
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
         with:
           name: rpms8
       - name: Find package name
-        id: package_name_centos8
+        id: package_name_almalinux8
         run: |
-          rpm_path=$(find . -name 'bdii-*-1.el8.noarch.rpm')
-          src_path=$(find . -name 'bdii-*-1.el8.src.rpm')
+          rpm_path=$(find . -name 'bdii-*.el8.noarch.rpm')
+          src_path=$(find . -name 'bdii-*.el8.src.rpm')
           echo "rpm_path=${rpm_path}" >> "$GITHUB_OUTPUT"
           echo "src_path=${src_path}" >> "$GITHUB_OUTPUT"
-      - name: Attach CentOS Stream 8 RPMs to the release
+      - name: Attach AlmaLinux 8 RPMs to the release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           fail_on_unmatched_files: true
           files: |
-            ${{ steps.package_name_centos8.outputs.rpm_path }}
-            ${{ steps.package_name_centos8.outputs.src_path }}
+            ${{ steps.package_name_almalinux8.outputs.rpm_path }}
+            ${{ steps.package_name_almalinux8.outputs.src_path }}
 
   release9:
-    name: Upload CentOS Stream 9 release artefacts
-    needs: centos9
+    name: Upload AlmaLinux 9 release artefacts
+    permissions:
+      contents: write # to upload release asset (softprops/action-gh-release)
+    needs: build-almalinux9
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
         with:
           name: rpms9
       - name: Find package name
-        id: package_name_centos9
+        id: package_name_almalinux9
         run: |
-          rpm_path=$(find . -name 'bdii-*-1.el9.noarch.rpm')
-          src_path=$(find . -name 'bdii-*-1.el9.src.rpm')
+          rpm_path=$(find . -name 'bdii-*.el9.noarch.rpm')
+          src_path=$(find . -name 'bdii-*.el9.src.rpm')
           echo "rpm_path=${rpm_path}" >> "$GITHUB_OUTPUT"
           echo "src_path=${src_path}" >> "$GITHUB_OUTPUT"
-      - name: Attach CentOS Stream 9 RPMs to the release
+      - name: Attach AlmaLinux 9 RPMs to the release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           fail_on_unmatched_files: true
           files: |
-            ${{ steps.package_name_centos9.outputs.rpm_path }}
-            ${{ steps.package_name_centos9.outputs.src_path }}
+            ${{ steps.package_name_almalinux9.outputs.rpm_path }}
+            ${{ steps.package_name_almalinux9.outputs.src_path }}
