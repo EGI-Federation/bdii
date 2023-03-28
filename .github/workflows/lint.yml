@@ -6,7 +6,7 @@ on:
 
 jobs:
   super-lint:
-    name: Lint with Supper-Linter
+    name: Lint with Super-Linter
     runs-on: ubuntu-latest
 
     steps:
@@ -31,5 +31,4 @@ jobs:
           # Fail on errors
           DISABLE_ERRORS: false
           # shellcheck conf
-          SHELLCHECK_OPTS:
-            -e SC1090,SC2046,SC2164,SC2166,SC1091,SC2086,SC2001,SC2219,SC2181
+          SHELLCHECK_OPTS: -e SC1090,SC2046,SC2164,SC2166,SC1091,SC2086,SC2001,SC2219,SC2181
