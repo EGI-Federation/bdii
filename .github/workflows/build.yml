@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  centos7:
+  build-centos7:
     name: Build CentOS 7 RPMs
     runs-on: ubuntu-latest
     container: quay.io/centos/centos:7
@@ -25,12 +25,12 @@ jobs:
         with:
           name: rpms7
           path: |
-            build/RPMS/noarch/bdii-*-1.el7.noarch.rpm
+            build/RPMS/noarch/bdii-*.el7.noarch.rpm
 
-  centos8:
-    name: Build CentOS Stream 8 RPMs
+  build-almalinux8:
+    name: Build AlmaLinux 8 RPMs
     runs-on: ubuntu-latest
-    container: quay.io/centos/centos:stream8
+    container: almalinux:8
     steps:
       - uses: actions/checkout@v3
         with:
@@ -47,12 +47,12 @@ jobs:
         with:
           name: rpms8
           path: |
-            build/RPMS/noarch/bdii-*-1.el8.noarch.rpm
+            build/RPMS/noarch/bdii-*.el8.noarch.rpm
 
-  centos9:
-    name: Build CentOS Stream 9 RPMs
+  build-almalinux9:
+    name: Build AlmaLinux 9 RPMs
     runs-on: ubuntu-latest
-    container: quay.io/centos/centos:stream9
+    container: almalinux:9
     steps:
       - uses: actions/checkout@v3
         with:
@@ -69,12 +69,12 @@ jobs:
         with:
           name: rpms9
           path: |
-            build/RPMS/noarch/bdii-*-1.el9.noarch.rpm
+            build/RPMS/noarch/bdii-*.el9.noarch.rpm
 
   # XXX Dependency from EPEL: glue-schema
-  centos7-install:
+  install-centos7:
     name: Install CentOS 7 RPMs
-    needs: centos7
+    needs: build-centos7
     runs-on: ubuntu-latest
     container: quay.io/centos/centos:7
     steps:
@@ -87,12 +87,16 @@ jobs:
           yum localinstall -y bdii-*.el7.noarch.rpm
 
   # XXX Dependency from EPEL: glue-schema
-  # Dependency from PowerTools: openldap-servers
-  centos8-install:
-    name: Install CentOS Stream 8 RPMs
-    needs: centos8
+  # FIXME: openldap-servers is in CentOS 8 Stream Powertools, but not in AlmaLinux PowerTools
+  # See https://bugs.almalinux.org/view.php?id=222
+  # Currently instaling using the package from devel repository
+  # See https://bugs.almalinux.org/view.php?id=100
+  # https://repo.almalinux.org/almalinux/8/devel/x86_64/os/Packages/
+  install-almalinux8:
+    name: Install AlmaLinux 8 RPMs
+    needs: build-almalinux8
     runs-on: ubuntu-latest
-    container: quay.io/centos/centos:stream8
+    container: almalinux:8
     steps:
       - uses: actions/download-artifact@v3
         with:
@@ -100,15 +104,15 @@ jobs:
       - name: Install generated RPMs
         run: |
           yum install -y epel-release
-          sed -i 's/^enabled=0/enabled=1/' /etc/yum.repos.d/CentOS-Stream-PowerTools.repo
+          yum install -y https://repo.almalinux.org/almalinux/8/devel/x86_64/os/Packages/openldap-servers-2.4.46-18.el8.x86_64.rpm
           yum localinstall -y bdii-*.el8.noarch.rpm
 
   # XXX Dependencies from EPEL: glue-schema, openldap-servers
-  centos9-install:
-    name: Install CentOS Stream 9 RPMs
-    needs: centos9
+  install-almalinux9:
+    name: Install AlmaLinux 9 RPMs
+    needs: build-almalinux9
     runs-on: ubuntu-latest
-    container: quay.io/centos/centos:stream9
+    container: almalinux:9
     steps:
       - uses: actions/download-artifact@v3
         with:
