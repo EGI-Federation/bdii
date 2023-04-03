@@ -11,7 +11,7 @@
 %endif
 
 Name: bdii
-Version: 6.0.0
+Version: 6.0.1
 Release: 1%{?dist}
 Summary: The Berkeley Database Information Index (BDII)
 
@@ -152,6 +152,11 @@ fi
 %license COPYRIGHT LICENSE.txt
 
 %changelog
+
+* Tue Mar 28 2023 Baptiste Grenier <baptiste.grenier@egi.eu> - 6.0.1-1
+- Build and release using AlmaLinux 8 and 9. (#45) (Baptiste Grenier)
+- Align Makefile with other repositories. (#45) (Baptiste Grenier)
+- Allow long yaml files for GitHub Actions (#45) (Baptiste Grenier)
 
 * Thu Dec 15 2022 Baptiste Grenier <baptiste.grenier@egi.eu> - 6.0.0-1
 - Migrate to MDB backend for OpenLDAP 2.5 on recent OS (#42) (Mattias Ellert)

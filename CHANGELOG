@@ -8,7 +8,16 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [6.0.1] - 2023-03-28
+
+### Changed
+
+- Build and release using AlmaLinux 8 and 9. (#45) (Baptiste Grenier)
+- Align Makefile with other repositories. (#45) (Baptiste Grenier)
+- Allow long yaml files for GitHub Actions (#45) (Baptiste Grenier)
+
 ## [6.0.0]
+
 - Drop debian-specific files and reference official packages (#44) (Baptiste Grenier)
 - Migrate to MDB backend for OpenLDAP 2.5 on recent OS (#42) (Mattias Ellert)
 - Fix runtime errors while iterating dictionary in python 3 (#39) (Andrea Manzi)
@@ -16,6 +25,7 @@ and this project adheres to
 - Quality control using GitHub actions, update community files (#26) (Baptiste Grenier)
 
 ## [5.2.26]
+
 - Truncate LDIF password file before updating (#14) (Petr Vokac)
 - Preserve base64 entries (#21) (Enol Fernández, Andrea Manzi)
 - Allow BDII_HOSTNAME configuration and default to localhost (#22) (Andrea Manzi)
