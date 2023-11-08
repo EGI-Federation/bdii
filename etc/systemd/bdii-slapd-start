@@ -18,7 +18,7 @@ DELAYED_DELETE=${DELAYED_DELETE:-${BDII_VAR_DIR}/delayed_delete.pkl}
 BDII_RAM_SIZE=${BDII_RAM_SIZE:-1500M}
 
 if [ "${BDII_IPV6_SUPPORT}" == "yes" ]; then
-    SLAPD_HOST_STRING="'ldap://${SLAPD_HOST}:${SLAPD_PORT} ldap://[${SLAPD_HOST6}]:${SLAPD_PORT}'"
+    SLAPD_HOST_STRING="\"ldap://${SLAPD_HOST}:${SLAPD_PORT} ldap://[${SLAPD_HOST6}]:${SLAPD_PORT}\""
 else
     SLAPD_HOST_STRING="ldap://${SLAPD_HOST}:${SLAPD_PORT}"
 fi
@@ -75,6 +75,6 @@ else
     fi
 fi
 
-COMMAND="${SLAPD} -f ${SLAPD_CONF} -h ${SLAPD_HOST_STRING} -u ${BDII_USER}"
-exec ${COMMAND}
+COMMAND=(/bin/bash -c "$SLAPD -f $SLAPD_CONF -h $SLAPD_HOST_STRING -u $BDII_USER")
+exec "${COMMAND[@]}"
 
