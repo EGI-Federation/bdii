@@ -543,13 +543,13 @@ def log_errors(error_file, dns):
                     if not dn == dns[request - 2]:
                         error_counter += 1
                         dn = dns[request - 2]
-                        log.warn("dn: %s" % dn)
+                        log.warning("dn: %s" % dn)
                 except IndexError:
                     log.error("Problem with error reporting ...")
                     log.error("Request Num: %i, Line: %s, dns: %i" %
                               (request, line, len(dns)))
             if len(line) > 5:
-                log.warn(line.strip())
+                log.warning(line.strip())
     return error_counter
 
 
