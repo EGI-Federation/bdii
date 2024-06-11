@@ -989,7 +989,7 @@ def main(config, log):
                     infosys_output += "-\n"
             infosys_output += "\n"
         try:
-            output_fh = os.popen(("%s -x -c -h ldap://%s:%s -D o=infosys -y %s"
+            output_fh = os.popen(("%s -x -c -H ldap://%s:%s -D o=infosys -y %s"
                                   " >/dev/null") % (
                                       command,
                                       config['BDII_HOSTNAME'],
