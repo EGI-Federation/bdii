@@ -271,7 +271,7 @@ def read_ldif(source):
         # Open pipe to LDIF
         if source[:7] == 'ldap://':
             url = source.split('/')
-            command = "ldapsearch -LLL -x -H %s -b %s 2>/dev/null" % (
+            command = "ldapsearch -LLL -x -H ldap://%s -b %s 2>/dev/null" % (
                       url[2], url[3])
             pipe = os.popen(command)
         elif source[:7] == 'file://':
