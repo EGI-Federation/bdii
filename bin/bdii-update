@@ -271,7 +271,7 @@ def read_ldif(source):
         # Open pipe to LDIF
         if source[:7] == 'ldap://':
             url = source.split('/')
-            command = "ldapsearch -LLL -x -h %s -b %s 2>/dev/null" % (
+            command = "ldapsearch -LLL -x -H ldap://%s -b %s 2>/dev/null" % (
                       url[2], url[3])
             pipe = os.popen(command)
         elif source[:7] == 'file://':
@@ -701,7 +701,7 @@ def main(config, log):
                 if "o=shadow" in config['BDII_PASSWD']:
                     if root == "o=grid":
                         bind = "o=shadow"
-                input_fh = os.popen(("ldapadd -d 256 -x -c -h %s -p %s"
+                input_fh = os.popen(("ldapadd -d 256 -x -c -H ldap://%s:%s"
                                      " -D %s -y %s >/dev/null 2>%s") % (
                                          config['BDII_HOSTNAME'],
                                          config['BDII_PORT'],
@@ -741,7 +741,7 @@ def main(config, log):
                 if "o=shadow" in config['BDII_PASSWD']:
                     if root == "o=grid":
                         bind = "o=shadow"
-                input_fh = os.popen(("ldapmodify -d 256 -x -c -h %s -p %s -D"
+                input_fh = os.popen(("ldapmodify -d 256 -x -c -H ldap://%s:%s -D"
                                      " %s -y %s >/dev/null 2>%s") % (
                                          config['BDII_HOSTNAME'],
                                          config['BDII_PORT'],
@@ -841,7 +841,7 @@ def main(config, log):
                 if "o=shadow" in config['BDII_PASSWD']:
                     if root == "o=grid":
                         bind = "o=shadow"
-                input_fh = os.popen(("ldapdelete -d 256 -x -c -h %s -p %s"
+                input_fh = os.popen(("ldapdelete -d 256 -x -c -H ldap://%s:%s"
                                      " -D %s -y %s >/dev/null 2>%s") % (
                                          config['BDII_HOSTNAME'],
                                          config['BDII_PORT'],
@@ -869,7 +869,7 @@ def main(config, log):
         for root in roots.keys():
             # Stop flapping due to o=shadow
             if root == "o=shadow":
-                command = ("ldapsearch -LLL -x -h %s -p %s -b %s -s base"
+                command = ("ldapsearch -LLL -x -H ldap://%s:%s -b %s -s base"
                            " >> %s/old.ldif 2>> %s/old.err") % (
                                    config['BDII_HOSTNAME'],
                                    config['BDII_PORT'],
@@ -877,7 +877,7 @@ def main(config, log):
                                    config['BDII_VAR_DIR'],
                                    config['BDII_VAR_DIR'])
             else:
-                command = ("ldapsearch -LLL -x -h %s -p %s -b %s"
+                command = ("ldapsearch -LLL -x -H ldap://%s:%s -b %s"
                            " >> %s/old.ldif 2>> %s/old.err") % (
                                    config['BDII_HOSTNAME'],
                                    config['BDII_PORT'],
@@ -917,7 +917,7 @@ def main(config, log):
             infosys_output += "replace: Data\n"
             infosys_output += "Data: file://%s\n\n" % out_file
         try:
-            output_fh = os.popen(("%s -x -c -h %s -p %s -D o=infosys -y %s"
+            output_fh = os.popen(("%s -x -c -H ldap://%s:%s -D o=infosys -y %s"
                                   " >/dev/null") % (
                                       command,
                                       config['BDII_HOSTNAME'],
@@ -989,7 +989,7 @@ def main(config, log):
                     infosys_output += "-\n"
             infosys_output += "\n"
         try:
-            output_fh = os.popen(("%s -x -c -h %s -p %s -D o=infosys -y %s"
+            output_fh = os.popen(("%s -x -c -H ldap://%s:%s -D o=infosys -y %s"
                                   " >/dev/null") % (
                                       command,
                                       config['BDII_HOSTNAME'],
