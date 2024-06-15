@@ -8,6 +8,14 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [6.0.2] - 2024-06-14
+
+### Changed
+
+- Fix for IPv6 support. (#51) (Mattias Ellert)
+- Replace obsolete -h and -p paremeters in ldap CLI tools. (#49) (Baptiste Grenier)
+- Fix deprecation warning due to log.warn. (#58) (Daniela Bauer)
+
 ## [6.0.1] - 2023-03-28
 
 ### Changed

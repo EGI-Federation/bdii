@@ -11,7 +11,7 @@
 %endif
 
 Name: bdii
-Version: 6.0.1
+Version: 6.0.2
 Release: 1%{?dist}
 Summary: The Berkeley Database Information Index (BDII)
 
@@ -152,6 +152,11 @@ fi
 %license COPYRIGHT LICENSE.txt
 
 %changelog
+
+* Fri Jun 14 2024 Baptiste Grenier <baptiste.grenier@egi.eu> - 6.0.2-1
+- Fix for IPv6 support. (#51) (Mattias Ellert)
+- Replace obsolete -h and -p paremeters in ldap CLI tools. (#49) (Baptiste Grenier)
+- Fix deprecation warning due to log.warn. (#58) (Daniela Bauer)
 
 * Tue Mar 28 2023 Baptiste Grenier <baptiste.grenier@egi.eu> - 6.0.1-1
 - Build and release using AlmaLinux 8 and 9. (#45) (Baptiste Grenier)
