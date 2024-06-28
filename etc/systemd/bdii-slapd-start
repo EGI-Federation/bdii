@@ -32,7 +32,7 @@ fi
 # Create RAM Disk
 if [ "${BDII_RAM_DISK}" = "yes" ]; then
     mkdir -p ${SLAPD_DB_DIR}
-    mount -t tmpfs -o size=${BDII_RAM_SIZE},mode=0744 tmpfs ${SLAPD_DB_DIR}
+    mount -t tmpfs -o size=${BDII_RAM_SIZE},mode=0755 tmpfs ${SLAPD_DB_DIR}
 fi
 
 # Remove delayed_delete.pkl if it exists
