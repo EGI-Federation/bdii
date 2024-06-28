@@ -11,7 +11,7 @@
 %endif
 
 Name: bdii
-Version: 6.0.2
+Version: 6.0.3
 Release: 1%{?dist}
 Summary: The Berkeley Database Information Index (BDII)
 
@@ -152,6 +152,8 @@ fi
 %license COPYRIGHT LICENSE.txt
 
 %changelog
+* Fri Jun 28 2024 Baptiste Grenier <baptiste.grenier@egi.eu> - 6.0.3-1
+- Fix tmpfs permissions. (#62) (samuraiii)
 
 * Fri Jun 14 2024 Baptiste Grenier <baptiste.grenier@egi.eu> - 6.0.2-1
 - Fix for IPv6 support. (#51) (Mattias Ellert)
