@@ -16,7 +16,7 @@ jobs:
     container: quay.io/centos/centos:7
     steps:
       # XXX: Checkout v4 do not work on RHEL 7
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: install build requisites
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     container: almalinux:8
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Install build requisites
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     container: almalinux:9
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Install build requisites
