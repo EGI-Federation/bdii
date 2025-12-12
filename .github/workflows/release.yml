@@ -25,7 +25,7 @@ jobs:
         run: |
           make clean rpm
       - name: Upload RPMs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: rpms9
           path: |
