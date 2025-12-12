@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     container: almalinux:9
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: rpms9
       - name: Install generated RPMs
